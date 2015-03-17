@@ -10,7 +10,7 @@ namespace roboptim
 
   template <typename U>
   ManifoldMap<U>::ManifoldMap
-  (boost::shared_ptr<U> fct,
+  (boost::shared_ptr<U> origin,
    pgs::Manifold& problemManifold,
    pgs::Manifold& functionManifold)
     : detail::AutopromoteTrait<U>::T_type
@@ -26,7 +26,7 @@ namespace roboptim
     // Retrieve the names of all manifolds to match in the problem
     std::vector<std::string> manifoldsToFind(functionManifold.numberOfSubmanifolds());
 
-    auto retrieveManifoldNames = [&manifoldsToFind, &retrieveManifoldNames](pgs::Manifold& manifold)
+    auto retrieveManifoldNames = [&manifoldsToFind](pgs::Manifold& manifold)
       {
 
 	manifoldsToFind.push_back(manifold.name());
