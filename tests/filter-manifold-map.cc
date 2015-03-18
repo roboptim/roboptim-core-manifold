@@ -24,12 +24,18 @@
 #include <iostream>
 
 #include <roboptim/core/io.hh>
-#include <roboptim/core/filter/manifold-map.hh>
 
 #include <roboptim/core/function/cos.hh>
 
+#include <manifolds/SO3.h>
+#include <manifolds/RealSpace.h>
+#include <manifolds/CartesianProduct.h>
+#include <manifolds/CartesianPower.h>
+#include <manifolds/ExpMapMatrix.h>
+
 using namespace roboptim;
 
+using namespace pgs;
 
 typedef boost::mpl::list< ::roboptim::EigenMatrixDense,
 			  ::roboptim::EigenMatrixSparse> functionTypes_t;
