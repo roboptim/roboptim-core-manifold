@@ -1,8 +1,6 @@
 #ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX
 # include <boost/format.hpp>
-# include <vector>
-# include <queue>
 # include <manifolds/Manifold.h>
 
 namespace roboptim
@@ -10,52 +8,51 @@ namespace roboptim
 
   template <typename U>
   DescriptiveWrapper<U>::DescriptiveWrapper
-  (boost::shared_ptr<U> origin,
-   pgs::Manifold& problemManifold,
+  (boost::shared_ptr<U> fct,
    pgs::Manifold& functionManifold)
     : detail::AutopromoteTrait<U>::T_type
-      (origin->inputSize (),
-       origin->outputSize (),
+      (functionManifold.representationDim(),
+       fct->outputSize (),
        (boost::format ("%1%")
-	% origin->getName ()).str ()),
-      origin_ (origin)
+	% fct->getName ()).str ()),
+      fct_ (fct),
+      x_ (fct->inputSize ()),
+      gradient_ (fct->inputSize ()),
+      jacobian_ (fct->outputSize (),
+		 fct->inputSize ())
   {
-    this->mappingSize_ = problemManifold.dim();
-    this->mapping_ = new int[this->mappingSize_];
-
-    // Retrieve the names of all manifolds to match in the problem
-    std::vector<std::string> manifoldsToFind(functionManifold.numberOfSubmanifolds());
-
-    auto retrieveManifoldNames = [&manifoldsToFind](pgs::Manifold& manifold)
-      {
-
-	manifoldsToFind.push_back(manifold.name());
-
-	for(size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
-	  {
-	    retrieveManifoldNames(manifold(i));
-	  }
-
-      };
-
-    retrieveManifoldNames(problemManifold);
-
-    // Traverse the problem's manifold, filling the mapping_ array
-
-
-    // If manifoldsToFind is not empty, at least one submanifold could not be matched
-    // in the problem.
-    // TODO: raise an exception.
-
-
+    if (fct_->inputSize() != functionManifold.representationDim())
+      throw std::runtime_error ("Representation dims mismatch");
   }
 
   template <typename U>
   DescriptiveWrapper<U>::~DescriptiveWrapper()
   {
-    delete this->mapping_;
   }
 
+  template <typename U>
+  void
+  DescriptiveWrapper<U>::impl_compute
+  (result_ref result, const_argument_ref x)
+    const
+  {
+  }
+
+  template <typename U>
+  void
+  DescriptiveWrapper<U>::impl_gradient
+  (gradient_ref result, const_argument_ref x, size_type functionId)
+    const
+  {
+  }
+
+  template <typename U>
+  void
+  DescriptiveWrapper<U>::impl_jacobian
+  (jacobian_ref result, const_argument_ref x)
+    const
+  {
+  }
 } // end of namespace roboptim.
 
 #endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX

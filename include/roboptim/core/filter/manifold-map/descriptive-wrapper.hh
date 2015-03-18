@@ -14,7 +14,7 @@ namespace roboptim
   /// \addtogroup roboptim_filter
   /// @{
 
-  /// \brief Expose only a subset of all the variables to the function.
+  /// \brief apply a given roboptim function to a given dimension space
   /// \tparam U input function type.
   template <typename U>
   class DescriptiveWrapper : public detail::AutopromoteTrait<U>::T_type
@@ -25,23 +25,21 @@ namespace roboptim
 
     typedef boost::shared_ptr<DescriptiveWrapper> DescriptiveWrapperShPtr_t;
 
-    /// \brief Create a mapping from the problem's manifold to the function's.
+    /// \brief set the functions parameters regarding the given manifold.
     /// \param fct input function.
-    /// \param problemManifold the manifold describing the whole variable vector.
     /// \param functionManifold the manifold describing the function's input vector.
     explicit DescriptiveWrapper (boost::shared_ptr<U> fct,
-			  pgs::Manifold& problemManifold,
 			  pgs::Manifold& functionManifold);
     ~DescriptiveWrapper ();
 
-    const boost::shared_ptr<U>& origin () const
+    const boost::shared_ptr<U>& fct () const
     {
-      return origin_;
+      return fct_;
     }
 
-    boost::shared_ptr<U>& origin ()
+    U& fct ()
     {
-      return origin_;
+      return fct_;
     }
 
     void impl_compute (result_ref result, const_argument_ref x)
@@ -55,52 +53,19 @@ namespace roboptim
 			const_argument_ref arg)
       const;
   private:
-    boost::shared_ptr<U> origin_;
-
-    int* mapping_;
-    size_t mappingSize_;
+    boost::shared_ptr<U>  fct_;
+    vector_t              x_;
+    gradient_t            gradient_;
+    jacobian_t            jacobian_;
   };
 
   template <typename U>
   boost::shared_ptr<DescriptiveWrapper<U> >
-  scalar (boost::shared_ptr<U> origin,
-	  typename DescriptiveWrapper<U>::size_type start = 0,
-	  typename DescriptiveWrapper<U>::size_type size = 1)
+  descriptivewrapper (boost::shared_ptr<U> fct,
+	  pgs::Manifold& manifold)
   {
-    return boost::make_shared<DescriptiveWrapper<U> > (origin, start, size);
+    return boost::make_shared<DescriptiveWrapper<U> > (fct, manifold);
   }
-
-  template <typename U>
-  boost::shared_ptr<DescriptiveWrapper<U> >
-  operator* (typename DescriptiveWrapper<U>::value_type scalar,
-	     boost::shared_ptr<U> origin)
-  {
-    return boost::make_shared<DescriptiveWrapper<U> > (origin, scalar);
-  }
-
-  template <typename U>
-  boost::shared_ptr<DescriptiveWrapper<U> >
-  operator* (boost::shared_ptr<U> origin,
-	     typename DescriptiveWrapper<U>::value_type scalar)
-  {
-    return boost::make_shared<DescriptiveWrapper<U> > (origin, scalar);
-  }
-
-  template <typename U>
-  boost::shared_ptr<U>
-  operator+ (boost::shared_ptr<U> origin)
-  {
-    return origin;
-  }
-
-  template <typename U>
-  boost::shared_ptr<DescriptiveWrapper<U> >
-  operator- (boost::shared_ptr<U> origin)
-  {
-    return boost::make_shared<DescriptiveWrapper<U> > (origin, -1.);
-  }
-
-  /// @}
 
 } // end of namespace roboptim.
 

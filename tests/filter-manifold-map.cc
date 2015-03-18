@@ -25,6 +25,7 @@
 
 #include <roboptim/core/function/cos.hh>
 #include <roboptim/core/filter/manifold-map/instance-wrapper.hh>
+#include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -76,9 +77,11 @@ BOOST_AUTO_TEST_CASE (manifold_map_test)
   pgs::CartesianProduct myFuncManifold(cartProd, pos);
 
   InstanceWrapper<DifferentiableFunction> instWrap(f, robot, myFuncManifold);
+  DescriptiveWrapper<DifferentiableFunction> descWrap(f, myFuncManifold);
 
   (*output) << instWrap;
   std::cout << instWrap;
+  std::cout << descWrap;
 
   BOOST_CHECK (output->match_pattern());
 }
