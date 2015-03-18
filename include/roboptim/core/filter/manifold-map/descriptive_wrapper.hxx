@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_HXX
-# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_HXX
+#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX
+# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX
 # include <boost/format.hpp>
 # include <vector>
 # include <queue>
@@ -9,7 +9,7 @@ namespace roboptim
 {
 
   template <typename U>
-  ManifoldMap<U>::ManifoldMap
+  DescriptiveWrapper<U>::DescriptiveWrapper
   (boost::shared_ptr<U> origin,
    pgs::Manifold& problemManifold,
    pgs::Manifold& functionManifold)
@@ -51,11 +51,11 @@ namespace roboptim
   }
 
   template <typename U>
-  ManifoldMap<U>::~ManifoldMap()
+  DescriptiveWrapper<U>::~DescriptiveWrapper()
   {
     delete this->mapping_;
   }
 
 } // end of namespace roboptim.
 
-#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_HXX
+#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX

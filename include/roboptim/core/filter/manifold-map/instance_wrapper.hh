@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_HH
-# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_HH
+#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
+# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
 # include <vector>
 # include <boost/shared_ptr.hpp>
 
@@ -17,22 +17,22 @@ namespace roboptim
   /// \brief Expose only a subset of all the variables to the function.
   /// \tparam U input function type.
   template <typename U>
-  class ManifoldMap : public detail::AutopromoteTrait<U>::T_type
+  class InstanceWrapper : public detail::AutopromoteTrait<U>::T_type
   {
   public:
     typedef typename detail::AutopromoteTrait<U>::T_type parentType_t;
     ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (parentType_t);
 
-    typedef boost::shared_ptr<ManifoldMap> ManifoldMapShPtr_t;
+    typedef boost::shared_ptr<InstanceWrapper> InstanceWrapperShPtr_t;
 
     /// \brief Create a mapping from the problem's manifold to the function's.
     /// \param fct input function.
     /// \param problemManifold the manifold describing the whole variable vector.
     /// \param functionManifold the manifold describing the function's input vector.
-    explicit ManifoldMap (boost::shared_ptr<U> fct,
+    explicit InstanceWrapper (boost::shared_ptr<U> fct,
 			  pgs::Manifold& problemManifold,
 			  pgs::Manifold& functionManifold);
-    ~ManifoldMap ();
+    ~InstanceWrapper ();
 
     const boost::shared_ptr<U>& origin () const
     {
@@ -62,28 +62,28 @@ namespace roboptim
   };
 
   template <typename U>
-  boost::shared_ptr<ManifoldMap<U> >
+  boost::shared_ptr<InstanceWrapper<U> >
   scalar (boost::shared_ptr<U> origin,
-	  typename ManifoldMap<U>::size_type start = 0,
-	  typename ManifoldMap<U>::size_type size = 1)
+	  typename InstanceWrapper<U>::size_type start = 0,
+	  typename InstanceWrapper<U>::size_type size = 1)
   {
-    return boost::make_shared<ManifoldMap<U> > (origin, start, size);
+    return boost::make_shared<InstanceWrapper<U> > (origin, start, size);
   }
 
   template <typename U>
-  boost::shared_ptr<ManifoldMap<U> >
-  operator* (typename ManifoldMap<U>::value_type scalar,
+  boost::shared_ptr<InstanceWrapper<U> >
+  operator* (typename InstanceWrapper<U>::value_type scalar,
 	     boost::shared_ptr<U> origin)
   {
-    return boost::make_shared<ManifoldMap<U> > (origin, scalar);
+    return boost::make_shared<InstanceWrapper<U> > (origin, scalar);
   }
 
   template <typename U>
-  boost::shared_ptr<ManifoldMap<U> >
+  boost::shared_ptr<InstanceWrapper<U> >
   operator* (boost::shared_ptr<U> origin,
-	     typename ManifoldMap<U>::value_type scalar)
+	     typename InstanceWrapper<U>::value_type scalar)
   {
-    return boost::make_shared<ManifoldMap<U> > (origin, scalar);
+    return boost::make_shared<InstanceWrapper<U> > (origin, scalar);
   }
 
   template <typename U>
@@ -94,15 +94,15 @@ namespace roboptim
   }
 
   template <typename U>
-  boost::shared_ptr<ManifoldMap<U> >
+  boost::shared_ptr<InstanceWrapper<U> >
   operator- (boost::shared_ptr<U> origin)
   {
-    return boost::make_shared<ManifoldMap<U> > (origin, -1.);
+    return boost::make_shared<InstanceWrapper<U> > (origin, -1.);
   }
 
   /// @}
 
 } // end of namespace roboptim.
 
-# include <roboptim/core/filter/manifold-map.hxx>
-#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_HH
+# include <roboptim/core/filter/manifold-map/instance-wrapper.hxx>
+#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
