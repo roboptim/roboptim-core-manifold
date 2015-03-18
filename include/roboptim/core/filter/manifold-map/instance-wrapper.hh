@@ -1,6 +1,7 @@
 #ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
 # include <vector>
+# include <iostream>
 # include <boost/shared_ptr.hpp>
 
 # include <roboptim/core/detail/autopromote.hh>
@@ -14,7 +15,7 @@ namespace roboptim
   /// \addtogroup roboptim_filter
   /// @{
 
-  /// \brief Expose only a subset of all the variables to the function.
+  /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
   /// \tparam U input function type.
   template <typename U>
   class InstanceWrapper : public detail::AutopromoteTrait<U>::T_type
@@ -54,11 +55,15 @@ namespace roboptim
     void impl_jacobian (jacobian_ref jacobian,
 			const_argument_ref arg)
       const;
+
+    std::ostream& print(std::ostream& o);
   private:
     boost::shared_ptr<U> origin_;
 
-    int* mapping_;
-    size_t mappingSize_;
+    int* mappingFromProblem_;
+    size_t mappingFromProblemSize_;
+    int* mappingFromFunction_;
+    size_t mappingFromFunctionSize_;
   };
 
   template <typename U>
@@ -100,9 +105,17 @@ namespace roboptim
     return boost::make_shared<InstanceWrapper<U> > (origin, -1.);
   }
 
+  template <typename U>
+  std::ostream&
+  operator<<(std::ostream& o, InstanceWrapper<U>& instWrap)
+  {
+    return instWrap.print(o);
+  }
+
   /// @}
 
 } // end of namespace roboptim.
+
 
 # include <roboptim/core/filter/manifold-map/instance-wrapper.hxx>
 #endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
