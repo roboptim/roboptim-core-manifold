@@ -22,14 +22,14 @@ namespace roboptim
       origin_ (origin)
   {
     this->mappingFromProblemSize_ = problemManifold.representationDim();
-    this->mappingFromProblem_ = new int[this->mappingFromProblemSize_];
+    this->mappingFromProblem_ = new size_t[this->mappingFromProblemSize_];
     this->mappingFromFunctionSize_ = functionManifold.representationDim();
-    this->mappingFromFunction_ = new int[this->mappingFromFunctionSize_];
+    this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
 
     std::cout << "this->mappingFromProblemSize_: " << this->mappingFromProblemSize_ << std::endl;
     std::cout << "this->mappingFromFunctionSize_: " << this->mappingFromFunctionSize_ << std::endl;
 
-    std::function<int(const pgs::Manifold&, std::string, int, int)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this](const pgs::Manifold& manifold, std::string targetName, int functionStartIndex, int startIndex)
+    std::function<long(const pgs::Manifold&, std::string, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this](const pgs::Manifold& manifold, std::string targetName, long functionStartIndex, long startIndex)
       {
 	if (!targetName.compare(manifold.name()))
 	  {
@@ -39,20 +39,20 @@ namespace roboptim
 	    std::cout << "startIndex: " << startIndex << std::endl;
 	    std::cout << "functionStartIndex: " << functionStartIndex << std::endl;
 
-	    for (size_t i = 0; i < manifold.representationDim(); ++i)
+	    for (long i = 0; i < manifold.representationDim(); ++i)
 	      {
 		std::cout << "i: " << i << std::endl;
-		this->mappingFromProblem_[startIndex + i] = static_cast<int>(functionStartIndex + i);
-		this->mappingFromFunction_[startIndex + i] = static_cast<int>(startIndex + i);
+		this->mappingFromProblem_[static_cast<size_t>(startIndex + i)] = static_cast<size_t>(functionStartIndex + i);
+		this->mappingFromFunction_[static_cast<size_t>(functionStartIndex + i)] = static_cast<size_t>(startIndex + i);
 	      }
 
-	    return -1;
+	    return -1l;
 	  }
 	else
 	  {
 	    if (manifold.isElementary())
 	      {
-		return static_cast<int>(startIndex + manifold.representationDim());
+		return startIndex + manifold.representationDim();
 	      }
 	    else
 	      {
@@ -61,7 +61,7 @@ namespace roboptim
 		    startIndex = getStartingIndexOfManifold(manifold(i), targetName, functionStartIndex, startIndex);
 		  }
 
-		return static_cast<int>(startIndex);
+		return startIndex;
 	      }
 	  }
       };
@@ -130,12 +130,12 @@ namespace roboptim
   std::ostream&
   InstanceWrapper<U>::print_ (std::ostream& o)
   {
-    for (size_t i = 0; i < this->mappingFromProblemSize_; ++i)
+    for (long i = 0; i < this->mappingFromProblemSize_; ++i)
       {
 	o << (i>0?", ":"") << this->mappingFromProblem_[i];
       }
     o << "\n";
-    for (size_t i = 0; i < this->mappingFromFunctionSize_; ++i)
+    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
       {
 	o << (i>0?", ":"") << this->mappingFromFunction_[i];
       }

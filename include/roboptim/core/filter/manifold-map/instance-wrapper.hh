@@ -60,10 +60,10 @@ namespace roboptim
   private:
     boost::shared_ptr<U> origin_;
 
-    int* mappingFromProblem_;
-    size_t mappingFromProblemSize_;
-    int* mappingFromFunction_;
-    size_t mappingFromFunctionSize_;
+    size_t* mappingFromProblem_;
+    long mappingFromProblemSize_;
+    size_t* mappingFromFunction_;
+    long mappingFromFunctionSize_;
   };
 
   template <typename U>
