@@ -39,7 +39,7 @@ namespace roboptim
 
     U& fct ()
     {
-      return fct_;
+      return *fct_;
     }
 
     void impl_compute (result_ref result, const_argument_ref x)

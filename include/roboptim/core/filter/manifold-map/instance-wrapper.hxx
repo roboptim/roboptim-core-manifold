@@ -6,30 +6,36 @@
 # include <manifolds/Manifold.h>
 # include <iostream>
 
+# include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
+
 namespace roboptim
 {
 
   template <typename U>
   InstanceWrapper<U>::InstanceWrapper
-  (boost::shared_ptr<U> origin,
-   pgs::Manifold& problemManifold,
-   pgs::Manifold& functionManifold)
+  (boost::shared_ptr<DescriptiveWrapper<U>> descWrap,
+     pgs::Manifold& problemManifold,
+     pgs::Manifold& functionManifold)
     : detail::AutopromoteTrait<U>::T_type
-      (origin->inputSize (),
-       origin->outputSize (),
+      (problemManifold.representationDim(),
+       descWrap->fct().outputSize (),
        (boost::format ("%1%")
-	% origin->getName ()).str ()),
-      origin_ (origin)
+	% descWrap->fct().getName ()).str ()),
+      descWrap_ (descWrap)
   {
     this->mappingFromProblemSize_ = problemManifold.representationDim();
-    this->mappingFromProblem_ = new int[this->mappingFromProblemSize_];
+    this->mappingFromProblem_ = new size_t[this->mappingFromProblemSize_];
     this->mappingFromFunctionSize_ = functionManifold.representationDim();
-    this->mappingFromFunction_ = new int[this->mappingFromFunctionSize_];
+    this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
+
+    this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
+    this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
+    this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
 
     std::cout << "this->mappingFromProblemSize_: " << this->mappingFromProblemSize_ << std::endl;
     std::cout << "this->mappingFromFunctionSize_: " << this->mappingFromFunctionSize_ << std::endl;
 
-    std::function<int(const pgs::Manifold&, std::string, int, int)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this](const pgs::Manifold& manifold, std::string targetName, int functionStartIndex, int startIndex)
+    std::function<long(const pgs::Manifold&, std::string, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this](const pgs::Manifold& manifold, std::string targetName, long functionStartIndex, long startIndex)
       {
 	if (!targetName.compare(manifold.name()))
 	  {
@@ -39,20 +45,20 @@ namespace roboptim
 	    std::cout << "startIndex: " << startIndex << std::endl;
 	    std::cout << "functionStartIndex: " << functionStartIndex << std::endl;
 
-	    for (size_t i = 0; i < manifold.representationDim(); ++i)
+	    for (long i = 0; i < manifold.representationDim(); ++i)
 	      {
 		std::cout << "i: " << i << std::endl;
-		this->mappingFromProblem_[startIndex + i] = static_cast<int>(functionStartIndex + i);
-		this->mappingFromFunction_[startIndex + i] = static_cast<int>(startIndex + i);
+		this->mappingFromProblem_[static_cast<size_t>(startIndex + i)] = static_cast<size_t>(functionStartIndex + i);
+		this->mappingFromFunction_[static_cast<size_t>(functionStartIndex + i)] = static_cast<size_t>(startIndex + i);
 	      }
 
-	    return -1;
+	    return -1l;
 	  }
 	else
 	  {
 	    if (manifold.isElementary())
 	      {
-		return static_cast<int>(startIndex + manifold.representationDim());
+		return startIndex + manifold.representationDim();
 	      }
 	    else
 	      {
@@ -61,7 +67,7 @@ namespace roboptim
 		    startIndex = getStartingIndexOfManifold(manifold(i), targetName, functionStartIndex, startIndex);
 		  }
 
-		return static_cast<int>(startIndex);
+		return startIndex;
 	      }
 	  }
       };
@@ -89,19 +95,41 @@ namespace roboptim
   template <typename U>
   InstanceWrapper<U>::~InstanceWrapper()
   {
-    delete this->mappingFromProblem_;
-    delete this->mappingFromFunction_;
+    delete [] this->mappingFromProblem_;
+    delete [] this->mappingFromFunction_;
   }
 
   // FIXME: temp, complete those methods
+  template <typename U>
+  void
+  InstanceWrapper<U>::mapArgument (const_argument_ref argument)
+    const
+  {
+    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
+      {
+	this->mappedInput_(i) = argument(static_cast<long>(this->mappingFromFunction_[i]));
+      }
+  }
+
+  template <typename U>
+  void
+  InstanceWrapper<U>::unmapGradient(gradient_ref gradient)
+    const
+  {
+    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
+      {
+	gradient(static_cast<long>(this->mappingFromFunction_[i])) = this->mappedGradient_(i);
+      }
+  }
+
   template <typename U>
   void
   InstanceWrapper<U>::impl_compute
   (result_ref result, const_argument_ref x)
     const
   {
-    std::cout << "result: " << result << std::endl;
-    std::cout << "x: " << x << std::endl;
+    this->mapArgument(x);
+    descWrap_->fct()(result, this->mappedInput_);
   }
 
   template <typename U>
@@ -111,9 +139,11 @@ namespace roboptim
 			 size_type functionId)
     const
   {
-    std::cout << "gradient: " << std::endl << gradient << std::endl;
-    std::cout << "argument: " << std::endl << argument << std::endl;
-    std::cout << "functionId: " << std::endl << functionId << std::endl;
+    this->mapArgument(argument);
+    descWrap_->fct().gradient(this->mappedGradient_, this->mappedInput_, functionId);
+
+    gradient.setZero();
+    this->unmapGradient(gradient);
   }
 
   template <typename U>
@@ -122,20 +152,27 @@ namespace roboptim
 			 const_argument_ref argument)
     const
   {
-    std::cout << "jacobian: " << std::endl << jacobian << std::endl;
-    std::cout << "argument: " << std::endl << argument << std::endl;
+    this->mapArgument(argument);
+    jacobian.setZero();
+
+    for (long j = 0; j < jacobian.rows(); ++j)
+      {
+	descWrap_->fct().gradient(this->mappedGradient_, this->mappedInput_, j);
+	this->unmapGradient(jacobian.row(j));
+      }
+
   }
 
   template <typename U>
   std::ostream&
   InstanceWrapper<U>::print_ (std::ostream& o)
   {
-    for (size_t i = 0; i < this->mappingFromProblemSize_; ++i)
+    for (long i = 0; i < this->mappingFromProblemSize_; ++i)
       {
 	o << (i>0?", ":"") << this->mappingFromProblem_[i];
       }
     o << "\n";
-    for (size_t i = 0; i < this->mappingFromFunctionSize_; ++i)
+    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
       {
 	o << (i>0?", ":"") << this->mappingFromFunction_[i];
       }
