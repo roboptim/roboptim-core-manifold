@@ -36,22 +36,25 @@ namespace roboptim
   (result_ref result, const_argument_ref x)
     const
   {
+    fct_->operator () (result, x);
   }
 
   template <typename U>
   void
   DescriptiveWrapper<U>::impl_gradient
-  (gradient_ref result, const_argument_ref x, size_type functionId)
+  (gradient_ref gradient, const_argument_ref arg, size_type functionId)
     const
   {
+    fct_->gradient(gradient, arg, functionId);
   }
 
   template <typename U>
   void
   DescriptiveWrapper<U>::impl_jacobian
-  (jacobian_ref result, const_argument_ref x)
+  (jacobian_ref jacobian, const_argument_ref arg)
     const
   {
+    fct_->jacobian(jacobian, arg);
   }
 } // end of namespace roboptim.
 
