@@ -6,20 +6,22 @@
 # include <manifolds/Manifold.h>
 # include <iostream>
 
+# include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
+
 namespace roboptim
 {
 
   template <typename U>
   InstanceWrapper<U>::InstanceWrapper
-  (boost::shared_ptr<U> origin,
-   pgs::Manifold& problemManifold,
-   pgs::Manifold& functionManifold)
+  (boost::shared_ptr<DescriptiveWrapper<U>> descWrap,
+     pgs::Manifold& problemManifold,
+     pgs::Manifold& functionManifold)
     : detail::AutopromoteTrait<U>::T_type
-      (origin->inputSize (),
-       origin->outputSize (),
+      (descWrap->fct().inputSize (),
+       descWrap->fct().outputSize (),
        (boost::format ("%1%")
-	% origin->getName ()).str ()),
-      origin_ (origin)
+	% descWrap->fct().getName ()).str ()),
+      descWrap_ (descWrap)
   {
     this->mappingFromProblemSize_ = problemManifold.representationDim();
     this->mappingFromProblem_ = new size_t[this->mappingFromProblemSize_];
@@ -89,19 +91,42 @@ namespace roboptim
   template <typename U>
   InstanceWrapper<U>::~InstanceWrapper()
   {
-    delete this->mappingFromProblem_;
-    delete this->mappingFromFunction_;
+    delete [] this->mappingFromProblem_;
+    delete [] this->mappingFromFunction_;
   }
 
   // FIXME: temp, complete those methods
+  template <typename U>
+  void
+  InstanceWrapper<U>::mapArgument (const_argument_ref argument)
+    const
+  {
+    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
+      {
+	this->mappedInput_(i) = argument(static_cast<long>(this->mappingFromFunction_[i]));
+      }
+  }
+
+  template <typename U>
+  void
+  InstanceWrapper<U>::unmapGradient(gradient_t gradient)
+    const
+  {
+    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
+      {
+	gradient(static_cast<long>(this->mappingFromFunction_[i])) = this->mappedGradient_(i);
+      }
+  }
+
   template <typename U>
   void
   InstanceWrapper<U>::impl_compute
   (result_ref result, const_argument_ref x)
     const
   {
-    std::cout << "result: " << result << std::endl;
-    std::cout << "x: " << x << std::endl;
+    this->mapArgument(x);
+
+    descWrap_->fct()(result, this->mappedInput_);
   }
 
   template <typename U>
@@ -111,9 +136,11 @@ namespace roboptim
 			 size_type functionId)
     const
   {
-    std::cout << "gradient: " << std::endl << gradient << std::endl;
-    std::cout << "argument: " << std::endl << argument << std::endl;
-    std::cout << "functionId: " << std::endl << functionId << std::endl;
+    this->mapArgument(argument);
+    descWrap_->fct().gradient(this->mappedGradient_, this->mappedInput_, functionId);
+
+    gradient.setZero();
+    this->unmapGradient(gradient);
   }
 
   template <typename U>
@@ -122,8 +149,15 @@ namespace roboptim
 			 const_argument_ref argument)
     const
   {
-    std::cout << "jacobian: " << std::endl << jacobian << std::endl;
-    std::cout << "argument: " << std::endl << argument << std::endl;
+    this->mapArgument(argument);
+    jacobian.setZero();
+
+    for (long j = 0; j < jacobian.cols(); ++j)
+      {
+	descWrap_->fct().gradient(this->mappedGradient_, this->mappedInput_, j);
+	this->unmapGradient(jacobian.col(j));
+      }
+
   }
 
   template <typename U>

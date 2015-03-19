@@ -6,6 +6,7 @@
 
 # include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/differentiable-function.hh>
+# include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
 
@@ -30,20 +31,10 @@ namespace roboptim
     /// \param fct input function.
     /// \param problemManifold the manifold describing the whole variable vector.
     /// \param functionManifold the manifold describing the function's input vector.
-    explicit InstanceWrapper (boost::shared_ptr<U> fct,
-			  pgs::Manifold& problemManifold,
-			  pgs::Manifold& functionManifold);
+    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
+			      pgs::Manifold& problemManifold,
+			      pgs::Manifold& functionManifold);
     ~InstanceWrapper ();
-
-    const boost::shared_ptr<U>& origin () const
-    {
-      return origin_;
-    }
-
-    boost::shared_ptr<U>& origin ()
-    {
-      return origin_;
-    }
 
     void impl_compute (result_ref result, const_argument_ref x)
       const;
@@ -58,12 +49,22 @@ namespace roboptim
 
     std::ostream& print_(std::ostream& o);
   private:
-    boost::shared_ptr<U> origin_;
+    boost::shared_ptr<DescriptiveWrapper<U>> descWrap_;
 
     size_t* mappingFromProblem_;
     long mappingFromProblemSize_;
     size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;
+
+    mutable vector_t mappedInput_;
+    mutable gradient_t mappedGradient_;
+    mutable jacobian_t mappedJacobian_;
+
+    void mapArgument(const_argument_ref argument)
+      const;
+
+    void unmapGradient(gradient_t gradient)
+      const;
   };
 
   template <typename U>
@@ -72,7 +73,7 @@ namespace roboptim
 	  typename InstanceWrapper<U>::size_type start = 0,
 	  typename InstanceWrapper<U>::size_type size = 1)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin, start, size);
+    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), start, size);
   }
 
   template <typename U>
@@ -80,7 +81,7 @@ namespace roboptim
   operator* (typename InstanceWrapper<U>::value_type scalar,
 	     boost::shared_ptr<U> origin)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin, scalar);
+    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), scalar);
   }
 
   template <typename U>
@@ -88,21 +89,21 @@ namespace roboptim
   operator* (boost::shared_ptr<U> origin,
 	     typename InstanceWrapper<U>::value_type scalar)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin, scalar);
+    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), scalar);
   }
 
   template <typename U>
   boost::shared_ptr<U>
   operator+ (boost::shared_ptr<U> origin)
   {
-    return origin;
+    return origin->fct();
   }
 
   template <typename U>
   boost::shared_ptr<InstanceWrapper<U> >
   operator- (boost::shared_ptr<U> origin)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin, -1.);
+    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), -1.);
   }
 
   template <typename U>

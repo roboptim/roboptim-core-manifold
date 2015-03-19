@@ -37,21 +37,23 @@ using namespace roboptim;
 
 struct F : public DifferentiableFunction
 {
-  F () : DifferentiableFunction (1, 10, "f_n (x) = n * x")
+  F () : DifferentiableFunction (22, 10, "f_n (x) = n * x")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
   {
     res.setZero ();
     for (size_type i = 0; i < outputSize (); ++i)
-      res[i] = (value_type)i * argument[0];
+      for (size_type j = 0; j < 3; ++j)
+	res[i] = (value_type)i * argument[j];
   }
 
   void impl_gradient (gradient_ref grad, const_argument_ref,
 		      size_type functionId) const
   {
     grad.setZero ();
-    grad[0] = (value_type)functionId;
+    for (size_type j = 0; j < 3; ++j)
+      grad[j] = (value_type)functionId;
   }
 };
 
@@ -76,12 +78,14 @@ BOOST_AUTO_TEST_CASE (manifold_map_test)
   pgs::CartesianProduct cartProd(joints, ori);
   pgs::CartesianProduct myFuncManifold(cartProd, pos);
 
-  InstanceWrapper<DifferentiableFunction> instWrap(f, robot, myFuncManifold);
+  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
+    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, myFuncManifold));
+
+  InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, robot, myFuncManifold);
 
   (*output) << instWrap;
-  std::cout << instWrap;
-  DescriptiveWrapper<DifferentiableFunction> descWrap(f, myFuncManifold);
-  std::cout << descWrap;
+  std::cout << instWrap << std::endl;
+  //std::cout << (*descWrapPtr);
 
   BOOST_CHECK (output->match_pattern());
 }
