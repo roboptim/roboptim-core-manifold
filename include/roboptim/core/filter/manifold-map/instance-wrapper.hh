@@ -56,7 +56,7 @@ namespace roboptim
 			const_argument_ref arg)
       const;
 
-    std::ostream& print(std::ostream& o);
+    std::ostream& print_(std::ostream& o);
   private:
     boost::shared_ptr<U> origin_;
 
@@ -109,7 +109,7 @@ namespace roboptim
   std::ostream&
   operator<<(std::ostream& o, InstanceWrapper<U>& instWrap)
   {
-    return instWrap.print(o);
+    return instWrap.print_(o);
   }
 
   /// @}

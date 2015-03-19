@@ -15,11 +15,7 @@ namespace roboptim
        fct->outputSize (),
        (boost::format ("%1%")
 	% fct->getName ()).str ()),
-      fct_ (fct),
-      x_ (fct->inputSize ()),
-      gradient_ (fct->inputSize ()),
-      jacobian_ (fct->outputSize (),
-		 fct->inputSize ())
+      fct_ (fct)
   {
     if (fct_->inputSize() != functionManifold.representationDim())
       throw std::runtime_error ("Representation dims mismatch");

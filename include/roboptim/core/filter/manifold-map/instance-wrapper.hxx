@@ -128,7 +128,7 @@ namespace roboptim
 
   template <typename U>
   std::ostream&
-  InstanceWrapper<U>::print (std::ostream& o)
+  InstanceWrapper<U>::print_ (std::ostream& o)
   {
     for (size_t i = 0; i < this->mappingFromProblemSize_; ++i)
       {

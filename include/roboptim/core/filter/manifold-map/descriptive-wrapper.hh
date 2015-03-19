@@ -54,9 +54,6 @@ namespace roboptim
       const;
   private:
     boost::shared_ptr<U>  fct_;
-    vector_t              x_;
-    gradient_t            gradient_;
-    jacobian_t            jacobian_;
   };
 
   template <typename U>
