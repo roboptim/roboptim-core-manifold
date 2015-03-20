@@ -17,7 +17,7 @@ namespace roboptim
      pgs::Manifold& problemManifold,
      pgs::Manifold& functionManifold)
     : detail::AutopromoteTrait<U>::T_type
-      (descWrap->fct().inputSize (),
+      (problemManifold.representationDim(),
        descWrap->fct().outputSize (),
        (boost::format ("%1%")
 	% descWrap->fct().getName ()).str ()),
@@ -27,6 +27,10 @@ namespace roboptim
     this->mappingFromProblem_ = new size_t[this->mappingFromProblemSize_];
     this->mappingFromFunctionSize_ = functionManifold.representationDim();
     this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
+
+    this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
+    this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
+    this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
 
     std::cout << "this->mappingFromProblemSize_: " << this->mappingFromProblemSize_ << std::endl;
     std::cout << "this->mappingFromFunctionSize_: " << this->mappingFromFunctionSize_ << std::endl;
@@ -109,7 +113,7 @@ namespace roboptim
 
   template <typename U>
   void
-  InstanceWrapper<U>::unmapGradient(gradient_t gradient)
+  InstanceWrapper<U>::unmapGradient(gradient_ref gradient)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
@@ -125,7 +129,6 @@ namespace roboptim
     const
   {
     this->mapArgument(x);
-
     descWrap_->fct()(result, this->mappedInput_);
   }
 
@@ -152,10 +155,10 @@ namespace roboptim
     this->mapArgument(argument);
     jacobian.setZero();
 
-    for (long j = 0; j < jacobian.cols(); ++j)
+    for (long j = 0; j < jacobian.rows(); ++j)
       {
 	descWrap_->fct().gradient(this->mappedGradient_, this->mappedInput_, j);
-	this->unmapGradient(jacobian.col(j));
+	this->unmapGradient(jacobian.row(j));
       }
 
   }

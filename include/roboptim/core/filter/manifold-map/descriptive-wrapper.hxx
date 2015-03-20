@@ -25,7 +25,7 @@ namespace roboptim
     }
     else
     {
-      long size = manifold_->representationDim();
+      long size = 0;
       size_t manifolds = manifold_->numberOfSubmanifolds();
       for (size_t i = 0; i < manifolds; ++i)
         size += ((*manifold_) (i)).representationDim();
