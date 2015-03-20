@@ -176,7 +176,6 @@ namespace roboptim
       {
 	o << (i>0?", ":"") << this->mappingFromFunction_[i];
       }
-    o << "\n";
 
     return o;
   }
