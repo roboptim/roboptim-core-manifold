@@ -49,6 +49,7 @@ namespace roboptim
 
     std::ostream& print_(std::ostream& o);
   private:
+  public:
     boost::shared_ptr<DescriptiveWrapper<U>> descWrap_;
 
     size_t* mappingFromProblem_;
@@ -63,7 +64,7 @@ namespace roboptim
     void mapArgument(const_argument_ref argument)
       const;
 
-    void unmapGradient(gradient_t gradient)
+    void unmapGradient(gradient_ref gradient)
       const;
   };
 
