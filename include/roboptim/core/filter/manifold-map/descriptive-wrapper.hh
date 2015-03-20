@@ -1,6 +1,7 @@
 #ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HH
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HH
 # include <vector>
+# include <ostream>
 # include <boost/shared_ptr.hpp>
 
 # include <roboptim/core/detail/autopromote.hh>
@@ -25,12 +26,22 @@ namespace roboptim
 
     typedef boost::shared_ptr<DescriptiveWrapper> DescriptiveWrapperShPtr_t;
 
-    /// \brief set the functions parameters regarding the given manifold.
+    /// \brief map the function on the given manifold.
     /// \param fct input function.
     /// \param functionManifold the manifold describing the function's input vector.
     explicit DescriptiveWrapper (boost::shared_ptr<U> fct,
 			  pgs::Manifold& functionManifold);
     ~DescriptiveWrapper ();
+
+    const pgs::Manifold& manifold () const
+    {
+      return *manifold_;
+    }
+
+    pgs::Manifold& manifold ()
+    {
+      return *manifold_;
+    }
 
     const boost::shared_ptr<U>& fct () const
     {
@@ -53,7 +64,9 @@ namespace roboptim
 			const_argument_ref arg)
       const;
   private:
+
     boost::shared_ptr<U>  fct_;
+    pgs::Manifold* manifold_;
   };
 
   template <typename U>
@@ -64,6 +77,26 @@ namespace roboptim
     return boost::make_shared<DescriptiveWrapper<U> > (fct, manifold);
   }
 
+  template <typename U>
+  std::ostream&
+  operator<<(std::ostream& o, DescriptiveWrapper<U>& descWrap)
+  {
+    o <<
+    "Displaying info about function in DescriptiveWrapper :" << "\n" <<
+    "the function is " << descWrap.fct().getName() << "\n" <<
+    "the function input size is " << descWrap.fct().inputSize() << "\n" <<
+    "the function output size is " << descWrap.fct().outputSize() << "\n" <<
+    "Displaying info about the function manifold in DescriptiveWrapper :" << "\n" <<
+    "the manifold is " << descWrap.manifold().name() << "\n" <<
+    "Is the manifold elementary ? : " <<
+    (descWrap.manifold().isElementary() ? "yes" : "no" ) << "\n" <<
+    "manifold display :" << "\n";
+    descWrap.manifold().display();
+    o << "\n" <<
+    "the manifold dimension is " << descWrap.manifold().representationDim() << "\n";
+
+    return o;
+  }
 } // end of namespace roboptim.
 
 # include <roboptim/core/filter/manifold-map/descriptive-wrapper.hxx>

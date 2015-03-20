@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test)
 
   (*output) << instWrap;
   std::cout << instWrap << std::endl;
-  //std::cout << (*descWrapPtr);
+  std::cout << (*descWrapPtr);
 
   BOOST_CHECK (output->match_pattern());
 }
