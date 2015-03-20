@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   instWrap.jacobian(jacobian, input);
   std::cout << "jacobian: " << std::endl << jacobian << std::endl;
 
-  //std::cout << (*descWrapPtr);
+  std::cout << (*descWrapPtr);
 
   BOOST_CHECK (output->match_pattern());
 }
