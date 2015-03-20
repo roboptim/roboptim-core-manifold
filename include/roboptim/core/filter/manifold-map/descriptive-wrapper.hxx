@@ -15,10 +15,27 @@ namespace roboptim
        fct->outputSize (),
        (boost::format ("%1%")
 	% fct->getName ()).str ()),
-      fct_ (fct)
+      fct_ (fct),
+      manifold_ (&functionManifold)
   {
-    if (fct_->inputSize() != functionManifold.representationDim())
-      throw std::runtime_error ("Representation dims mismatch");
+    if (manifold_->isElementary())
+    {
+      if (fct_->inputSize() != manifold_->representationDim())
+        throw std::runtime_error ("Representation dims mismatch");
+    }
+    else
+    {
+      long size = 0;
+      size_t manifolds = manifold_->numberOfSubmanifolds();
+      for (size_t i = 0; i < manifolds; ++i)
+        size += ((*manifold_) (i)).representationDim();
+      if (fct_->inputSize() != size)
+      {
+        std::cerr << "size == " << size << "\n";
+        std::cerr << "!= " << fct_->inputSize();
+        throw std::runtime_error ("Representation dims mismatch");
+      }
+    }
   }
 
   template <typename U>
