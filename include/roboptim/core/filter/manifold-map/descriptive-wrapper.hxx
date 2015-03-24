@@ -16,8 +16,15 @@ namespace roboptim
     if (manifold_->isElementary())
     {
       if (fct_->inputSize() != manifold_->representationDim())
-        throw std::runtime_error ("Representation dims mismatch on Elementary manifold "
-                                  + manifold_->name());
+      {
+        std::stringstream* error = new std::stringstream;
+        (*error) << "Representation dims mismatch on Elementary manifold "
+                 << manifold_->name() << " using function "
+                 << fct->getName() << ". Expected dimension :"
+                 << manifold_->representationDim() << ", actual one is "
+                 << fct_->inputSize();
+        throw std::runtime_error (error->str());
+      }
     }
     else
     {
@@ -25,15 +32,22 @@ namespace roboptim
       size_t manifolds = manifold_->numberOfSubmanifolds();
       for (size_t i = 0; i < manifolds; ++i)
         size += ((*manifold_) (i)).representationDim();
-      if (fct_->inputSize() != size)
-        throw std::runtime_error ("Invalid Manifold "
-                                  + manifold_->name());
+      if (manifold_->representationDim() != size)
+      {
+        std::stringstream* error = new std::stringstream;
+        (*error) << "Invalid Composed Manifold " << manifold_->name()
+                 << ". Size equals " << manifold_->representationDim()
+                 << " whereas the sum of submanifold's equals " << size;
+        throw std::runtime_error (error->str());
+      }
       if (fct_->inputSize() != size)
       {
-        std::cerr << "size == " << size << "\n";
-        std::cerr << "!= " << fct_->inputSize();
-        throw std::runtime_error ("Representation dims mismatch on Composed manifold "
-                                  + manifold_->name());
+        std::stringstream* error = new std::stringstream;
+        (*error) << "Representation dims mismatch on Composed manifold "
+                 << manifold_->name() << " using function "
+                 << fct->getName() << ". Expected dimension :" << size
+                 << ", actual one is " << fct_->inputSize();
+        throw std::runtime_error (error->str());
       }
     }
   }

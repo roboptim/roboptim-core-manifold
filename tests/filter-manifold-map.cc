@@ -155,7 +155,6 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
   std::cout << "jacobian: " << std::endl << jacobian << std::endl;
 
   (*output) << (*descWrapPtr);
-  std::cout << (*descWrapPtr) << std::endl;
 
   BOOST_CHECK (output->match_pattern());
 
@@ -167,7 +166,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 
   std::vector<const pgs::RealSpace*> reals;
   pgs::CartesianProduct problemManifold;
-  pgs::RealSpace descriptiveManifold(3);
+  const pgs::RealSpace descriptiveManifold(3);
 
   boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
     descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(g, descriptiveManifold));
@@ -210,6 +209,52 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
   }
 
 BOOST_AUTO_TEST_CASE (manifold_map_test_2)
+{
+  output = retrievePattern("filter-manifold-map-2");
+
+  boost::shared_ptr<F> f (new F());
+  boost::shared_ptr<G> g (new G());
+
+  const pgs::RealSpace manifold(2);
+
+  try
+  {
+    boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
+    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(g, manifold));
+  }
+  catch (std::runtime_error& e)
+  {
+    (*output) << "std::runtime_error: " << e.what() << "\n";
+  }
+
+  const pgs::SO3<pgs::ExpMapMatrix> manifold2;
+  try
+  {
+    boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
+    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, manifold2));
+  }
+  catch (std::runtime_error& e)
+  {
+    (*output) << "std::runtime_error: " << e.what() << "\n";
+  }
+
+  const pgs::CartesianProduct manifold3(manifold, manifold2);
+
+  try
+  {
+    boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
+    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(g, manifold3));
+  }
+  catch (std::runtime_error& e)
+  {
+    (*output) << "std::runtime_error: " << e.what() << "\n";
+  }
+
+  BOOST_CHECK (output->match_pattern());
+
+}
+
+BOOST_AUTO_TEST_CASE (manifold_map_test_3)
 {
   output = retrievePattern("filter-manifold-map-3");
 
