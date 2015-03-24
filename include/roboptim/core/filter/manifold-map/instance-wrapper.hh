@@ -2,7 +2,9 @@
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
 # include <vector>
 # include <iostream>
+# include <utility>
 # include <boost/shared_ptr.hpp>
+# include <boost/make_shared.hpp>
 
 # include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/differentiable-function.hh>
@@ -31,9 +33,22 @@ namespace roboptim
     /// \param fct input function.
     /// \param problemManifold the manifold describing the whole variable vector.
     /// \param functionManifold the manifold describing the function's input vector.
+    /// \param restrictedManifolds a list of elementary Manifolds to be restricted to a part of themselves
+    /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
     explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
 			      pgs::Manifold& problemManifold,
-			      pgs::Manifold& functionManifold);
+			      pgs::Manifold& functionManifold,
+			      std::vector<pgs::Manifold*> restrictedManifolds,
+			      std::vector<std::pair<long, long>> restrictions);
+
+    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
+			      pgs::Manifold& problemManifold,
+			      pgs::Manifold& functionManifold)
+      : InstanceWrapper(fct, problemManifold, functionManifold,
+	     std::vector<pgs::Manifold*>(), std::vector<std::pair<long, long>>())
+    {
+    }
+
     ~InstanceWrapper ();
 
     void impl_compute (result_ref result, const_argument_ref x)
@@ -52,9 +67,7 @@ namespace roboptim
   public:
     boost::shared_ptr<DescriptiveWrapper<U>> descWrap_;
 
-    size_t* mappingFromProblem_;
-    long mappingFromProblemSize_;
-    size_t* mappingFromFunction_;
+     size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;
 
     mutable vector_t mappedInput_;

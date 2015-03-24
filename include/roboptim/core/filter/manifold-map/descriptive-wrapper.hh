@@ -4,7 +4,6 @@
 # include <ostream>
 # include <boost/shared_ptr.hpp>
 
-# include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/differentiable-function.hh>
 
 # include <manifolds/Manifold.h>
@@ -18,27 +17,19 @@ namespace roboptim
   /// \brief apply a given roboptim function to a given dimension space
   /// \tparam U input function type.
   template <typename U>
-  class DescriptiveWrapper : public detail::AutopromoteTrait<U>::T_type
+  class DescriptiveWrapper
   {
   public:
-    typedef typename detail::AutopromoteTrait<U>::T_type parentType_t;
-    ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (parentType_t);
-
     typedef boost::shared_ptr<DescriptiveWrapper> DescriptiveWrapperShPtr_t;
 
     /// \brief map the function on the given manifold.
     /// \param fct input function.
     /// \param functionManifold the manifold describing the function's input vector.
     explicit DescriptiveWrapper (boost::shared_ptr<U> fct,
-			  pgs::Manifold& functionManifold);
+			  const pgs::Manifold& functionManifold);
     ~DescriptiveWrapper ();
 
     const pgs::Manifold& manifold () const
-    {
-      return *manifold_;
-    }
-
-    pgs::Manifold& manifold ()
     {
       return *manifold_;
     }
@@ -53,26 +44,16 @@ namespace roboptim
       return *fct_;
     }
 
-    void impl_compute (result_ref result, const_argument_ref x)
-      const;
-
-    void impl_gradient (gradient_ref gradient,
-			const_argument_ref argument,
-			size_type functionId = 0)
-      const;
-    void impl_jacobian (jacobian_ref jacobian,
-			const_argument_ref arg)
-      const;
   private:
 
     boost::shared_ptr<U>  fct_;
-    pgs::Manifold* manifold_;
+    const pgs::Manifold* manifold_;
   };
 
   template <typename U>
   boost::shared_ptr<DescriptiveWrapper<U> >
   descriptivewrapper (boost::shared_ptr<U> fct,
-	  pgs::Manifold& manifold)
+	  const pgs::Manifold& manifold)
   {
     return boost::make_shared<DescriptiveWrapper<U> > (fct, manifold);
   }
@@ -90,11 +71,7 @@ namespace roboptim
     "the manifold is " << descWrap.manifold().name() << "\n" <<
     "Is the manifold elementary ? : " <<
     (descWrap.manifold().isElementary() ? "yes" : "no" ) << "\n" <<
-    "manifold display :" << "\n";
-    descWrap.manifold().display();
-    o << "\n" <<
     "the manifold dimension is " << descWrap.manifold().representationDim() << "\n";
-
     return o;
   }
 } // end of namespace roboptim.

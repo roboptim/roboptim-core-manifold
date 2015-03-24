@@ -1,8 +1,10 @@
 #ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
 # include <boost/format.hpp>
+# include <boost/mpl/assert.hpp>
 # include <vector>
 # include <queue>
+# include <utility>
 # include <manifolds/Manifold.h>
 # include <iostream>
 
@@ -14,8 +16,10 @@ namespace roboptim
   template <typename U>
   InstanceWrapper<U>::InstanceWrapper
   (boost::shared_ptr<DescriptiveWrapper<U>> descWrap,
-     pgs::Manifold& problemManifold,
-     pgs::Manifold& functionManifold)
+   pgs::Manifold& problemManifold,
+   pgs::Manifold& functionManifold,
+   std::vector<pgs::Manifold*> restrictedManifolds,
+   std::vector<std::pair<long, long>> restrictions)
     : detail::AutopromoteTrait<U>::T_type
       (problemManifold.representationDim(),
        descWrap->fct().outputSize (),
@@ -23,33 +27,88 @@ namespace roboptim
 	% descWrap->fct().getName ()).str ()),
       descWrap_ (descWrap)
   {
-    this->mappingFromProblemSize_ = problemManifold.representationDim();
-    this->mappingFromProblem_ = new size_t[this->mappingFromProblemSize_];
-    this->mappingFromFunctionSize_ = functionManifold.representationDim();
+    // Assert to check the sizes of the restrictions' std::vector
+    // Either they are the same, or the restrictions array is a single pair
+    // If the restriction array is a single pair, it is applied to all
+    // restricted manifolds.
+    //
+    // Also, check that the restrictions actually make sense.
+    assert (restrictions.size() == 1 || (restrictedManifolds.size() == restrictions.size()));
+    {
+      for (size_t i = 0; i < restrictedManifolds.size(); ++i)
+	{
+	  std::pair<long, long> restriction = restrictions[(restrictions.size() == 1?0:i)];
+	  assert (restriction.first + restriction.second <= restrictedManifolds[i]->representationDim());
+	}
+    }
+
+        // TODO: should be memoized for performance, although we can compute
+    // an adequate map if we use a Factory pattern to create this wrapper.
+    std::function<std::pair<long, long>(const pgs::Manifold&)> getRestriction = [&restrictedManifolds, &restrictions, &getRestriction](const pgs::Manifold& manifold)
+      {
+	// A (-1, -1) is equivalent to no restrictions at all
+	std::pair<long, long> ans = std::make_pair(-1l, -1l);
+
+	for (size_t i = 0; i < restrictedManifolds.size(); ++i)
+	  {
+	    // TODO: replace by an id check
+	    if (!manifold.name().compare(restrictedManifolds[i]->name()))
+	      {
+		ans = restrictions[(restrictions.size() == 1?0:i)];
+		break;
+	      }
+	  }
+
+	ans.first = std::max(0l, ans.first);
+	if (ans.second < 0)
+	  {
+	    ans.second = manifold.representationDim();
+	  }
+
+	return ans;
+      };
+
+    std::function<long(const pgs::Manifold&)> computeRestrictedDimension = [&computeRestrictedDimension, &getRestriction](const pgs::Manifold& manifold)
+      {
+	long mySize = 0;
+
+	if (manifold.isElementary())
+	  {
+	    mySize = getRestriction(manifold).second;
+	  }
+	else
+	  {
+	    for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
+	      {
+		mySize += computeRestrictedDimension(manifold(i));
+	      }
+	  }
+
+	return mySize;
+      };
+
+    // FIXME: recompute the exact size, taking the restrictions into account
+    this->mappingFromFunctionSize_ = computeRestrictedDimension(functionManifold);
     this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
 
     this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
     this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
     this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
 
-    std::cout << "this->mappingFromProblemSize_: " << this->mappingFromProblemSize_ << std::endl;
-    std::cout << "this->mappingFromFunctionSize_: " << this->mappingFromFunctionSize_ << std::endl;
 
-    std::function<long(const pgs::Manifold&, std::string, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this](const pgs::Manifold& manifold, std::string targetName, long functionStartIndex, long startIndex)
+    std::function<long(const pgs::Manifold&, std::string, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction](const pgs::Manifold& manifold, std::string targetName, long functionStartIndex, long startIndex)
       {
+	// TODO: replace by an id check
 	if (!targetName.compare(manifold.name()))
 	  {
 	    // We found the manifold
-	    // Write its index and exit
-	    std::cout << "Found a match for " << manifold.name()  << std::endl;
-	    std::cout << "startIndex: " << startIndex << std::endl;
-	    std::cout << "functionStartIndex: " << functionStartIndex << std::endl;
+	    // Write its indexes and exit
+	    std::pair<long, long> restriction = getRestriction(manifold);
 
-	    for (long i = 0; i < manifold.representationDim(); ++i)
+	    for (long i = 0; i < restriction.second; ++i)
 	      {
-		std::cout << "i: " << i << std::endl;
-		this->mappingFromProblem_[static_cast<size_t>(startIndex + i)] = static_cast<size_t>(functionStartIndex + i);
-		this->mappingFromFunction_[static_cast<size_t>(functionStartIndex + i)] = static_cast<size_t>(startIndex + i);
+		this->mappingFromFunction_[static_cast<size_t>(functionStartIndex + i)]
+		  = static_cast<size_t>(startIndex + i + restriction.first);
 	      }
 
 	    return -1l;
@@ -72,13 +131,12 @@ namespace roboptim
 	  }
       };
 
-    std::function<int(const pgs::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold](const pgs::Manifold& manifold, int startIndex)
+    std::function<int(const pgs::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold, &getRestriction](const pgs::Manifold& manifold, int startIndex)
       {
 	if (manifold.isElementary())
 	  {
-	    std::cout << "Matching function manifold: " << manifold.name()  << std::endl;
 	    getStartingIndexOfManifold(problemManifold, manifold.name(), startIndex, 0);
-	    return static_cast<int>(startIndex + manifold.representationDim());
+	    return static_cast<int>(startIndex + getRestriction(manifold).second);
 	  }
 
 	for (size_t i = 0; i < manifold.numberOfSubmanifolds() && startIndex >= 0; ++i)
@@ -90,16 +148,15 @@ namespace roboptim
       };
 
     traverseFunctionManifold(functionManifold, 0);
+
   }
 
   template <typename U>
   InstanceWrapper<U>::~InstanceWrapper()
   {
-    delete [] this->mappingFromProblem_;
     delete [] this->mappingFromFunction_;
   }
 
-  // FIXME: temp, complete those methods
   template <typename U>
   void
   InstanceWrapper<U>::mapArgument (const_argument_ref argument)
@@ -167,11 +224,6 @@ namespace roboptim
   std::ostream&
   InstanceWrapper<U>::print_ (std::ostream& o)
   {
-    for (long i = 0; i < this->mappingFromProblemSize_; ++i)
-      {
-	o << (i>0?", ":"") << this->mappingFromProblem_[i];
-      }
-    o << "\n";
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
       {
 	o << (i>0?", ":"") << this->mappingFromFunction_[i];

@@ -37,7 +37,7 @@
 using namespace roboptim;
 
 typedef boost::mpl::list< ::roboptim::EigenMatrixDense,
-			  ::roboptim::EigenMatrixSparse> functionTypes_t;
+  ::roboptim::EigenMatrixSparse> functionTypes_t;
 
 struct F : public DifferentiableFunction
 {
@@ -58,11 +58,9 @@ struct F : public DifferentiableFunction
 		      size_type functionId) const
   {
     grad.setZero ();
-    std::cout << "functionId: " << functionId << std::endl;
     for (size_type j = 0; j < 3; ++j)
       {
 	grad[19 + j] += (value_type)functionId;
-	std::cout << "grad[19 + j]: " << grad[19 + j] << std::endl;
       }
   }
 };
@@ -77,7 +75,6 @@ struct G : public DifferentiableFunction
     res.setZero ();
     for (size_type i = 0; i < inputSize (); ++i)
       {
-	std::cout << "argument[i]: " << argument[i] << std::endl;
 	res[0] += argument[i];
       }
   }
@@ -91,11 +88,34 @@ struct G : public DifferentiableFunction
   }
 };
 
+struct H : public DifferentiableFunction
+{
+  H () : DifferentiableFunction (45, 1, "f_n (x) = sum(x)")
+  {}
+
+  void impl_compute (result_ref res, const_argument_ref argument) const
+  {
+    res.setZero ();
+    for (size_type i = 0; i < inputSize (); ++i)
+      {
+	res[0] += argument[i];
+      }
+  }
+
+  void impl_gradient (gradient_ref grad, const_argument_ref,
+		      size_type functionId) const
+  {
+    grad.setZero ();
+    for (size_type j = 0; j < 45; ++j)
+      grad[j] = functionId * 0 + 1;
+  }
+};
+
 boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
-BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
+BOOST_AUTO_TEST_CASE (manifold_map_test_0)
 {
   output = retrievePattern("filter-manifold-map");
 
@@ -109,8 +129,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   pgs::CartesianProduct cartProd(joints, ori);
   pgs::CartesianProduct myFuncManifold(cartProd, pos);
-
-  std::cout << "f->outputSize(): " << f->outputSize() << std::endl;
 
   boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
     descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, myFuncManifold));
@@ -136,7 +154,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   for (int i = 0; i < f->outputSize(); ++i)
     {
       instWrap.gradient(gradient, input, i);
-      std::cout << "gradient (main): " << gradient << std::endl << std::endl;
     }
 
   instWrap.jacobian(jacobian, input);
@@ -145,12 +162,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   std::cout << (*descWrapPtr);
 
   BOOST_CHECK (output->match_pattern());
+
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
+BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 {
-  output = retrievePattern("filter-manifold-map");
-
   boost::shared_ptr<G> g (new G());
 
   std::vector<pgs::RealSpace*> reals;
@@ -194,8 +210,56 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
       delete reals[i];
     }
 
+  }
 
-  //BOOST_CHECK (output->match_pattern());
+BOOST_AUTO_TEST_CASE (manifold_map_test_2)
+{
+  output = retrievePattern("filter-manifold-map-3");
+
+  boost::shared_ptr<H> h (new H());
+
+  std::vector<pgs::Manifold*> reals;
+  std::vector<std::pair<long, long>> restrictions;
+  pgs::CartesianProduct problemManifold;
+  pgs::CartesianProduct descriptiveManifold;
+
+  const size_t posNumber = 15;
+
+  for (size_t i = 0; i < posNumber; ++i)
+    {
+      reals.push_back(new pgs::RealSpace(6));
+      reals.back()->name() = "position (" + std::to_string(i) + ")";
+      problemManifold.multiply(*reals.back());
+      descriptiveManifold.multiply(*(new pgs::RealSpace(3)));
+    }
+
+  restrictions.push_back(std::make_pair(3l, 3l));
+
+  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
+    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(h, descriptiveManifold));
+
+  InstanceWrapper<DifferentiableFunction>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  InstanceWrapper<DifferentiableFunction>::result_t result = Eigen::VectorXd::Zero(1);
+  InstanceWrapper<DifferentiableFunction>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  InstanceWrapper<DifferentiableFunction>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 6 * static_cast<long>(posNumber));
+
+  InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
+
+ for (int i = 0; i < input.size(); ++i)
+    {
+      input(i) = (i % 6) > 2;
+    }
+
+
+ instWrap(result, input);
+
+ (*output) << instWrap;
+
+ std::cout << "result: " << result << std::endl;
+
+ BOOST_CHECK (result(0) == 45);
+
+ BOOST_CHECK (output->match_pattern());
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
