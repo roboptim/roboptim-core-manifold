@@ -19,19 +19,14 @@
 
 #include <iostream>
 
-#include <roboptim/core/io.hh>
 #include <roboptim/core/differentiable-function.hh>
-#include <roboptim/core/util.hh>
 
-#include <roboptim/core/function/cos.hh>
 #include <roboptim/core/filter/manifold-map/instance-wrapper.hh>
 #include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
 
 #include <manifolds/SO3.h>
-#include <manifolds/S2.h>
 #include <manifolds/RealSpace.h>
 #include <manifolds/CartesianProduct.h>
-#include <manifolds/CartesianPower.h>
 #include <manifolds/ExpMapMatrix.h>
 
 using namespace roboptim;
@@ -145,7 +140,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
       input(i) = 1 + i;
     }
 
-  (*output) << instWrap;
+  (*output) << instWrap << "\n";
   std::cout << instWrap << std::endl;
   std::cout << "input: " << input.transpose() << std::endl;
   instWrap(result, input);
@@ -159,7 +154,8 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
   instWrap.jacobian(jacobian, input);
   std::cout << "jacobian: " << std::endl << jacobian << std::endl;
 
-  std::cout << (*descWrapPtr);
+  (*output) << (*descWrapPtr);
+  std::cout << (*descWrapPtr) << std::endl;
 
   BOOST_CHECK (output->match_pattern());
 
