@@ -34,13 +34,12 @@ namespace roboptim
     //
     // Also, check that the restrictions actually make sense.
     assert (restrictions.size() == 1 || (restrictedManifolds.size() == restrictions.size()));
-    {
-      for (size_t i = 0; i < restrictedManifolds.size(); ++i)
-	{
-	  std::pair<long, long> restriction = restrictions[(restrictions.size() == 1?0:i)];
-	  assert (restriction.first + restriction.second <= restrictedManifolds[i]->representationDim());
-	}
-    }
+    ROBOPTIM_DEBUG_ONLY(\
+      for (size_t i = 0; i < restrictedManifolds.size(); ++i)\
+	{\
+	  std::pair<long BOOST_PP_COMMA() long> restriction = restrictions[(restrictions.size() == 1?0:i)];\
+	  assert (restriction.first + restriction.second <= restrictedManifolds[i]->representationDim());\
+	})
 
         // TODO: should be memoized for performance, although we can compute
     // an adequate map if we use a Factory pattern to create this wrapper.
