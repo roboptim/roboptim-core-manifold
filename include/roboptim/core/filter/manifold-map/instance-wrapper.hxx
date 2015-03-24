@@ -16,9 +16,9 @@ namespace roboptim
   template <typename U>
   InstanceWrapper<U>::InstanceWrapper
   (boost::shared_ptr<DescriptiveWrapper<U>> descWrap,
-   pgs::Manifold& problemManifold,
-   pgs::Manifold& functionManifold,
-   std::vector<pgs::Manifold*> restrictedManifolds,
+   const pgs::Manifold& problemManifold,
+   const pgs::Manifold& functionManifold,
+   std::vector<const pgs::Manifold*> restrictedManifolds,
    std::vector<std::pair<long, long>> restrictions)
     : detail::AutopromoteTrait<U>::T_type
       (problemManifold.representationDim(),

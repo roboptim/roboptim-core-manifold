@@ -36,16 +36,16 @@ namespace roboptim
     /// \param restrictedManifolds a list of elementary Manifolds to be restricted to a part of themselves
     /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
     explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
-			      pgs::Manifold& problemManifold,
-			      pgs::Manifold& functionManifold,
-			      std::vector<pgs::Manifold*> restrictedManifolds,
+			      const pgs::Manifold& problemManifold,
+			      const pgs::Manifold& functionManifold,
+			      std::vector<const pgs::Manifold*> restrictedManifolds,
 			      std::vector<std::pair<long, long>> restrictions);
 
     explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
-			      pgs::Manifold& problemManifold,
-			      pgs::Manifold& functionManifold)
+			      const pgs::Manifold& problemManifold,
+			      const pgs::Manifold& functionManifold)
       : InstanceWrapper(fct, problemManifold, functionManifold,
-	     std::vector<pgs::Manifold*>(), std::vector<std::pair<long, long>>())
+	     std::vector<const pgs::Manifold*>(), std::vector<std::pair<long, long>>())
     {
     }
 

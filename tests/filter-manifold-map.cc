@@ -123,12 +123,12 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
 
   pgs::RealSpace pos(3);pos.name() = "position";
   pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
-  pgs::CartesianProduct freeFlyer(pos, ori);
+  const pgs::CartesianProduct freeFlyer(pos, ori);
   pgs::RealSpace joints(10); joints.name() = "joints";
-  pgs::CartesianProduct robot(freeFlyer, joints);
+  const pgs::CartesianProduct robot(freeFlyer, joints);
 
-  pgs::CartesianProduct cartProd(joints, ori);
-  pgs::CartesianProduct myFuncManifold(cartProd, pos);
+  const pgs::CartesianProduct cartProd(joints, ori);
+  const pgs::CartesianProduct myFuncManifold(cartProd, pos);
 
   boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
     descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, myFuncManifold));
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 {
   boost::shared_ptr<G> g (new G());
 
-  std::vector<pgs::RealSpace*> reals;
+  std::vector<const pgs::RealSpace*> reals;
   pgs::CartesianProduct problemManifold;
   pgs::RealSpace descriptiveManifold(3);
 
@@ -180,8 +180,9 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      reals.push_back(new pgs::RealSpace(3));
-      reals.back()->name() = "position (" + std::to_string(i) + ")";
+      pgs::RealSpace* newR = new pgs::RealSpace(3);
+      newR->name() = "position (" + std::to_string(i) + ")";
+      reals.push_back(newR);
       problemManifold.multiply(*reals.back());
     }
 
@@ -218,7 +219,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_2)
 
   boost::shared_ptr<H> h (new H());
 
-  std::vector<pgs::Manifold*> reals;
+  std::vector<const pgs::Manifold*> reals;
   std::vector<std::pair<long, long>> restrictions;
   pgs::CartesianProduct problemManifold;
   pgs::CartesianProduct descriptiveManifold;
@@ -227,8 +228,9 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_2)
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      reals.push_back(new pgs::RealSpace(6));
-      reals.back()->name() = "position (" + std::to_string(i) + ")";
+      pgs::RealSpace* newR = new pgs::RealSpace(6);
+      newR->name() = "position (" + std::to_string(i) + ")";
+      reals.push_back(newR);
       problemManifold.multiply(*reals.back());
       descriptiveManifold.multiply(*(new pgs::RealSpace(3)));
     }
