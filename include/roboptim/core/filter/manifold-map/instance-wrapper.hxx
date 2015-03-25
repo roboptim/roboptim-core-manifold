@@ -86,7 +86,6 @@ namespace roboptim
 	return mySize;
       };
 
-    // FIXME: recompute the exact size, taking the restrictions into account
     this->mappingFromFunctionSize_ = computeRestrictedDimension(functionManifold);
     this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
 

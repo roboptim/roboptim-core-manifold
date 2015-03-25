@@ -85,7 +85,7 @@ struct G : public DifferentiableFunction
 
 struct H : public DifferentiableFunction
 {
-  H () : DifferentiableFunction (45, 1, "f_n (x) = sum(x)")
+  H () : DifferentiableFunction (45, 3, "f_n (x) = sum(x)")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
@@ -93,7 +93,7 @@ struct H : public DifferentiableFunction
     res.setZero ();
     for (size_type i = 0; i < inputSize (); ++i)
       {
-	res[0] += argument[i];
+	res[i % 3] += argument[i];
       }
   }
 
@@ -102,7 +102,7 @@ struct H : public DifferentiableFunction
   {
     grad.setZero ();
     for (size_type j = 0; j < 45; ++j)
-      grad[j] = functionId * 0 + 1;
+      grad[j] = (functionId == (j % 3));
   }
 };
 
@@ -162,6 +162,8 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
 
 BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 {
+  output = retrievePattern("filter-manifold-map-1");
+
   boost::shared_ptr<G> g (new G());
 
   std::vector<const pgs::RealSpace*> reals;
@@ -198,7 +200,10 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
       instWrap(result, input);
 
       BOOST_CHECK(result(0) == (3 * (3 * i + 1)));
-      //std::cout << "Ok for pos (" << i << ")" << std::endl;
+
+      instWrap.jacobian(jacobian, input);
+      std::cout << jacobian << std::endl;
+      (*output) << jacobian << std::endl;
     }
 
   for (size_t i = 0; i < posNumber; ++i)
@@ -282,9 +287,9 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_3)
     descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(h, descriptiveManifold));
 
   InstanceWrapper<DifferentiableFunction>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  InstanceWrapper<DifferentiableFunction>::result_t result = Eigen::VectorXd::Zero(1);
+  InstanceWrapper<DifferentiableFunction>::result_t result = Eigen::VectorXd::Zero(3);
   InstanceWrapper<DifferentiableFunction>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  InstanceWrapper<DifferentiableFunction>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 6 * static_cast<long>(posNumber));
+  InstanceWrapper<DifferentiableFunction>::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
 
   InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
 
@@ -293,14 +298,27 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_3)
       input(i) = (i % 6) > 2;
     }
 
-
  instWrap(result, input);
 
  (*output) << instWrap;
 
  std::cout << "result: " << result << std::endl;
 
- BOOST_CHECK (result(0) == 45);
+ BOOST_CHECK (result(0) == 15);
+ BOOST_CHECK (result(1) == 15);
+ BOOST_CHECK (result(2) == 15);
+
+ instWrap.jacobian(jacobian, input);
+
+ Eigen::MatrixXd jac = jacobian;
+
+ (*output) << "\n";
+
+ for (int i = 0; i < jac.rows(); ++i)
+   {
+     std::cout << jac.row(i) << std::endl;
+     (*output) << jac.row(i) << std::endl;
+   }
 
  BOOST_CHECK (output->match_pattern());
 }
