@@ -67,7 +67,7 @@ namespace roboptim
   public:
     boost::shared_ptr<DescriptiveWrapper<U>> descWrap_;
 
-     size_t* mappingFromFunction_;
+    size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;
 
     mutable vector_t mappedInput_;
