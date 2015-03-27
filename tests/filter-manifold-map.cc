@@ -28,6 +28,7 @@
 #include <manifolds/RealSpace.h>
 #include <manifolds/CartesianProduct.h>
 #include <manifolds/ExpMapMatrix.h>
+#include <manifolds/S2.h>
 
 using namespace roboptim;
 
@@ -322,5 +323,55 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_3)
 
  BOOST_CHECK (output->match_pattern());
 }
+
+BOOST_AUTO_TEST_CASE (manifold_map_test_4)
+{
+  boost::shared_ptr<F> f (new F());
+
+  pgs::RealSpace pos(3);pos.name() = "position";
+  pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
+  const pgs::CartesianProduct freeFlyer(pos, ori);
+  pgs::RealSpace joints(10); joints.name() = "joints";
+  const pgs::CartesianProduct robot(freeFlyer, joints);
+
+  const pgs::S2 s2;
+  const pgs::CartesianProduct cartProd(joints, ori);
+  const pgs::CartesianProduct myFuncManifold(cartProd, s2);
+  const pgs::CartesianProduct mySubManifold(cartProd, pos);
+
+  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
+    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, myFuncManifold));
+
+  std::vector<const pgs::Manifold*> restrictedManifolds;
+  restrictedManifolds.push_back(&pos);
+  std::vector<std::pair<long, long>> restrictions;
+  restrictions.push_back(std::make_pair(1l, 1l));
+
+  bool errorThrown = false;
+
+  try
+    {
+      InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, robot, mySubManifold);
+    }
+  catch (std::runtime_error& e)
+    {
+      errorThrown = true;
+    }
+
+  BOOST_CHECK(errorThrown);
+  errorThrown = false;
+
+    try
+    {
+      InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
+    }
+  catch (std::runtime_error& e)
+    {
+      errorThrown = true;
+    }
+
+  BOOST_CHECK(errorThrown);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END ()

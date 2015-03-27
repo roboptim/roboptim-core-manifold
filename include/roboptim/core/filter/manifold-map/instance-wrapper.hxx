@@ -1,15 +1,18 @@
 #ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
-# include <boost/format.hpp>
-# include <boost/mpl/assert.hpp>
 # include <vector>
 # include <queue>
 # include <utility>
-# include <manifolds/Manifold.h>
 # include <iostream>
+
+# include <boost/format.hpp>
+# include <boost/mpl/assert.hpp>
 
 # include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
 
+# include <manifolds/Manifold.h>
+# include <manifolds/RealSpace.h>
+# include <manifolds/S2.h>
 namespace roboptim
 {
 
@@ -41,7 +44,8 @@ namespace roboptim
 	  assert (restriction.first + restriction.second <= restrictedManifolds[i]->representationDim());\
 	})
 
-        // TODO: should be memoized for performance, although we can compute
+
+    // TODO: should be memoized for performance, although we can compute
     // an adequate map if we use a Factory pattern to create this wrapper.
     std::function<std::pair<long, long>(const pgs::Manifold&)> getRestriction = [&restrictedManifolds, &restrictions, &getRestriction](const pgs::Manifold& manifold)
       {
@@ -66,6 +70,50 @@ namespace roboptim
 
 	return ans;
       };
+
+      std::function<bool(const pgs::Manifold&, const pgs::Manifold&)> checkManifoldMatch = [&checkManifoldMatch, &getRestriction](const pgs::Manifold& fManifold, const pgs::Manifold& dManifold)
+      {
+	if (dManifold.isElementary() != fManifold.isElementary())
+	  {
+	    // Both manifold should be either elementary or composed at this point
+	    std::cout << "NONSENSE" << std::endl;
+	    std::cout << "fManifold.name(): " << fManifold.name() << std::endl;
+	    return false;
+	  }
+
+	if (dManifold.isElementary())
+	  {
+	    bool sameType = !std::strcmp(typeid(fManifold).name(), typeid(dManifold).name());
+	    bool isNotRealSpace = std::strcmp(typeid(fManifold).name(), typeid(pgs::RealSpace).name());
+	    bool sameSize = getRestriction(fManifold).second == dManifold.representationDim();
+
+
+	    return sameType && (isNotRealSpace || sameSize);
+	  }
+
+	// Both manifolds are composed
+	if (dManifold.numberOfSubmanifolds() != fManifold.numberOfSubmanifolds())
+	  {
+	    std::cout << "Not enough children" << std::endl;
+	    return false;
+	  }
+
+	for (size_t i = 0; i < dManifold.numberOfSubmanifolds(); ++i)
+	  {
+	    if (!checkManifoldMatch(fManifold(i), dManifold(i)))
+	      {
+		std::cout << "Children do not match" << std::endl;
+		return false;
+	      }
+	  }
+
+	return true;
+      };
+
+      if (!checkManifoldMatch(functionManifold, descWrap_->manifold()))
+	{
+	  throw std::runtime_error("LOL");
+	}
 
     std::function<long(const pgs::Manifold&)> computeRestrictedDimension = [&computeRestrictedDimension, &getRestriction](const pgs::Manifold& manifold)
       {
@@ -145,6 +193,7 @@ namespace roboptim
 	return static_cast<int>(startIndex);
       };
 
+    // Computes the mapping
     traverseFunctionManifold(functionManifold, 0);
 
   }
