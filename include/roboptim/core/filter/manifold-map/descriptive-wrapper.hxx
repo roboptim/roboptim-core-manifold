@@ -18,7 +18,9 @@ namespace roboptim
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (boost::shared_ptr<U>& f, const Manifold& m)
+  (boost::shared_ptr<U>& fct, const V& manifold)
+  : fct_ (fct),
+    manifold_ (manifold)
   {
     long size = manifold_->representationDim();
     if (fct_->inputSize() != size)
@@ -26,14 +28,14 @@ namespace roboptim
       std::stringstream* error = new std::stringstream;
       (*error) << "Representation dims mismatch on manifold "
                << manifold_->name() << " using function "
-               << fct->getName() << ". Expected dimension :" << size
+               << fct_->getName() << ". Expected dimension :" << size
                << ", actual one is " << fct_->inputSize();
       throw std::runtime_error (error->str());
     }
   }
 
-  template <typename U>
-  DescriptiveWrapper<U>::~DescriptiveWrapper()
+  template <typename U, typename V>
+  DescriptiveWrapper<U, V>::~DescriptiveWrapper()
   {
   }
 } // end of namespace roboptim.

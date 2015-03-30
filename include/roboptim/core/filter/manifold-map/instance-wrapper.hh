@@ -20,7 +20,7 @@ namespace roboptim
 
   /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
   /// \tparam U input function type.
-  template <typename U>
+  template <typename U, typename V>
   class InstanceWrapper : public detail::AutopromoteTrait<U>::T_type
   {
   public:
@@ -35,13 +35,13 @@ namespace roboptim
     /// \param functionManifold the manifold describing the function's input vector.
     /// \param restrictedManifolds a list of elementary Manifolds to be restricted to a part of themselves
     /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
-    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
+    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U, V>> fct,
 			      const pgs::Manifold& problemManifold,
 			      const pgs::Manifold& functionManifold,
 			      std::vector<const pgs::Manifold*> restrictedManifolds,
 			      std::vector<std::pair<long, long>> restrictions);
 
-    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U>> fct,
+    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U, V>> fct,
 			      const pgs::Manifold& problemManifold,
 			      const pgs::Manifold& functionManifold)
       : InstanceWrapper(fct, problemManifold, functionManifold,
@@ -65,7 +65,7 @@ namespace roboptim
     std::ostream& print_(std::ostream& o);
   private:
   public:
-    boost::shared_ptr<DescriptiveWrapper<U>> descWrap_;
+    boost::shared_ptr<DescriptiveWrapper<U, V>> descWrap_;
 
     size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;

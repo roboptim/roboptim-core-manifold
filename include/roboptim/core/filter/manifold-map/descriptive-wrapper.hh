@@ -27,18 +27,12 @@ namespace roboptim
     template<class ... Types>
     explicit DescriptiveWrapper (Types ... args);
 
-  private:
-    DescriptiveWrapper (boost::shared_ptr<U>& f, const Manifold& m);
-
   public:
-    DescriptiveWrapper (boost::shared_ptr<U>& f, const Manifold& m)
-    {
-      DescriptiveWrapper(f, m);
-    }
+     DescriptiveWrapper (boost::shared_ptr<U>& f, const V& m);
 
     ~DescriptiveWrapper ();
 
-    const pgs::Manifold& manifold () const
+    const V& manifold () const
     {
       return *manifold_;
     }
@@ -56,20 +50,20 @@ namespace roboptim
   private:
 
     boost::shared_ptr<U>  fct_;
-    const pgs::Manifold* manifold_;
+    V* manifold_;
   };
 
-  template <typename U>
-  boost::shared_ptr<DescriptiveWrapper<U> >
+  template <typename U, typename V>
+  boost::shared_ptr<DescriptiveWrapper<U, V> >
   descriptivewrapper (boost::shared_ptr<U> fct,
-	  const pgs::Manifold& manifold)
+	  const V& manifold)
   {
-    return boost::make_shared<DescriptiveWrapper<U> > (fct, manifold);
+    return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
   }
 
-  template <typename U>
+  template <typename U, typename V>
   std::ostream&
-  operator<<(std::ostream& o, DescriptiveWrapper<U>& descWrap)
+  operator<<(std::ostream& o, DescriptiveWrapper<U, V>& descWrap)
   {
     o <<
     "Displaying info about function in DescriptiveWrapper :" << "\n" <<
