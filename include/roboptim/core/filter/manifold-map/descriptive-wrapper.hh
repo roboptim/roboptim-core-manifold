@@ -8,6 +8,8 @@
 
 # include <manifolds/Manifold.h>
 
+#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef DW<function, manifold> function##_On_##manifold ;
+#define DEFAULT_FUNCTION_BINDING(function, manifold) typedef DW<function, manifold> Wrapped##function ;
 
 namespace roboptim
 {
@@ -16,7 +18,7 @@ namespace roboptim
 
   /// \brief apply a given roboptim function to a given dimension space
   /// \tparam U input function type.
-  template <typename U>
+  template <typename U, typename V>
   class DescriptiveWrapper
   {
   public:
@@ -25,8 +27,8 @@ namespace roboptim
     /// \brief map the function on the given manifold.
     /// \param fct input function.
     /// \param functionManifold the manifold describing the function's input vector.
-    explicit DescriptiveWrapper (boost::shared_ptr<U> fct,
-			  const pgs::Manifold& functionManifold);
+    template<class ... Types>
+    explicit DescriptiveWrapper (Types ... args);
     ~DescriptiveWrapper ();
 
     const pgs::Manifold& manifold () const
@@ -74,6 +76,7 @@ namespace roboptim
     "the manifold dimension is " << descWrap.manifold().representationDim() << "\n";
     return o;
   }
+
 } // end of namespace roboptim.
 
 # include <roboptim/core/filter/manifold-map/descriptive-wrapper.hxx>

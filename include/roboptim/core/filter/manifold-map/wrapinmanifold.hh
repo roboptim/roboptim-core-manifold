@@ -1,17 +1,30 @@
-#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_WRAP_IN_MANIFOLD_HH
-# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_WRAP_IN_MANIFOLD_HH
+#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_DESC_HH
+# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_DESC_HH
 
 #define ROBOPTIM_DESCRIPTIVE_FORWARD_DECS(NAME) typedef typename NAME##::parent_t type
 
+#define REAL_SPACE(num) Real<num>::Space
+#define DESC_MANIFOLD(name, ...) typedef ManiDesc< __VA_ARGS__> name
+#define DEFINE_MANIFOLD(name) template<class FI>\
+  struct Manifold_##name{\
+  static Manifold* getInstance(FI* function);\
+  };\
+  template<class FI>\
+  Manifold* Manifold_##name <FI>::getInstance(FI* function)
+
 namespace roboptim
 {
-  enum ManifoldType
+  ROBOPTIM_DESCRIPTIVE_FORWARD_DECS(U);
+
+  template<template <typename> class ... Types>
+  class ManiDesc
   {
-    USER  0,
-    R3    1,
-    S03   2
-    // we should write an enum type for every useful manifold type
-  }
+  public:
+
+    template<class FI>
+    static Manifold* getManifold(FI* function = nullptr);
+
+  };
 
   template<typename U>
   class WrapInManifold
