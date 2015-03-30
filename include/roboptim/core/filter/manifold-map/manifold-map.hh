@@ -11,10 +11,10 @@
 #define DESC_MANIFOLD(name, ...) typedef ManiDesc< __VA_ARGS__> name
 #define DEFINE_MANIFOLD(name) template<class U>\
   struct Manifold_##name{\
-  static Manifold* getInstance(U* function);\
+  static pgs::Manifold* getInstance(U* function);\
   };\
   template<class U>\
-  Manifold* Manifold_##name <U>::getInstance(U* function)
+  pgs::Manifold* Manifold_##name <U>::getInstance(U* function)
 
 #define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef DW<function, manifold> function##_On_##manifold ;
 #define DEFAULT_FUNCTION_BINDING(function, manifold) typedef DW<function, manifold> Wrapped##function ;

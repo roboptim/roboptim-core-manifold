@@ -9,9 +9,9 @@ namespace roboptim
   public:
 
     template<class U>
-    static Manifold* getManifold(U* function = nullptr);
+    static pgs::Manifold* getManifold(U* function = nullptr);
 
-    ROBOPTIM_DESCRIPTIVE_FORWARD_DECS(U);
+    ROBOPTIM_DESCRIPTIVE_FORWARD_DECS(U)
 
   };
 

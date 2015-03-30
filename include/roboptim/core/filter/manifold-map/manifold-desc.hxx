@@ -8,7 +8,7 @@ namespace roboptim
   template<class U>
   Manifold* ManiDesc<Types...>::getManifold(U* function)
   {
-    std::vector<Manifold*> manifolds;
+    std::vector<pgs::Manifold*> manifolds;
 
     auto doAction = [&manifolds, &function](Types<FI>... manis)
       {
@@ -28,7 +28,7 @@ namespace roboptim
     // FIXME: Here, simply return a Cartesian product of every manifold
     // We do not need a tree becase we will get rid of the structure
     // before comparing the two manifolds
-    return new Manifold(sBuffer.str());
+    return new pgs::Manifold(sBuffer.str());
   }
 
 }

@@ -21,8 +21,7 @@
 
 #include <roboptim/core/differentiable-function.hh>
 
-#include <roboptim/core/filter/manifold-map/instance-wrapper.hh>
-#include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
+#include <roboptim/core/filter/manifold-map/manifold-map.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -112,10 +111,8 @@ boost::shared_ptr<boost::test_tools::output_test_stream> output;
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
 BOOST_AUTO_TEST_CASE (manifold_map_test_0)
-{/*
+{
   output = retrievePattern("filter-manifold-map");
-
-  boost::shared_ptr<F> f (new F());
 
   pgs::RealSpace pos(3);pos.name() = "position";
   pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
@@ -126,15 +123,15 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
   const pgs::CartesianProduct cartProd(joints, ori);
   const pgs::CartesianProduct myFuncManifold(cartProd, pos);
 
-  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, myFuncManifold));
+  boost::shared_ptr<DescriptiveWrapper<F, pgs::CartesianProduct>>
+    descWrapPtr(new DescriptiveWrapper<F, pgs::CartesianProduct>());
 
-  InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, robot, myFuncManifold);
+  InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, robot, myFuncManifold);
 
-  InstanceWrapper<DifferentiableFunction>::argument_t input = Eigen::VectorXd::Zero(22);
-  InstanceWrapper<DifferentiableFunction>::result_t result = Eigen::VectorXd::Zero(10);
-  InstanceWrapper<DifferentiableFunction>::gradient_t gradient = Eigen::VectorXd::Zero(22);
-  InstanceWrapper<DifferentiableFunction>::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
+  InstanceWrapper<F, pgs::CartesianProduct>::argument_t input = Eigen::VectorXd::Zero(22);
+  InstanceWrapper<F, pgs::CartesianProduct>::result_t result = Eigen::VectorXd::Zero(10);
+  InstanceWrapper<F, pgs::CartesianProduct>::gradient_t gradient = Eigen::VectorXd::Zero(22);
+  InstanceWrapper<F, pgs::CartesianProduct>::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
 
   for(int i = 0; i < 3; ++i)
     {
@@ -147,7 +144,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
   instWrap(result, input);
   std::cout << "result: " << result.transpose() << std::endl << std::endl;
 
-  for (int i = 0; i < f->outputSize(); ++i)
+  for (int i = 0; i < 22; ++i)
     {
       instWrap.gradient(gradient, input, i);
     }
@@ -162,7 +159,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
 }
 
 BOOST_AUTO_TEST_CASE (manifold_map_test_1)
-{
+{/*
   output = retrievePattern("filter-manifold-map-1");
 
   boost::shared_ptr<G> g (new G());
@@ -184,10 +181,10 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
       problemManifold.multiply(*reals.back());
     }
 
-  InstanceWrapper<DifferentiableFunction>::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  InstanceWrapper<DifferentiableFunction>::result_t result = Eigen::VectorXd::Zero(1);
-  InstanceWrapper<DifferentiableFunction>::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  InstanceWrapper<DifferentiableFunction>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
+  InstanceWrapper<F, pgs::CartesianProduct>::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
+  InstanceWrapper<F, pgs::CartesianProduct>::result_t result = Eigen::VectorXd::Zero(1);
+  InstanceWrapper<F, pgs::CartesianProduct>::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
+  InstanceWrapper<F, pgs::CartesianProduct>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
 
   for (int i = 0; i < input.size(); ++i)
     {
@@ -196,7 +193,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, problemManifold, *reals[i]);
+      InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, problemManifold, *reals[i]);
 
       instWrap(result, input);
 
@@ -287,12 +284,12 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_3)
   boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
     descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(h, descriptiveManifold));
 
-  InstanceWrapper<DifferentiableFunction>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  InstanceWrapper<DifferentiableFunction>::result_t result = Eigen::VectorXd::Zero(3);
-  InstanceWrapper<DifferentiableFunction>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  InstanceWrapper<DifferentiableFunction>::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
+  InstanceWrapper<F, pgs::CartesianProduct>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  InstanceWrapper<F, pgs::CartesianProduct>::result_t result = Eigen::VectorXd::Zero(3);
+  InstanceWrapper<F, pgs::CartesianProduct>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  InstanceWrapper<F, pgs::CartesianProduct>::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
 
-  InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
+  InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
 
  for (int i = 0; i < input.size(); ++i)
     {
@@ -351,7 +348,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_4)
 
   try
     {
-      InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, robot, mySubManifold);
+      InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, robot, mySubManifold);
     }
   catch (std::runtime_error& e)
     {
@@ -363,7 +360,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_4)
 
     try
     {
-      InstanceWrapper<DifferentiableFunction> instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
+      InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
     }
   catch (std::runtime_error& e)
     {
