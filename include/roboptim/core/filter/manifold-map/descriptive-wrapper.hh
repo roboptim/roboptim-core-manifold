@@ -8,9 +8,6 @@
 
 # include <manifolds/Manifold.h>
 
-#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef DW<function, manifold> function##_On_##manifold ;
-#define DEFAULT_FUNCTION_BINDING(function, manifold) typedef DW<function, manifold> Wrapped##function ;
-
 namespace roboptim
 {
   /// \addtogroup roboptim_filter
