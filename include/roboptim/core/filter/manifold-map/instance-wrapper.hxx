@@ -71,49 +71,71 @@ namespace roboptim
 	return ans;
       };
 
-      std::function<bool(const pgs::Manifold&, const pgs::Manifold&)> checkManifoldMatch = [&checkManifoldMatch, &getRestriction](const pgs::Manifold& fManifold, const pgs::Manifold& dManifold)
+    std::vector<const pgs::Manifold*> planarManifold;
+
+    std::function<void(const pgs::Manifold&)> manifoldTreeToVector = [&planarManifold, &manifoldTreeToVector](const pgs::Manifold& manifold)
       {
-	if (dManifold.isElementary() != fManifold.isElementary())
+	if (manifold.isElementary())
 	  {
-	    // Both manifold should be either elementary or composed at this point
-	    std::cout << "NONSENSE" << std::endl;
-	    std::cout << "fManifold.name(): " << fManifold.name() << std::endl;
-	    return false;
+	    planarManifold.push_back(&manifold);
+	    return;
 	  }
 
-	if (dManifold.isElementary())
+	for(size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
 	  {
-	    bool sameType = !std::strcmp(typeid(fManifold).name(), typeid(dManifold).name());
-	    bool isNotRealSpace = std::strcmp(typeid(fManifold).name(), typeid(pgs::RealSpace).name());
-	    bool sameSize = getRestriction(fManifold).second == dManifold.representationDim();
-
-
-	    return sameType && (isNotRealSpace || sameSize);
+	    manifoldTreeToVector(manifold(i));
 	  }
+      };
+    manifoldTreeToVector(functionManifold);
 
-	// Both manifolds are composed
-	if (dManifold.numberOfSubmanifolds() != fManifold.numberOfSubmanifolds())
+    std::function<long(const pgs::Manifold&, long)> checkManifold = [&planarManifold, &checkManifold, &getRestriction](const pgs::Manifold& manifold, long index = 0)
+      {
+	if (manifold.isElementary())
 	  {
-	    std::cout << "Not enough children" << std::endl;
-	    return false;
-	  }
+	    bool sameType = !std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(manifold).name());
+            bool isNotRealSpace = std::strcmp(typeid(planarManifold[static_cast<size_t>(index)]).name(), typeid(pgs::RealSpace).name());
+            bool sameSize = getRestriction((*planarManifold[static_cast<size_t>(index)])).second == manifold.representationDim();
 
-	for (size_t i = 0; i < dManifold.numberOfSubmanifolds(); ++i)
-	  {
-	    if (!checkManifoldMatch(fManifold(i), dManifold(i)))
+            if (sameType && (isNotRealSpace || sameSize))
 	      {
-		std::cout << "Children do not match" << std::endl;
-		return false;
+		return ++index;
+	      }
+
+	    std::cout << "sameType: " << sameType << std::endl;
+	    std::cout << "(*(planarManifold[static_cast<size_t>(index)])).name(): " << (*(planarManifold[static_cast<size_t>(index)])).name() << std::endl;
+	    std::cout << "typeid(planarManifold[static_cast<size_t>(index)]).name(): " << typeid(planarManifold[static_cast<size_t>(index)]).name() << std::endl;
+	    std::cout << "typeid(manifold).name(): " << typeid(manifold).name() << std::endl;
+	    std::cout << "isNotRealSpace: " << isNotRealSpace << std::endl;
+	    std::cout << "sameSize: " << sameSize << std::endl;
+
+	    std::cout << "manifold.name(): " << manifold.name() << std::endl;
+	    std::cout << "planarManifold[static_cast<size_t>(index)]->name(): " << planarManifold[static_cast<size_t>(index)]->name() << std::endl;
+	    std::cout << std::endl;
+
+	    return -1l;
+	  }
+
+	for (long i = 0; i < static_cast<long>(manifold.numberOfSubmanifolds()); ++i)
+	  {
+	    index = checkManifold(manifold(static_cast<size_t>(i)), index);
+	    if (index < 0)
+	      {
+		std::cerr << "A child has failed" << std::endl;
+		return -1l;
 	      }
 	  }
 
-	return true;
+	return index;
       };
 
-      if (!checkManifoldMatch(functionManifold, descWrap_->manifold()))
-	{
-	  throw std::runtime_error("LOL");
-	}
+    long manifoldsMatched = checkManifold(this->descWrap_->manifold(), 0);
+
+    if (manifoldsMatched != static_cast<long>(planarManifold.size()))
+      {
+	std::cerr << "manifoldsMatched : " << manifoldsMatched  << std::endl;
+	std::cerr << "static_cast<long>(planarManifold.size()): " << static_cast<long>(planarManifold.size()) << std::endl;
+	throw std::runtime_error("ERROR: instantiation and descriptive manifolds are not equivalent");
+      }
 
     std::function<long(const pgs::Manifold&)> computeRestrictedDimension = [&computeRestrictedDimension, &getRestriction](const pgs::Manifold& manifold)
       {
