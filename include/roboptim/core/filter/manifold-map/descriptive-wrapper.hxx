@@ -11,14 +11,15 @@ namespace roboptim
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (Types ... args)
   {
-    // Creation
-
     this->fct_ = new U(args...);
     V manifoldGenerator;
     this->manifold_ = manifoldGenerator.getManifold(this->function_);
+  }
 
-    // Manifold checking should be useless now, commenting
-    /*
+  template <typename U, typename V>
+  DescriptiveWrapper<U, V>::DescriptiveWrapper
+  (boost::shared_ptr<U>& f, const Manifold& m)
+  {
     long size = manifold_->representationDim();
     if (fct_->inputSize() != size)
     {
@@ -28,7 +29,7 @@ namespace roboptim
                << fct->getName() << ". Expected dimension :" << size
                << ", actual one is " << fct_->inputSize();
       throw std::runtime_error (error->str());
-    }*/
+    }
   }
 
   template <typename U>

@@ -29,6 +29,16 @@ namespace roboptim
     /// \param functionManifold the manifold describing the function's input vector.
     template<class ... Types>
     explicit DescriptiveWrapper (Types ... args);
+
+  private:
+    DescriptiveWrapper (boost::shared_ptr<U>& f, const Manifold& m);
+
+  public:
+    DescriptiveWrapper (boost::shared_ptr<U>& f, const Manifold& m)
+    {
+      DescriptiveWrapper(f, m);
+    }
+
     ~DescriptiveWrapper ();
 
     const pgs::Manifold& manifold () const
