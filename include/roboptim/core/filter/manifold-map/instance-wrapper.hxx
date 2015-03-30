@@ -16,9 +16,9 @@
 namespace roboptim
 {
 
-  template <typename U>
-  InstanceWrapper<U>::InstanceWrapper
-  (boost::shared_ptr<DescriptiveWrapper<U>> descWrap,
+  template <typename U, typename V>
+  InstanceWrapper<U, V>::InstanceWrapper
+  (boost::shared_ptr<DescriptiveWrapper<U, V>> descWrap,
    const pgs::Manifold& problemManifold,
    const pgs::Manifold& functionManifold,
    std::vector<const pgs::Manifold*> restrictedManifolds,
@@ -220,15 +220,15 @@ namespace roboptim
 
   }
 
-  template <typename U>
-  InstanceWrapper<U>::~InstanceWrapper()
+  template <typename U, typename V>
+  InstanceWrapper<U, V>::~InstanceWrapper()
   {
     delete [] this->mappingFromFunction_;
   }
 
-  template <typename U>
+  template <typename U, typename V>
   void
-  InstanceWrapper<U>::mapArgument (const_argument_ref argument)
+  InstanceWrapper<U, V>::mapArgument (const_argument_ref argument)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
@@ -237,9 +237,9 @@ namespace roboptim
       }
   }
 
-  template <typename U>
+  template <typename U, typename V>
   void
-  InstanceWrapper<U>::unmapGradient(gradient_ref gradient)
+  InstanceWrapper<U, V>::unmapGradient(gradient_ref gradient)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
@@ -248,9 +248,9 @@ namespace roboptim
       }
   }
 
-  template <typename U>
+  template <typename U, typename V>
   void
-  InstanceWrapper<U>::impl_compute
+  InstanceWrapper<U, V>::impl_compute
   (result_ref result, const_argument_ref x)
     const
   {
@@ -258,9 +258,9 @@ namespace roboptim
     descWrap_->fct()(result, this->mappedInput_);
   }
 
-  template <typename U>
+  template <typename U, typename V>
   void
-  InstanceWrapper<U>::impl_gradient (gradient_ref gradient,
+  InstanceWrapper<U, V>::impl_gradient (gradient_ref gradient,
 			 const_argument_ref argument,
 			 size_type functionId)
     const
@@ -272,9 +272,9 @@ namespace roboptim
     this->unmapGradient(gradient);
   }
 
-  template <typename U>
+  template <typename U, typename V>
   void
-  InstanceWrapper<U>::impl_jacobian (jacobian_ref jacobian,
+  InstanceWrapper<U, V>::impl_jacobian (jacobian_ref jacobian,
 			 const_argument_ref argument)
     const
   {
@@ -289,9 +289,9 @@ namespace roboptim
 
   }
 
-  template <typename U>
+  template <typename U, typename V>
   std::ostream&
-  InstanceWrapper<U>::print_ (std::ostream& o)
+  InstanceWrapper<U, V>::print_ (std::ostream& o)
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
       {

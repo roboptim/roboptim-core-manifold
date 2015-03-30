@@ -81,48 +81,48 @@ namespace roboptim
       const;
   };
 
-  template <typename U>
-  boost::shared_ptr<InstanceWrapper<U> >
+  template <typename U, typename V>
+  boost::shared_ptr<InstanceWrapper<U, V> >
   scalar (boost::shared_ptr<U> origin,
-	  typename InstanceWrapper<U>::size_type start = 0,
-	  typename InstanceWrapper<U>::size_type size = 1)
+	  typename InstanceWrapper<U, V>::size_type start = 0,
+	  typename InstanceWrapper<U, V>::size_type size = 1)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), start, size);
+    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), start, size);
   }
 
-  template <typename U>
-  boost::shared_ptr<InstanceWrapper<U> >
-  operator* (typename InstanceWrapper<U>::value_type scalar,
+  template <typename U, typename V>
+  boost::shared_ptr<InstanceWrapper<U, V> >
+  operator* (typename InstanceWrapper<U, V>::value_type scalar,
 	     boost::shared_ptr<U> origin)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), scalar);
+    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), scalar);
   }
 
-  template <typename U>
-  boost::shared_ptr<InstanceWrapper<U> >
+  template <typename U, typename V>
+  boost::shared_ptr<InstanceWrapper<U, V> >
   operator* (boost::shared_ptr<U> origin,
-	     typename InstanceWrapper<U>::value_type scalar)
+	     typename InstanceWrapper<U, V>::value_type scalar)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), scalar);
+    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), scalar);
   }
 
-  template <typename U>
+  template <typename U, typename V>
   boost::shared_ptr<U>
   operator+ (boost::shared_ptr<U> origin)
   {
     return origin->fct();
   }
 
-  template <typename U>
-  boost::shared_ptr<InstanceWrapper<U> >
+  template <typename U, typename V>
+  boost::shared_ptr<InstanceWrapper<U, V> >
   operator- (boost::shared_ptr<U> origin)
   {
-    return boost::make_shared<InstanceWrapper<U> > (origin->fct(), -1.);
+    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), -1.);
   }
 
-  template <typename U>
+  template <typename U, typename V>
   std::ostream&
-  operator<<(std::ostream& o, InstanceWrapper<U>& instWrap)
+  operator<<(std::ostream& o, InstanceWrapper<U, V>& instWrap)
   {
     return instWrap.print_(o);
   }
