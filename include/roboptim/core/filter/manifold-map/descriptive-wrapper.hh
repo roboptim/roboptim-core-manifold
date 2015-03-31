@@ -38,7 +38,7 @@ namespace roboptim
       return *manifold_;
     }
 
-    const boost::shared_ptr<U>& fct () const
+    const boost::shared_ptr<U>& fctPointer () const
     {
       return fct_;
     }
