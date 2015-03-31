@@ -89,10 +89,11 @@ namespace roboptim
       };
     manifoldTreeToVector(functionManifold);
 
-    std::function<long(const pgs::Manifold&, long)> checkManifold = [&planarManifold, &checkManifold, &getRestriction](const pgs::Manifold& manifold, long index = 0)
+    std::function<long(const pgs::Manifold&, long)> checkManifold = [&planarManifold, &checkManifold, &getRestriction](const pgs::Manifold& manifold, long index)
       {
 	if (manifold.isElementary())
 	  {
+      //TODO: cleaner Manfifold type checking
 	    bool sameType = !std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(manifold).name());
             bool isNotRealSpace = std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(pgs::RealSpace).name());
             bool sameSize = getRestriction((*planarManifold[static_cast<size_t>(index)])).second == manifold.representationDim();

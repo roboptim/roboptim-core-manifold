@@ -292,7 +292,7 @@ DEFINE_MANIFOLD(MultipleReal3)
     }
 
   return cartesian;
-};
+}
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 {

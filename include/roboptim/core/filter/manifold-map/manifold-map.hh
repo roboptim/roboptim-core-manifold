@@ -83,6 +83,6 @@ namespace roboptim {
   };
 
 
-};
+}
 
 #endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_MAP_HH
