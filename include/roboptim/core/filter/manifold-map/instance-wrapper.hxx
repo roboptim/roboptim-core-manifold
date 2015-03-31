@@ -19,6 +19,7 @@ namespace roboptim
 
   template <typename U>
   InstanceWrapper<U>::~InstanceWrapper()
+
   {
     delete [] this->mappingFromFunction_;
   }
