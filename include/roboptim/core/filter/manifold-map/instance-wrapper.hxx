@@ -4,6 +4,7 @@
 # include <queue>
 # include <utility>
 # include <iostream>
+# include <typeinfo>
 
 # include <boost/format.hpp>
 # include <boost/mpl/assert.hpp>
@@ -23,7 +24,7 @@ namespace roboptim
    const pgs::Manifold& functionManifold,
    std::vector<const pgs::Manifold*> restrictedManifolds,
    std::vector<std::pair<long, long>> restrictions)
-    : detail::AutopromoteTrait<U>::T_type
+    : detail::AutopromoteTrait<typename U::parent_t>::T_type
       (problemManifold.representationDim(),
        descWrap->fct().outputSize (),
        (boost::format ("%1%")
@@ -93,24 +94,13 @@ namespace roboptim
 	if (manifold.isElementary())
 	  {
 	    bool sameType = !std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(manifold).name());
-            bool isNotRealSpace = std::strcmp(typeid(planarManifold[static_cast<size_t>(index)]).name(), typeid(pgs::RealSpace).name());
+            bool isNotRealSpace = std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(pgs::RealSpace).name());
             bool sameSize = getRestriction((*planarManifold[static_cast<size_t>(index)])).second == manifold.representationDim();
 
             if (sameType && (isNotRealSpace || sameSize))
 	      {
 		return ++index;
 	      }
-
-	    std::cout << "sameType: " << sameType << std::endl;
-	    std::cout << "(*(planarManifold[static_cast<size_t>(index)])).name(): " << (*(planarManifold[static_cast<size_t>(index)])).name() << std::endl;
-	    std::cout << "typeid(planarManifold[static_cast<size_t>(index)]).name(): " << typeid(planarManifold[static_cast<size_t>(index)]).name() << std::endl;
-	    std::cout << "typeid(manifold).name(): " << typeid(manifold).name() << std::endl;
-	    std::cout << "isNotRealSpace: " << isNotRealSpace << std::endl;
-	    std::cout << "sameSize: " << sameSize << std::endl;
-
-	    std::cout << "manifold.name(): " << manifold.name() << std::endl;
-	    std::cout << "planarManifold[static_cast<size_t>(index)]->name(): " << planarManifold[static_cast<size_t>(index)]->name() << std::endl;
-	    std::cout << std::endl;
 
 	    return -1l;
 	  }
@@ -132,8 +122,6 @@ namespace roboptim
 
     if (manifoldsMatched != static_cast<long>(planarManifold.size()))
       {
-	std::cerr << "manifoldsMatched : " << manifoldsMatched  << std::endl;
-	std::cerr << "static_cast<long>(planarManifold.size()): " << static_cast<long>(planarManifold.size()) << std::endl;
 	throw std::runtime_error("ERROR: instantiation and descriptive manifolds are not equivalent");
       }
 
@@ -162,7 +150,6 @@ namespace roboptim
     this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
     this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
     this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
-
 
     std::function<long(const pgs::Manifold&, std::string, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction](const pgs::Manifold& manifold, std::string targetName, long functionStartIndex, long startIndex)
       {

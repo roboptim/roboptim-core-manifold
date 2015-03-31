@@ -1,34 +1,47 @@
 #ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_DESC_HXX
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_DESC_HXX
 
+# include<manifolds/Manifold.h>
+# include<manifolds/CartesianProduct.h>
+
+
+template<template <typename> class T>
+struct Pusher
+{
+  template<class FI>
+  static void pushBack(std::vector<pgs::Manifold*>& manifolds, FI* function, const T<FI>& t)
+  {
+    manifolds.push_back(t.getInstance(function));
+  }
+};
+
 namespace roboptim
 {
 
   template<template <typename> class ... Types>
   template<class U>
-  Manifold* ManiDesc<Types...>::getManifold(U* function)
+  pgs::Manifold* ManiDesc<Types...>::getManifold(U* function)
   {
     std::vector<pgs::Manifold*> manifolds;
 
-    auto doAction = [&manifolds, &function](Types<FI>... manis)
+    [](...){}(0, (Pusher<Types>::pushBack(manifolds, function, (std::forward<Types<U> >(Types<U>()))), 0)...);
+
+    if (manifolds.size() == 1)
       {
-        int dummy[]{0, (Pusher<Types>::pushBack(manifolds, function, std::forward<Types<FI>>(manis)), 0)...};
-      };//*/
+	return manifolds[0];
+      }
 
+    pgs::CartesianProduct* cartesian = new pgs::CartesianProduct();
 
-    doAction((std::forward<Types<U> >(Types<U>()))...);
-
-    std::stringstream sBuffer;
-
-    for (int i = 0; i < manifolds.size(); ++i)
+    for (size_t i = 0; i < manifolds.size(); ++i)
       {
-        sBuffer << (i>0?" X ":"") + manifolds[i]->getName();
+	cartesian->multiply(*(manifolds[i]));
       }
 
     // FIXME: Here, simply return a Cartesian product of every manifold
     // We do not need a tree becase we will get rid of the structure
     // before comparing the two manifolds
-    return new pgs::Manifold(sBuffer.str());
+    return cartesian;
   }
 
 }

@@ -21,10 +21,10 @@ namespace roboptim
   /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
   /// \tparam U input function type.
   template <typename U, typename V>
-  class InstanceWrapper : public detail::AutopromoteTrait<U>::T_type
+  class InstanceWrapper : public detail::AutopromoteTrait<typename U::parent_t>::T_type
   {
   public:
-    typedef typename detail::AutopromoteTrait<U>::T_type parentType_t;
+    typedef typename detail::AutopromoteTrait<typename U::parent_t>::T_type parentType_t;
     ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (parentType_t);
 
     typedef boost::shared_ptr<InstanceWrapper> InstanceWrapperShPtr_t;
@@ -80,45 +80,6 @@ namespace roboptim
     void unmapGradient(gradient_ref gradient)
       const;
   };
-
-  template <typename U, typename V>
-  boost::shared_ptr<InstanceWrapper<U, V> >
-  scalar (boost::shared_ptr<U> origin,
-	  typename InstanceWrapper<U, V>::size_type start = 0,
-	  typename InstanceWrapper<U, V>::size_type size = 1)
-  {
-    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), start, size);
-  }
-
-  template <typename U, typename V>
-  boost::shared_ptr<InstanceWrapper<U, V> >
-  operator* (typename InstanceWrapper<U, V>::value_type scalar,
-	     boost::shared_ptr<U> origin)
-  {
-    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), scalar);
-  }
-
-  template <typename U, typename V>
-  boost::shared_ptr<InstanceWrapper<U, V> >
-  operator* (boost::shared_ptr<U> origin,
-	     typename InstanceWrapper<U, V>::value_type scalar)
-  {
-    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), scalar);
-  }
-
-  template <typename U, typename V>
-  boost::shared_ptr<U>
-  operator+ (boost::shared_ptr<U> origin)
-  {
-    return origin->fct();
-  }
-
-  template <typename U, typename V>
-  boost::shared_ptr<InstanceWrapper<U, V> >
-  operator- (boost::shared_ptr<U> origin)
-  {
-    return boost::make_shared<InstanceWrapper<U, V> > (origin->fct(), -1.);
-  }
 
   template <typename U, typename V>
   std::ostream&

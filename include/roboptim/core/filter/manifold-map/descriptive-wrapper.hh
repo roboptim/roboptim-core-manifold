@@ -13,6 +13,8 @@ namespace roboptim
   /// \addtogroup roboptim_filter
   /// @{
 
+  // FIXME: private constructor MAGIC
+
   /// \brief apply a given roboptim function to a given dimension space
   /// \tparam U input function type.
   template <typename U, typename V>
@@ -27,12 +29,11 @@ namespace roboptim
     template<class ... Types>
     explicit DescriptiveWrapper (Types ... args);
 
-  public:
-     DescriptiveWrapper (boost::shared_ptr<U>& f, const V& m);
+    DescriptiveWrapper (boost::shared_ptr<U>& f, const pgs::Manifold& m);
 
     ~DescriptiveWrapper ();
 
-    const V& manifold () const
+    const pgs::Manifold& manifold () const
     {
       return *manifold_;
     }
@@ -50,13 +51,13 @@ namespace roboptim
   private:
 
     boost::shared_ptr<U>  fct_;
-    V* manifold_;
+    const pgs::Manifold* manifold_;
   };
 
   template <typename U, typename V>
   boost::shared_ptr<DescriptiveWrapper<U, V> >
   descriptivewrapper (boost::shared_ptr<U> fct,
-	  const V& manifold)
+		      const pgs::Manifold& manifold)
   {
     return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
   }

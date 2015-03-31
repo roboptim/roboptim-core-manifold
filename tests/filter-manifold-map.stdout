@@ -4,6 +4,6 @@ the function is f_n (x) = n * x
 the function input size is 22
 the function output size is 10
 Displaying info about the function manifold in DescriptiveWrapper :
-the manifold is jointsxorientationxposition
+the manifold is R10xSO3xR3
 Is the manifold elementary ? : no
 the manifold dimension is 22

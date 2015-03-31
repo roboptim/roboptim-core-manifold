@@ -31,18 +31,22 @@
 
 using namespace roboptim;
 
-typedef boost::mpl::list< ::roboptim::EigenMatrixDense,
-  ::roboptim::EigenMatrixSparse> functionTypes_t;
+typedef boost::mpl::list< ::roboptim::EigenMatrixDense/*,
+			  ::roboptim::EigenMatrixSparse*/> functionTypes_t;
 
-struct F : public DifferentiableFunction
+template<class T>
+struct F : public GenericDifferentiableFunction<T>
 {
-  F () : DifferentiableFunction (22, 10, "f_n (x) = n * x")
+  ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
+  (GenericDifferentiableFunction<T>);
+
+  F () : GenericDifferentiableFunction<T> (22, 10, "f_n (x) = n * x")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
   {
     res.setZero ();
-    for (size_type i = 0; i < outputSize (); ++i)
+    for (size_type i = 0; i < this->outputSize (); ++i)
       for (size_type j = 0; j < 3; ++j)
 	{
 	  res[i] += (value_type)i * argument[19 + j];
@@ -60,15 +64,19 @@ struct F : public DifferentiableFunction
   }
 };
 
-struct G : public DifferentiableFunction
+template<class T>
+struct G : public GenericDifferentiableFunction<T>
 {
-  G () : DifferentiableFunction (3, 1, "f_n (x) = sum(x)")
+  ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
+  (GenericDifferentiableFunction<T>);
+
+  G () : GenericDifferentiableFunction<T> (3, 1, "f_n (x) = sum(x)")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
   {
     res.setZero ();
-    for (size_type i = 0; i < inputSize (); ++i)
+    for (size_type i = 0; i < this->inputSize (); ++i)
       {
 	res[0] += argument[i];
       }
@@ -83,15 +91,19 @@ struct G : public DifferentiableFunction
   }
 };
 
-struct H : public DifferentiableFunction
+template<class T>
+struct H : public GenericDifferentiableFunction<T>
 {
-  H () : DifferentiableFunction (45, 3, "f_n (x) = sum(x)")
+  ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
+  (GenericDifferentiableFunction<T>);
+
+  H () : GenericDifferentiableFunction<T> (45, 3, "f_n (x) = sum(x)")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
   {
     res.setZero ();
-    for (size_type i = 0; i < inputSize (); ++i)
+    for (size_type i = 0; i < this->inputSize (); ++i)
       {
 	res[i % 3] += argument[i];
       }
@@ -110,9 +122,14 @@ boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
-BOOST_AUTO_TEST_CASE (manifold_map_test_0)
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 {
   output = retrievePattern("filter-manifold-map");
+
+  typedef F<T> Func;
+
+  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), SO3, REAL_SPACE(3));
+  NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
 
   pgs::RealSpace pos(3);pos.name() = "position";
   pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
@@ -123,15 +140,15 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
   const pgs::CartesianProduct cartProd(joints, ori);
   const pgs::CartesianProduct myFuncManifold(cartProd, pos);
 
-  boost::shared_ptr<DescriptiveWrapper<F, pgs::CartesianProduct>>
-    descWrapPtr(new DescriptiveWrapper<F, pgs::CartesianProduct>());
+  boost::shared_ptr<F_On_FreeFlyerPlus10>
+    descWrapPtr(new F_On_FreeFlyerPlus10());
 
-  InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, robot, myFuncManifold);
+  InstanceWrapper<Func, FreeFlyerPlus10> instWrap(descWrapPtr, robot, myFuncManifold);
 
-  InstanceWrapper<F, pgs::CartesianProduct>::argument_t input = Eigen::VectorXd::Zero(22);
-  InstanceWrapper<F, pgs::CartesianProduct>::result_t result = Eigen::VectorXd::Zero(10);
-  InstanceWrapper<F, pgs::CartesianProduct>::gradient_t gradient = Eigen::VectorXd::Zero(22);
-  InstanceWrapper<F, pgs::CartesianProduct>::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
+  typename InstanceWrapper<Func, FreeFlyerPlus10>::argument_t input = Eigen::VectorXd::Zero(22);
+  typename InstanceWrapper<Func, FreeFlyerPlus10>::result_t result = Eigen::VectorXd::Zero(10);
+  typename InstanceWrapper<Func, FreeFlyerPlus10>::gradient_t gradient = Eigen::VectorXd::Zero(22);
+  typename InstanceWrapper<Func, FreeFlyerPlus10>::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
 
   for(int i = 0; i < 3; ++i)
     {
@@ -144,8 +161,9 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
   instWrap(result, input);
   std::cout << "result: " << result.transpose() << std::endl << std::endl;
 
-  for (int i = 0; i < 22; ++i)
+  for (int i = 0; i < 10; ++i)
     {
+      std::cout << "i: " << i << std::endl;
       instWrap.gradient(gradient, input, i);
     }
 
@@ -156,20 +174,24 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_0)
 
   BOOST_CHECK (output->match_pattern());
 
-}
+ }
+  //*/
 
-BOOST_AUTO_TEST_CASE (manifold_map_test_1)
-{/*
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
+{
   output = retrievePattern("filter-manifold-map-1");
 
-  boost::shared_ptr<G> g (new G());
+  typedef G<T> Func;
+
+  DESC_MANIFOLD(Real3, REAL_SPACE(3));
+  NAMED_FUNCTION_BINDING(F_On_Real3, Func, Real3);
 
   std::vector<const pgs::RealSpace*> reals;
   pgs::CartesianProduct problemManifold;
   const pgs::RealSpace descriptiveManifold(3);
 
-  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(g, descriptiveManifold));
+  boost::shared_ptr<F_On_Real3>
+    descWrapPtr(new F_On_Real3());
 
   size_t posNumber = 15;
 
@@ -181,10 +203,10 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
       problemManifold.multiply(*reals.back());
     }
 
-  InstanceWrapper<F, pgs::CartesianProduct>::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  InstanceWrapper<F, pgs::CartesianProduct>::result_t result = Eigen::VectorXd::Zero(1);
-  InstanceWrapper<F, pgs::CartesianProduct>::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  InstanceWrapper<F, pgs::CartesianProduct>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
+  typename InstanceWrapper<Func, Real3>::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
+  typename InstanceWrapper<Func, Real3>::result_t result = Eigen::VectorXd::Zero(1);
+  typename InstanceWrapper<Func, Real3>::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
+  typename InstanceWrapper<Func, Real3>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
 
   for (int i = 0; i < input.size(); ++i)
     {
@@ -193,7 +215,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, problemManifold, *reals[i]);
+      InstanceWrapper<Func, Real3> instWrap(descWrapPtr, problemManifold, *reals[i]);
 
       instWrap(result, input);
 
@@ -211,42 +233,43 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_1)
 
   }
 
-BOOST_AUTO_TEST_CASE (manifold_map_test_2)
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 {
   output = retrievePattern("filter-manifold-map-2");
 
-  boost::shared_ptr<F> f (new F());
-  boost::shared_ptr<G> g (new G());
+  typedef F<T> Func;
+  typedef G<T> Gunc;
 
-  const pgs::RealSpace manifold(2);
+  DESC_MANIFOLD(Real2, REAL_SPACE(2));
+  NAMED_FUNCTION_BINDING(G_On_Real2, Gunc, Real2);
 
   try
   {
-    boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(g, manifold));
+    new G_On_Real2();
   }
   catch (std::runtime_error& e)
   {
     (*output) << "std::runtime_error: " << e.what() << "\n";
   }
 
-  const pgs::SO3<pgs::ExpMapMatrix> manifold2;
+  DESC_MANIFOLD(Manifold2, SO3);
+  NAMED_FUNCTION_BINDING(F_On_Manifold2, Func, Manifold2);
+
   try
   {
-    boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, manifold2));
+    new F_On_Manifold2();
   }
   catch (std::runtime_error& e)
   {
     (*output) << "std::runtime_error: " << e.what() << "\n";
   }
 
-  const pgs::CartesianProduct manifold3(manifold, manifold2);
+  DESC_MANIFOLD(Manifold3, REAL_SPACE(2), SO3);
+  NAMED_FUNCTION_BINDING(F_On_Manifold3, Func, Manifold3);
 
   try
   {
-    boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(g, manifold3));
+    new F_On_Manifold3();
   }
   catch (std::runtime_error& e)
   {
@@ -257,18 +280,30 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_2)
 
 }
 
-BOOST_AUTO_TEST_CASE (manifold_map_test_3)
+const size_t posNumber = 15;
+
+DEFINE_MANIFOLD(MultipleReal3)
+{
+  pgs::CartesianProduct* cartesian = new pgs::CartesianProduct();
+
+  for(size_t i = 0; i < posNumber; ++i)
+    {
+      cartesian->multiply(*(new pgs::RealSpace(3)));
+    }
+
+  return cartesian;
+};
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 {
   output = retrievePattern("filter-manifold-map-3");
 
-  boost::shared_ptr<H> h (new H());
+  typedef H<T> Func;
 
   std::vector<const pgs::Manifold*> reals;
   std::vector<std::pair<long, long>> restrictions;
   pgs::CartesianProduct problemManifold;
   pgs::CartesianProduct descriptiveManifold;
-
-  const size_t posNumber = 15;
 
   for (size_t i = 0; i < posNumber; ++i)
     {
@@ -281,15 +316,18 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_3)
 
   restrictions.push_back(std::make_pair(3l, 3l));
 
-  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(h, descriptiveManifold));
+  DESC_MANIFOLD(MultipleReal3, Manifold_MultipleReal3);
+  NAMED_FUNCTION_BINDING(H_On_MultipleReal3, Func, MultipleReal3);
 
-  InstanceWrapper<F, pgs::CartesianProduct>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  InstanceWrapper<F, pgs::CartesianProduct>::result_t result = Eigen::VectorXd::Zero(3);
-  InstanceWrapper<F, pgs::CartesianProduct>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  InstanceWrapper<F, pgs::CartesianProduct>::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
+  boost::shared_ptr<H_On_MultipleReal3>
+    descWrapPtr(new H_On_MultipleReal3());
 
-  InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
+  typename InstanceWrapper<Func, MultipleReal3>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  typename InstanceWrapper<Func, MultipleReal3>::result_t result = Eigen::VectorXd::Zero(3);
+  typename InstanceWrapper<Func, MultipleReal3>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  typename InstanceWrapper<Func, MultipleReal3>::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
+
+  InstanceWrapper<Func, MultipleReal3> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
 
  for (int i = 0; i < input.size(); ++i)
     {
@@ -321,9 +359,10 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_3)
  BOOST_CHECK (output->match_pattern());
 }
 
-BOOST_AUTO_TEST_CASE (manifold_map_test_4)
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 {
-  boost::shared_ptr<F> f (new F());
+  typedef F<T> Func;
 
   pgs::RealSpace pos(3);pos.name() = "position";
   pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
@@ -336,8 +375,11 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_4)
   const pgs::CartesianProduct myFuncManifold(cartProd, s2);
   const pgs::CartesianProduct mySubManifold(cartProd, pos);
 
-  boost::shared_ptr<DescriptiveWrapper<DifferentiableFunction>>
-    descWrapPtr(new DescriptiveWrapper<DifferentiableFunction>(f, myFuncManifold));
+  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), SO3, REAL_SPACE(3));
+  NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
+
+  boost::shared_ptr<F_On_FreeFlyerPlus10>
+    descWrapPtr(new F_On_FreeFlyerPlus10());
 
   std::vector<const pgs::Manifold*> restrictedManifolds;
   restrictedManifolds.push_back(&pos);
@@ -348,7 +390,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_4)
 
   try
     {
-      InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, robot, mySubManifold);
+      InstanceWrapper<Func, FreeFlyerPlus10> instWrap(descWrapPtr, robot, myFuncManifold);
     }
   catch (std::runtime_error& e)
     {
@@ -360,7 +402,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_4)
 
     try
     {
-      InstanceWrapper<F, pgs::CartesianProduct> instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
+      InstanceWrapper<Func, FreeFlyerPlus10> instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
     }
   catch (std::runtime_error& e)
     {
@@ -368,7 +410,7 @@ BOOST_AUTO_TEST_CASE (manifold_map_test_4)
     }
 
   BOOST_CHECK(errorThrown);
-*/}
+}//*/
 
 
 BOOST_AUTO_TEST_SUITE_END ()

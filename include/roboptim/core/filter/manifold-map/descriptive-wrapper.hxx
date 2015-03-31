@@ -2,6 +2,7 @@
 # define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HXX
 # include <boost/format.hpp>
 # include <manifolds/Manifold.h>
+# include "manifold-desc.hh"
 
 namespace roboptim
 {
@@ -11,16 +12,15 @@ namespace roboptim
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (Types ... args)
   {
-    this->fct_ = new U(args...);
-    V manifoldGenerator;
-    this->manifold_ = manifoldGenerator.getManifold(this->function_);
+    this->fct_ = boost::shared_ptr<U>(new U(args...));
+    this->manifold_ = V::getManifold( &(*(this->fct_)) );
   }
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (boost::shared_ptr<U>& fct, const V& manifold)
+  (boost::shared_ptr<U>& fct, const pgs::Manifold& manifold)
   : fct_ (fct),
-    manifold_ (manifold)
+    manifold_ (&manifold)
   {
     long size = manifold_->representationDim();
     if (fct_->inputSize() != size)
