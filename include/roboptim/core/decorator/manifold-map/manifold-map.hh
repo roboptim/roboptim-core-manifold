@@ -1,9 +1,9 @@
-#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_MAP_HH
-# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_MAP_HH
+#ifndef ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_MANIFOLD_MAP_HH
+# define ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_MANIFOLD_MAP_HH
 
-# include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
-# include <roboptim/core/filter/manifold-map/manifold-desc.hh>
-# include <roboptim/core/filter/manifold-map/instance-wrapper.hh>
+# include <roboptim/core/decorator/manifold-map/descriptive-wrapper.hh>
+# include <roboptim/core/decorator/manifold-map/manifold-desc.hh>
+# include <roboptim/core/decorator/manifold-map/instance-wrapper.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -85,4 +85,4 @@ namespace roboptim {
 
 }
 
-#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_MANIFOLD_MAP_HH
+#endif //! ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_MANIFOLD_MAP_HH

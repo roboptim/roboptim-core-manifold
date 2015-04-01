@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
-# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
+#ifndef ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
+# define ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
 # include <vector>
 # include <iostream>
 # include <utility>
@@ -8,7 +8,7 @@
 
 # include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/differentiable-function.hh>
-# include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
+# include <roboptim/core/decorator/manifold-map/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
@@ -16,7 +16,7 @@
 
 namespace roboptim
 {
-  /// \addtogroup roboptim_filter
+  /// \addtogroup roboptim_decorator
   /// @{
 
   /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
@@ -282,5 +282,5 @@ namespace roboptim
 } // end of namespace roboptim.
 
 
-# include <roboptim/core/filter/manifold-map/instance-wrapper.hxx>
-#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
+# include <roboptim/core/decorator/manifold-map/instance-wrapper.hxx>
+#endif //! ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HH

@@ -21,7 +21,7 @@
 
 #include <roboptim/core/differentiable-function.hh>
 
-#include <roboptim/core/filter/manifold-map/manifold-map.hh>
+#include <roboptim/core/decorator/manifold-map/manifold-map.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>

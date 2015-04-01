@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
-# define ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
+#ifndef ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
+# define ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
 # include <vector>
 # include <queue>
 # include <utility>
@@ -9,7 +9,7 @@
 # include <boost/format.hpp>
 # include <boost/mpl/assert.hpp>
 
-# include <roboptim/core/filter/manifold-map/descriptive-wrapper.hh>
+# include <roboptim/core/decorator/manifold-map/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
@@ -102,4 +102,4 @@ namespace roboptim
 
 } // end of namespace roboptim.
 
-#endif //! ROBOPTIM_CORE_FILTER_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
+#endif //! ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HXX
