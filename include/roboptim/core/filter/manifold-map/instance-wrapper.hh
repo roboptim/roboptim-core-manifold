@@ -22,10 +22,10 @@ namespace roboptim
   /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
   /// \tparam U input function type.
   template <typename U>
-  class InstanceWrapper : public detail::AutopromoteTrait<typename U::parent_t>::T_type
+  class InstanceWrapper : public detail::AutopromoteTrait<U>::T_type
   {
   public:
-    typedef typename detail::AutopromoteTrait<typename U::parent_t>::T_type parentType_t;
+    typedef typename detail::AutopromoteTrait<U>::T_type parentType_t;
     ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (parentType_t);
 
     typedef boost::shared_ptr<InstanceWrapper> InstanceWrapperShPtr_t;
@@ -37,14 +37,14 @@ namespace roboptim
     /// \param restrictedManifolds a list of elementary Manifolds to be restricted to a part of themselves
     /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
 
-    template <typename V>
+    template <typename V, typename W>
     explicit InstanceWrapper
-    (boost::shared_ptr<DescriptiveWrapper<U, V>> descWrap,
+    (boost::shared_ptr<DescriptiveWrapper<V, W>> descWrap,
      const pgs::Manifold& problemManifold,
      const pgs::Manifold& functionManifold,
      std::vector<const pgs::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
-    : detail::AutopromoteTrait<typename U::parent_t>::T_type
+    : detail::AutopromoteTrait<U>::T_type
     (problemManifold.representationDim(),
      descWrap->fct().outputSize (),
      (boost::format ("%1%")
@@ -229,8 +229,8 @@ namespace roboptim
     }
 
 
-    template<class V>
-    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<U, V>> fct,
+    template<typename V, typename W>
+    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<V, W>> fct,
 			      const pgs::Manifold& problemManifold,
 			      const pgs::Manifold& functionManifold)
       : InstanceWrapper(fct, problemManifold, functionManifold,

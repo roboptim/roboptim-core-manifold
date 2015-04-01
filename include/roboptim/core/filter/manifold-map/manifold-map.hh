@@ -28,9 +28,10 @@
   template<class U>\
   pgs::Manifold* Manifold_##name <U>::getInstance(U*)
 
-#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef DescriptiveWrapper<function, manifold> function##_On_##manifold
-#define DEFAULT_FUNCTION_BINDING(function, manifold) typedef DescriptiveWrapper<function, manifold> Wrapped##function
-#define NAMED_FUNCTION_BINDING(name, function, manifold) typedef DescriptiveWrapper<function, manifold> name
+#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef DescriptiveWrapper<function, manifold> function##_On_##manifold; \
+  typedef InstanceWrapper<typename function::parent_t> Instance_##function##_On_##manifold
+#define NAMED_FUNCTION_BINDING(name, function, manifold) typedef DescriptiveWrapper<function, manifold> name; \
+  typedef InstanceWrapper<typename function::parent_t> Instance_##name
 
 // Library-defined elementary descriptive manifolds
 // I do not think we should put those in a namespace of their own,

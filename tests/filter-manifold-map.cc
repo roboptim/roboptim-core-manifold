@@ -143,12 +143,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   boost::shared_ptr<F_On_FreeFlyerPlus10>
     descWrapPtr(new F_On_FreeFlyerPlus10());
 
-  InstanceWrapper<Func> instWrap(descWrapPtr, robot, myFuncManifold);
+  Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, myFuncManifold);
 
-  typename InstanceWrapper<Func>::argument_t input = Eigen::VectorXd::Zero(22);
-  typename InstanceWrapper<Func>::result_t result = Eigen::VectorXd::Zero(10);
-  typename InstanceWrapper<Func>::gradient_t gradient = Eigen::VectorXd::Zero(22);
-  typename InstanceWrapper<Func>::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
+  typename Instance_F_On_FreeFlyerPlus10::argument_t input = Eigen::VectorXd::Zero(22);
+  typename Instance_F_On_FreeFlyerPlus10::result_t result = Eigen::VectorXd::Zero(10);
+  typename Instance_F_On_FreeFlyerPlus10::gradient_t gradient = Eigen::VectorXd::Zero(22);
+  typename Instance_F_On_FreeFlyerPlus10::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
 
   for(int i = 0; i < 3; ++i)
     {
@@ -203,10 +203,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
       problemManifold.multiply(*reals.back());
     }
 
-  typename InstanceWrapper<Func>::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  typename InstanceWrapper<Func>::result_t result = Eigen::VectorXd::Zero(1);
-  typename InstanceWrapper<Func>::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  typename InstanceWrapper<Func>::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
+  typename Instance_F_On_Real3::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
+  typename Instance_F_On_Real3::result_t result = Eigen::VectorXd::Zero(1);
+  typename Instance_F_On_Real3::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
+  typename Instance_F_On_Real3::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
 
   for (int i = 0; i < input.size(); ++i)
     {
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      InstanceWrapper<Func> instWrap(descWrapPtr, problemManifold, *reals[i]);
+      Instance_F_On_Real3 instWrap(descWrapPtr, problemManifold, *reals[i]);
 
       instWrap(result, input);
 
@@ -322,12 +322,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
   boost::shared_ptr<H_On_MultipleReal3>
     descWrapPtr(new H_On_MultipleReal3());
 
-  typename InstanceWrapper<Func>::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  typename InstanceWrapper<Func>::result_t result = Eigen::VectorXd::Zero(3);
-  typename InstanceWrapper<Func>::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  typename InstanceWrapper<Func>::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
+  typename Instance_H_On_MultipleReal3::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  typename Instance_H_On_MultipleReal3::result_t result = Eigen::VectorXd::Zero(3);
+  typename Instance_H_On_MultipleReal3::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
+  typename Instance_H_On_MultipleReal3::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
 
-  InstanceWrapper<Func> instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
+  Instance_H_On_MultipleReal3 instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
 
  for (int i = 0; i < input.size(); ++i)
     {
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   try
     {
-      InstanceWrapper<Func> instWrap(descWrapPtr, robot, myFuncManifold);
+      Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, myFuncManifold);
     }
   catch (std::runtime_error& e)
     {
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
     try
     {
-      InstanceWrapper<Func> instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
+      Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
     }
   catch (std::runtime_error& e)
     {
