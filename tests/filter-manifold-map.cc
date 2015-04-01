@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   typedef G<T> Gunc;
 
   DESC_MANIFOLD(Real2, REAL_SPACE(2));
-  NAMED_FUNCTION_BINDING(G_On_Real2, Gunc, Real2);
+  typedef DescriptiveWrapper<Gunc, Real2> G_On_Real2;
 
   try
   {
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   }
 
   DESC_MANIFOLD(Manifold2, SO3);
-  NAMED_FUNCTION_BINDING(F_On_Manifold2, Func, Manifold2);
+  typedef DescriptiveWrapper<Func, Manifold2> F_On_Manifold2;
 
   try
   {
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   }
 
   DESC_MANIFOLD(Manifold3, REAL_SPACE(2), SO3);
-  NAMED_FUNCTION_BINDING(F_On_Manifold3, Func, Manifold3);
+  typedef DescriptiveWrapper<Func, Manifold3> F_On_Manifold3;
 
   try
   {
