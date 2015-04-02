@@ -49,7 +49,8 @@ namespace roboptim
      descWrap->fct().outputSize (),
      (boost::format ("%1%")
       % descWrap->fct().getName ()).str ()),
-      fct_(descWrap->fctPointer())
+      fct_(descWrap->fctPointer()),
+      manifold_(descWrap->manifoldPointer())
     {
       // Assert to check the sizes of the restrictions' std::vector
       // Either they are the same, or the restrictions array is a single pair
@@ -69,6 +70,10 @@ namespace roboptim
 
 	// TODO: should be memoized for performance, although we can compute
 	// an adequate map if we use a Factory pattern to create this wrapper.
+	//
+	// This lambda returns a std::pair of long representing a restriction
+	// of the manifold. The pair contains the starting index as the first
+	// element and the size of the restriction as the second element.
 	std::function<std::pair<long, long>(const pgs::Manifold&)> getRestriction = [&restrictedManifolds, &restrictions, &getRestriction](const pgs::Manifold& manifold)
 	{
 	  // A (-1, -1) is equivalent to no restrictions at all
@@ -83,6 +88,8 @@ namespace roboptim
 		}
 	    }
 
+	  // If we could not find a restriction for this manifold
+	  // we set the restriction to the entire manifold's size
 	  ans.first = std::max(0l, ans.first);
 	  if (ans.second < 0)
 	    {
@@ -94,6 +101,8 @@ namespace roboptim
 
       std::vector<const pgs::Manifold*> planarManifold;
 
+      // This lambda converts a manifold tree to a std::vector of its leaf
+      // which should all be elementary manifolds.
       std::function<void(const pgs::Manifold&)> manifoldTreeToVector = [&planarManifold, &manifoldTreeToVector](const pgs::Manifold& manifold)
 	{
 	  if (manifold.isElementary())
@@ -109,6 +118,10 @@ namespace roboptim
 	};
       manifoldTreeToVector(functionManifold);
 
+      // This function compares a manifold tree to a std::vector
+      // of elementary manifolds.
+      // This is because the tree structure of the manifold is
+      // not important for the mapping; only the ordering counts.
       std::function<long(const pgs::Manifold&, long)> checkManifold = [&planarManifold, &checkManifold, &getRestriction](const pgs::Manifold& manifold, long index)
 	{
 	  if (manifold.isElementary())
@@ -138,6 +151,8 @@ namespace roboptim
 	  return index;
 	};
 
+      // Raise an exception if the numbers of matched manifolds is not
+      // equal to the total number of manifolds to match.
       long manifoldsMatched = checkManifold(descWrap->manifold(), 0);
 
       if (manifoldsMatched != static_cast<long>(planarManifold.size()))
@@ -145,6 +160,7 @@ namespace roboptim
 	  throw std::runtime_error("ERROR: instantiation and descriptive manifolds are not equivalent");
 	}
 
+      // This lambda computes the dimension of the input space while taking the restrictions into account
       std::function<long(const pgs::Manifold&)> computeRestrictedDimension = [&computeRestrictedDimension, &getRestriction](const pgs::Manifold& manifold)
 	{
 	  long mySize = 0;
@@ -171,6 +187,8 @@ namespace roboptim
       this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
       this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
 
+      // This lambda computes the actual mapping between a manifold and the one
+      // in its place in the global manifold of the problem.
       std::function<long(const pgs::Manifold&, long, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction](const pgs::Manifold& manifold, long targetId, long functionStartIndex, long startIndex)
 	{
 	  if (targetId == manifold.getInstanceId())
@@ -205,6 +223,8 @@ namespace roboptim
 	    }
 	};
 
+      // This lambda recursively traverse the manifold tree, computing the mapping
+      /// for each leaf (elementary manifold) it reaches.
       std::function<int(const pgs::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold, &getRestriction](const pgs::Manifold& manifold, int startIndex)
 	{
 	  if (manifold.isElementary())
@@ -253,6 +273,7 @@ namespace roboptim
   private:
   public:
     boost::shared_ptr<U> fct_;
+    boost::shared_ptr<pgs::Manifold> manifold_;
 
     size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;

@@ -84,7 +84,6 @@ namespace roboptim
 	this->fct_->gradient(this->mappedGradient_, this->mappedInput_, j);
 	this->unmapGradient(jacobian.row(j));
       }
-
   }
 
   template <typename U>

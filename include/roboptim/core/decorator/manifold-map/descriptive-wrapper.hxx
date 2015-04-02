@@ -12,8 +12,9 @@ namespace roboptim
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (Types ... args)
   {
-    this->fct_ = boost::shared_ptr<U>(new U(args...));
-    this->manifold_ = V::getManifold( &(*(this->fct_)) );
+    U* stdPtr = new U(args...);
+    this->fct_ = boost::shared_ptr<U>(stdPtr);
+    this->manifold_ = boost::shared_ptr<pgs::Manifold>(V::getManifold( &(*(this->fct_))));
   }
 
   template <typename U, typename V>

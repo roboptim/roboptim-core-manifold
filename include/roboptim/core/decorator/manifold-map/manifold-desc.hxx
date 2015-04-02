@@ -9,8 +9,11 @@ template<template <typename> class T>
 struct Pusher
 {
   template<class FI>
-  static void pushBack(std::vector<pgs::Manifold*>& manifolds, FI* function, const T<FI>& t)
+  static void backPusher(std::vector<pgs::Manifold*>& manifolds, FI* function, const T<FI>& t)
   {
+    // TODO: using new to create manifolds is mandatory, since we store a pointer
+    // to them in the cartesian product. However, because we are not using a
+    // shared pointer, those manifolds are then lost in memory leaks.
     manifolds.push_back(t.getInstance(function));
   }
 };
@@ -18,13 +21,28 @@ struct Pusher
 namespace roboptim
 {
 
-  template<template <typename> class ... Types>
+  template<template <typename> class ... Typ>
   template<class U>
-  pgs::Manifold* ManiDesc<Types...>::getManifold(U* function)
+  pgs::Manifold* ManiDesc<Typ...>::getManifold(U* function)
   {
     std::vector<pgs::Manifold*> manifolds;
 
-    [](...){}(0, (Pusher<Types>::pushBack(manifolds, function, (std::forward<Types<U> >(Types<U>()))), 0)...);
+    // G++ seems to expand our arguments in the wrong order
+    // when inside a call to a anonymous lambda.
+    // This issue does not appear when expanding inside the
+    // initialization of an array, so we use an initializer
+    // list to expand the pack and pass that as an argument
+    // to an inert anonymous lambda function.
+    //
+    // As for what it does, this is where we iterate over a
+    // list of manifolds type to instantiate them, by using
+    // the function passed as argument when needed.
+    // The call to std::forward allows us to pass each type
+    // of manifold to the pusher function separately.
+    // 27 and 39 prevent errors when not passing any types.
+    [] (std::initializer_list<int>)
+      {}({27, (Pusher<Typ>::backPusher(manifolds, function,
+	      (std::forward<Typ<U> >(Typ<U>()))), 39)...});
 
     if (manifolds.size() == 1)
       {
@@ -38,9 +56,6 @@ namespace roboptim
 	cartesian->multiply(*(manifolds[i]));
       }
 
-    // FIXME: Here, simply return a Cartesian product of every manifold
-    // We do not need a tree becase we will get rid of the structure
-    // before comparing the two manifolds
     return cartesian;
   }
 

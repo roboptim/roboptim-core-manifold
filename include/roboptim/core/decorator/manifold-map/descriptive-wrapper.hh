@@ -48,10 +48,15 @@ namespace roboptim
       return *fct_;
     }
 
+    const boost::shared_ptr<pgs::Manifold>& manifoldPointer () const
+    {
+      return manifold_;
+    }
+
   private:
 
     boost::shared_ptr<U>  fct_;
-    const pgs::Manifold* manifold_;
+    boost::shared_ptr<pgs::Manifold> manifold_;
   };
 
   template <typename U, typename V>
