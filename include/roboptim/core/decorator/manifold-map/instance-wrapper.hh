@@ -76,8 +76,7 @@ namespace roboptim
 
 	  for (size_t i = 0; i < restrictedManifolds.size(); ++i)
 	    {
-	      // TODO: replace by an id check
-	      if (!manifold.name().compare(restrictedManifolds[i]->name()))
+	      if (manifold.getInstanceId() == restrictedManifolds[i]->getInstanceId())
 		{
 		  ans = restrictions[(restrictions.size() == 1?0:i)];
 		  break;
@@ -114,8 +113,8 @@ namespace roboptim
 	{
 	  if (manifold.isElementary())
 	    {
-	      bool sameType = !std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(manifold).name());
-	      bool isNotRealSpace = std::strcmp(typeid(*(planarManifold[static_cast<size_t>(index)])).name(), typeid(pgs::RealSpace).name());
+	      bool sameType = planarManifold[static_cast<size_t>(index)]->getTypeId() == manifold.getTypeId();
+	      bool isNotRealSpace = planarManifold[static_cast<size_t>(index)]->getTypeId() != pgs::RealSpace(1).getTypeId();
 	      bool sameSize = getRestriction((*planarManifold[static_cast<size_t>(index)])).second == manifold.representationDim();
 
 	      if (sameType && (isNotRealSpace || sameSize))
@@ -172,10 +171,9 @@ namespace roboptim
       this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
       this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
 
-      std::function<long(const pgs::Manifold&, std::string, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction](const pgs::Manifold& manifold, std::string targetName, long functionStartIndex, long startIndex)
+      std::function<long(const pgs::Manifold&, long, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction](const pgs::Manifold& manifold, long targetId, long functionStartIndex, long startIndex)
 	{
-	  // TODO: replace by an id check
-	  if (!targetName.compare(manifold.name()))
+	  if (targetId == manifold.getInstanceId())
 	    {
 	      // We found the manifold
 	      // Write its indexes and exit
@@ -199,7 +197,7 @@ namespace roboptim
 		{
 		  for (size_t i = 0; i < manifold.numberOfSubmanifolds() && startIndex >= 0; ++i)
 		    {
-		      startIndex = getStartingIndexOfManifold(manifold(i), targetName, functionStartIndex, startIndex);
+		      startIndex = getStartingIndexOfManifold(manifold(i), targetId, functionStartIndex, startIndex);
 		    }
 
 		  return startIndex;
@@ -211,7 +209,7 @@ namespace roboptim
 	{
 	  if (manifold.isElementary())
 	    {
-	      getStartingIndexOfManifold(problemManifold, manifold.name(), startIndex, 0);
+	      getStartingIndexOfManifold(problemManifold, manifold.getInstanceId(), startIndex, 0);
 	      return static_cast<int>(startIndex + getRestriction(manifold).second);
 	    }
 
