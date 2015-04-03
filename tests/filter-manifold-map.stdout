@@ -1,0 +1,9 @@
+12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2
+Displaying info about function in DescriptiveWrapper :
+the function is f_n (x) = n * x
+the function input size is 22
+the function output size is 10
+Displaying info about the function manifold in DescriptiveWrapper :
+the manifold is R10xSO3xR3
+Is the manifold elementary ? : no
+the manifold dimension is 22
