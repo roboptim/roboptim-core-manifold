@@ -36,7 +36,7 @@ SETUP_PROJECT()
 INCLUDE(CheckCCompilerFlag)
 CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAS_VISIBILITY)
 IF(HAS_VISIBILITY)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -std=c++0x")
 ENDIF()
 
 # TODO: Add main library to pkg-config file.
