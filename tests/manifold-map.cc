@@ -21,7 +21,7 @@
 
 #include <roboptim/core/differentiable-function.hh>
 
-#include <roboptim/core/decorator/manifold-map/manifold-map.hh>
+#include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -124,7 +124,7 @@ BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 {
-  output = retrievePattern("filter-manifold-map");
+  output = retrievePattern("manifold-map");
 
   typedef F<T> Func;
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 {
-  output = retrievePattern("filter-manifold-map-1");
+  output = retrievePattern("manifold-map-1");
 
   typedef G<T> Func;
 
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 {
-  output = retrievePattern("filter-manifold-map-2");
+  output = retrievePattern("manifold-map-2");
 
   typedef F<T> Func;
   typedef G<T> Gunc;
@@ -296,7 +296,7 @@ DEFINE_MANIFOLD(MultipleReal3)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 {
-  output = retrievePattern("filter-manifold-map-3");
+  output = retrievePattern("manifold-map-3");
 
   typedef H<T> Func;
 

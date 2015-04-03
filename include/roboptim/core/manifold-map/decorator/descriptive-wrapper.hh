@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HH
-# define ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HH
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HH
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HH
 # include <vector>
 # include <ostream>
 # include <boost/shared_ptr.hpp>
@@ -86,5 +86,5 @@ namespace roboptim
 
 } // end of namespace roboptim.
 
-# include <roboptim/core/decorator/manifold-map/descriptive-wrapper.hxx>
-#endif //! ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_DESCRIPTIVE_WRAPPER_HH
+# include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hxx>
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HH

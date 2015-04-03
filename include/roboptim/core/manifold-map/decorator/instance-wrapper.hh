@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
-# define ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HH
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HH
 # include <vector>
 # include <iostream>
 # include <utility>
@@ -8,7 +8,7 @@
 
 # include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/differentiable-function.hh>
-# include <roboptim/core/decorator/manifold-map/descriptive-wrapper.hh>
+# include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
@@ -301,5 +301,5 @@ namespace roboptim
 } // end of namespace roboptim.
 
 
-# include <roboptim/core/decorator/manifold-map/instance-wrapper.hxx>
-#endif //! ROBOPTIM_CORE_DECORATOR_MANIFOLD_MAP_INSTANCE_WRAPPER_HH
+# include <roboptim/core/manifold-map/decorator/instance-wrapper.hxx>
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HH
