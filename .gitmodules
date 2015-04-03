@@ -1,0 +1,9 @@
+[submodule "cmake"]
+	path = cmake
+	url = https://github.com/jrl-umi3218/jrl-cmakemodules
+[submodule "tests/shared-tests"]
+	path = tests/shared-tests
+	url = https://github.com/roboptim/roboptim-shared-tests
+[submodule ".travis"]
+	path = .travis
+	url = https://github.com/jrl-umi3218/jrl-travis
