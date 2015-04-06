@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HH
-# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HH
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HH
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HH
 # include <vector>
 # include <iostream>
 # include <utility>
@@ -22,13 +22,13 @@ namespace roboptim
   /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
   /// \tparam U input function type.
   template <typename U>
-  class InstanceWrapper : public detail::AutopromoteTrait<U>::T_type
+  class FunctionOnManifold : public detail::AutopromoteTrait<U>::T_type
   {
   public:
     typedef typename detail::AutopromoteTrait<U>::T_type parentType_t;
     ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (parentType_t);
 
-    typedef boost::shared_ptr<InstanceWrapper> InstanceWrapperShPtr_t;
+    typedef boost::shared_ptr<FunctionOnManifold> FunctionOnManifoldShPtr_t;
 
     /// \brief Create a mapping from the problem's manifold to the function's.
     /// \param fct input function.
@@ -38,7 +38,7 @@ namespace roboptim
     /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
 
     template <typename V, typename W>
-    explicit InstanceWrapper
+    explicit FunctionOnManifold
     (boost::shared_ptr<DescriptiveWrapper<V, W>> descWrap,
      const pgs::Manifold& problemManifold,
      const pgs::Manifold& functionManifold,
@@ -59,13 +59,14 @@ namespace roboptim
       //
       // Also, check that the restrictions actually make sense.
       assert (restrictions.size() == 1 || (restrictedManifolds.size() == restrictions.size()));
-      ROBOPTIM_DEBUG_ONLY(\
-			  for (size_t i = 0; i < restrictedManifolds.size(); ++i)\
-			    {\
-			      std::pair<long BOOST_PP_COMMA() long> restriction = restrictions[(restrictions.size() == 1?0:i)];\
-			      assert (restriction.first + restriction.second <= restrictedManifolds[i]->representationDim());\
+      ROBOPTIM_DEBUG_ONLY(                                                                                    \
+			  for (size_t i = 0; i < restrictedManifolds.size(); ++i)                                               \
+			    {                                                                                                   \
+			      std::pair<long BOOST_PP_COMMA() long> restriction = restrictions[(restrictions.size() == 1?0:i)]; \
+			      assert (restriction.first + restriction.second <= restrictedManifolds[i]->representationDim());   \
 			    })
 
+      bool onTangentSpace = false;
 	//	this->fct_ = descWrap->fct();
 
 	// TODO: should be memoized for performance, although we can compute
@@ -74,7 +75,7 @@ namespace roboptim
 	// This lambda returns a std::pair of long representing a restriction
 	// of the manifold. The pair contains the starting index as the first
 	// element and the size of the restriction as the second element.
-	std::function<std::pair<long, long>(const pgs::Manifold&)> getRestriction = [&restrictedManifolds, &restrictions, &getRestriction](const pgs::Manifold& manifold)
+	std::function<std::pair<long, long>(const pgs::Manifold&)> getRestriction = [&restrictedManifolds, &restrictions, &getRestriction, &onTangentSpace](const pgs::Manifold& manifold)
 	{
 	  // A (-1, -1) is equivalent to no restrictions at all
 	  std::pair<long, long> ans = std::make_pair(-1l, -1l);
@@ -93,7 +94,7 @@ namespace roboptim
 	  ans.first = std::max(0l, ans.first);
 	  if (ans.second < 0)
 	    {
-	      ans.second = manifold.representationDim();
+	      ans.second = (onTangentSpace?manifold.tangentDim():manifold.representationDim());
 	    }
 
 	  return ans;
@@ -183,13 +184,19 @@ namespace roboptim
       this->mappingFromFunctionSize_ = computeRestrictedDimension(functionManifold);
       this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
 
+      onTangentSpace = true;
+      this->tangentMappingFromFunctionSize_ = computeRestrictedDimension(functionManifold);
+      this->tangentMappingFromFunction_ = new size_t[this->tangentMappingFromFunctionSize_];
+      onTangentSpace = false;
+
       this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
       this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
       this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
+      this->tangentMappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->tangentMappingFromFunctionSize_);
 
       // This lambda computes the actual mapping between a manifold and the one
       // in its place in the global manifold of the problem.
-      std::function<long(const pgs::Manifold&, long, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction](const pgs::Manifold& manifold, long targetId, long functionStartIndex, long startIndex)
+      std::function<long(const pgs::Manifold&, long, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction, &onTangentSpace](const pgs::Manifold& manifold, long targetId, long functionStartIndex, long startIndex)
 	{
 	  if (targetId == manifold.getInstanceId())
 	    {
@@ -199,8 +206,16 @@ namespace roboptim
 
 	      for (long i = 0; i < restriction.second; ++i)
 		{
-		  this->mappingFromFunction_[static_cast<size_t>(functionStartIndex + i)]
-		    = static_cast<size_t>(startIndex + i + restriction.first);
+      if (onTangentSpace)
+      {
+        this->tangentMappingFromFunction_[static_cast<size_t>(functionStartIndex + i)]
+          = static_cast<size_t>(startIndex + i + restriction.first);
+      }
+      else
+      {
+        this->mappingFromFunction_[static_cast<size_t>(functionStartIndex + i)]
+          = static_cast<size_t>(startIndex + i + restriction.first);
+      }
 		}
 
 	      return -1l;
@@ -209,7 +224,7 @@ namespace roboptim
 	    {
 	      if (manifold.isElementary())
 		{
-		  return startIndex + manifold.representationDim();
+		  return startIndex + (onTangentSpace?manifold.tangentDim():manifold.representationDim());
 		}
 	      else
 		{
@@ -225,7 +240,7 @@ namespace roboptim
 
       // This lambda recursively traverse the manifold tree, computing the mapping
       /// for each leaf (elementary manifold) it reaches.
-      std::function<int(const pgs::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold, &getRestriction](const pgs::Manifold& manifold, int startIndex)
+      std::function<int(const pgs::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold, &getRestriction, &onTangentSpace](const pgs::Manifold& manifold, int startIndex)
 	{
 	  if (manifold.isElementary())
 	    {
@@ -244,19 +259,22 @@ namespace roboptim
       // Computes the mapping
       traverseFunctionManifold(functionManifold, 0);
 
+      onTangentSpace = true;
+      traverseFunctionManifold(functionManifold, 0);
+
     }
 
 
     template<typename V, typename W>
-    explicit InstanceWrapper (boost::shared_ptr<DescriptiveWrapper<V, W>> fct,
+    explicit FunctionOnManifold (boost::shared_ptr<DescriptiveWrapper<V, W>> fct,
 			      const pgs::Manifold& problemManifold,
 			      const pgs::Manifold& functionManifold)
-      : InstanceWrapper(fct, problemManifold, functionManifold,
+      : FunctionOnManifold(fct, problemManifold, functionManifold,
 	     std::vector<const pgs::Manifold*>(), std::vector<std::pair<long, long>>())
     {
     }
 
-    ~InstanceWrapper ();
+    ~FunctionOnManifold ();
 
     void impl_compute (result_ref result, const_argument_ref x)
       const;
@@ -269,6 +287,10 @@ namespace roboptim
 			const_argument_ref arg)
       const;
 
+    void manifold_jacobian (jacobian_ref jacobian,
+			const_argument_ref arg)
+      const;
+
     std::ostream& print_(std::ostream& o);
   private:
   public:
@@ -278,20 +300,26 @@ namespace roboptim
     size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;
 
+    size_t* tangentMappingFromFunction_;
+    long tangentMappingFromFunctionSize_;
+
     mutable vector_t mappedInput_;
     mutable gradient_t mappedGradient_;
     mutable jacobian_t mappedJacobian_;
+    mutable jacobian_t tangentMappedJacobian_;
 
     void mapArgument(const_argument_ref argument)
       const;
 
-    void unmapGradient(gradient_ref gradient)
+    void unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
+
+    void unmapTangentJacobian(jacobian_ref jacobian)
       const;
   };
 
   template <typename U>
   std::ostream&
-  operator<<(std::ostream& o, InstanceWrapper<U>& instWrap)
+  operator<<(std::ostream& o, FunctionOnManifold<U>& instWrap)
   {
     return instWrap.print_(o);
   }
@@ -301,5 +329,5 @@ namespace roboptim
 } // end of namespace roboptim.
 
 
-# include <roboptim/core/manifold-map/decorator/instance-wrapper.hxx>
-#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HH
+# include <roboptim/core/manifold-map/decorator/function-on-manifold.hxx>
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HH

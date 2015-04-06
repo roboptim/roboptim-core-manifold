@@ -1,5 +1,5 @@
-#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HXX
-# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HXX
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX
 # include <vector>
 # include <queue>
 # include <utility>
@@ -18,7 +18,7 @@ namespace roboptim
 {
 
   template <typename U>
-  InstanceWrapper<U>::~InstanceWrapper()
+  FunctionOnManifold<U>::~FunctionOnManifold()
 
   {
     delete [] this->mappingFromFunction_;
@@ -26,7 +26,7 @@ namespace roboptim
 
   template <typename U>
   void
-  InstanceWrapper<U>::mapArgument (const_argument_ref argument)
+  FunctionOnManifold<U>::mapArgument (const_argument_ref argument)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
@@ -37,18 +37,29 @@ namespace roboptim
 
   template <typename U>
   void
-  InstanceWrapper<U>::unmapGradient(gradient_ref gradient)
+  FunctionOnManifold<U>::unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
       {
-	gradient(static_cast<long>(this->mappingFromFunction_[i])) = this->mappedGradient_(i);
+	gradient(static_cast<long>(this->mappingFromFunction_[i])) = mappedGradient(i);
       }
   }
 
   template <typename U>
   void
-  InstanceWrapper<U>::impl_compute
+  FunctionOnManifold<U>::unmapTangentJacobian(jacobian_ref jacobian)
+  const
+  {
+    for (long i = 0; i < this->tangentMappingFromFunctionSize_; ++i)
+    {
+      jacobian.col(static_cast<long>(this->tangentMappingFromFunction_[i])) = this->mappedJacobian.col(i);
+    }
+  }
+
+  template <typename U>
+  void
+  FunctionOnManifold<U>::impl_compute
   (result_ref result, const_argument_ref x)
     const
   {
@@ -58,7 +69,7 @@ namespace roboptim
 
   template <typename U>
   void
-  InstanceWrapper<U>::impl_gradient (gradient_ref gradient,
+  FunctionOnManifold<U>::impl_gradient (gradient_ref gradient,
 			 const_argument_ref argument,
 			 size_type functionId)
     const
@@ -72,7 +83,7 @@ namespace roboptim
 
   template <typename U>
   void
-  InstanceWrapper<U>::impl_jacobian (jacobian_ref jacobian,
+  FunctionOnManifold<U>::impl_jacobian (jacobian_ref jacobian,
 			 const_argument_ref argument)
     const
   {
@@ -82,13 +93,31 @@ namespace roboptim
     for (long j = 0; j < jacobian.rows(); ++j)
       {
 	this->fct_->gradient(this->mappedGradient_, this->mappedInput_, j);
-	this->unmapGradient(jacobian.row(j));
+	this->unmapGradient(jacobian.row(j), this->mappedGradient_);
       }
   }
 
   template <typename U>
+  void
+  FunctionOnManifold<U>::manifold_jacobian (jacobian_ref jacobian,
+                                            const_argument_ref argument)\
+  const
+  {
+    this->mapArgument(argument);
+    jacobian.setZero();
+    this->mappedJacobian_.setZero();
+    this->tangentMappedJacobian_.setZero();
+
+    this->fct_->jacobian(this->mappedJacobian_, this->mappedArgument_);
+
+    this->manifold_->applyDiffRetractation(this->tangentMappedJacobian_, this->mappedJacobian_, this->mappedArgument_);
+
+    this->tangentUnmapJacobian(jacobian);
+  }
+
+  template <typename U>
   std::ostream&
-  InstanceWrapper<U>::print_ (std::ostream& o)
+  FunctionOnManifold<U>::print_ (std::ostream& o)
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
       {
@@ -101,4 +130,4 @@ namespace roboptim
 
 } // end of namespace roboptim.
 
-#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_INSTANCE_WRAPPER_HXX
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX

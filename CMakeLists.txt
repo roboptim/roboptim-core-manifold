@@ -29,8 +29,8 @@ SET(PROJECT_URL "http://github.com/roboptim/roboptim-core-manifold")
 SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hxx
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/instance-wrapper.hh
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/instance-wrapper.hxx
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/function-on-manifold.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/function-on-manifold.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-map.hh
