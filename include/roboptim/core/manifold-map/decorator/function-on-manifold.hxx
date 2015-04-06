@@ -78,7 +78,7 @@ namespace roboptim
     this->fct_->gradient(this->mappedGradient_, this->mappedInput_, functionId);
 
     gradient.setZero();
-    this->unmapGradient(gradient);
+    this->unmapGradient(gradient, this->mappedGradient_);
   }
 
   template <typename U>

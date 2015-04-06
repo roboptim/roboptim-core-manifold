@@ -261,7 +261,6 @@ namespace roboptim
 
       onTangentSpace = true;
       traverseFunctionManifold(functionManifold, 0);
-
     }
 
 
@@ -312,6 +311,7 @@ namespace roboptim
       const;
 
     void unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
+      const;
 
     void unmapTangentJacobian(jacobian_ref jacobian)
       const;
