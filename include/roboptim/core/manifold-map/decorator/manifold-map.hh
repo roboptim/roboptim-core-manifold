@@ -13,8 +13,8 @@
 
 #define ROBOPTIM_DESCRIPTIVE_FWD_DECS(NAME) typedef NAME type
 
-#define REAL_SPACE(num) Real<num>::Space
-#define DESC_MANIFOLD(name, ...) typedef ManiDesc< __VA_ARGS__> name
+#define REAL_SPACE(num) roboptim::Real<num>::Space
+#define DESC_MANIFOLD(name, ...) typedef roboptim::ManiDesc< __VA_ARGS__> name
 #define DEFINE_MANIFOLD_FROM_FUNCTION(name) template<class U>\
   struct Manifold_##name{\
   static pgs::Manifold* getInstance(U* function);\
@@ -28,10 +28,10 @@
   template<class U>\
   pgs::Manifold* Manifold_##name <U>::getInstance(U*)
 
-#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef DescriptiveWrapper<function, manifold> function##_On_##manifold; \
-  typedef InstanceWrapper<typename function::parent_t> Instance_##function##_On_##manifold
-#define NAMED_FUNCTION_BINDING(name, function, manifold) typedef DescriptiveWrapper<function, manifold> name; \
-  typedef InstanceWrapper<typename function::parent_t> Instance_##name
+#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold; \
+  typedef roboptim::FunctionOnManifold<typename function::parent_t> Instance_##function##_On_##manifold
+#define NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name; \
+  typedef roboptim::FunctionOnManifold<typename function::parent_t> Instance_##name
 
 // Library-defined elementary descriptive manifolds
 // I do not think we should put those in a namespace of their own,

@@ -29,18 +29,18 @@
 #include <manifolds/ExpMapMatrix.h>
 #include <manifolds/S2.h>
 
-using namespace roboptim;
+//using namespace roboptim;
 
 typedef boost::mpl::list< ::roboptim::EigenMatrixDense/*,
 			  ::roboptim::EigenMatrixSparse*/> functionTypes_t;
 
 template<class T>
-struct F : public GenericDifferentiableFunction<T>
+struct F : public roboptim::GenericDifferentiableFunction<T>
 {
   ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
-  (GenericDifferentiableFunction<T>);
+  (roboptim::GenericDifferentiableFunction<T>);
 
-  F () : GenericDifferentiableFunction<T> (22, 10, "f_n (x) = n * x")
+  F () : roboptim::GenericDifferentiableFunction<T> (22, 10, "f_n (x) = n * x")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
@@ -65,12 +65,12 @@ struct F : public GenericDifferentiableFunction<T>
 };
 
 template<class T>
-struct G : public GenericDifferentiableFunction<T>
+struct G : public roboptim::GenericDifferentiableFunction<T>
 {
   ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
-  (GenericDifferentiableFunction<T>);
+  (roboptim::GenericDifferentiableFunction<T>);
 
-  G () : GenericDifferentiableFunction<T> (3, 1, "f_n (x) = sum(x)")
+  G () : roboptim::GenericDifferentiableFunction<T> (3, 1, "f_n (x) = sum(x)")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
@@ -92,12 +92,12 @@ struct G : public GenericDifferentiableFunction<T>
 };
 
 template<class T>
-struct H : public GenericDifferentiableFunction<T>
+struct H : public roboptim::GenericDifferentiableFunction<T>
 {
   ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
-  (GenericDifferentiableFunction<T>);
+  (roboptim::GenericDifferentiableFunction<T>);
 
-  H () : GenericDifferentiableFunction<T> (45, 3, "f_n (x) = sum(x)")
+  H () : roboptim::GenericDifferentiableFunction<T> (45, 3, "f_n (x) = sum(x)")
   {}
 
   void impl_compute (result_ref res, const_argument_ref argument) const
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   typedef F<T> Func;
 
-  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), SO3, REAL_SPACE(3));
+  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
 
   pgs::RealSpace pos(3);pos.name() = "position";
@@ -231,6 +231,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
       delete reals[i];
     }
 
+    BOOST_CHECK (output->match_pattern());
   }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
@@ -241,7 +242,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   typedef G<T> Gunc;
 
   DESC_MANIFOLD(Real2, REAL_SPACE(2));
-  typedef DescriptiveWrapper<Gunc, Real2> G_On_Real2;
+  typedef roboptim::DescriptiveWrapper<Gunc, Real2> G_On_Real2;
 
   try
   {
@@ -252,8 +253,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
     (*output) << "std::runtime_error: " << e.what() << "\n";
   }
 
-  DESC_MANIFOLD(Manifold2, SO3);
-  typedef DescriptiveWrapper<Func, Manifold2> F_On_Manifold2;
+  DESC_MANIFOLD(Manifold2, roboptim::SO3);
+  typedef roboptim::DescriptiveWrapper<Func, Manifold2> F_On_Manifold2;
 
   try
   {
@@ -264,8 +265,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
     (*output) << "std::runtime_error: " << e.what() << "\n";
   }
 
-  DESC_MANIFOLD(Manifold3, REAL_SPACE(2), SO3);
-  typedef DescriptiveWrapper<Func, Manifold3> F_On_Manifold3;
+  DESC_MANIFOLD(Manifold3, REAL_SPACE(2), roboptim::SO3);
+  typedef roboptim::DescriptiveWrapper<Func, Manifold3> F_On_Manifold3;
 
   try
   {
@@ -375,7 +376,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
   const pgs::CartesianProduct myFuncManifold(cartProd, s2);
   const pgs::CartesianProduct mySubManifold(cartProd, pos);
 
-  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), SO3, REAL_SPACE(3));
+  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
 
   boost::shared_ptr<F_On_FreeFlyerPlus10>
