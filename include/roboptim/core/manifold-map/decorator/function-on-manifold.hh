@@ -286,8 +286,8 @@ namespace roboptim
 			const_argument_ref arg)
       const;
 
-    void manifold_jacobian (jacobian_ref jacobian,
-			const_argument_ref arg)
+    void manifold_jacobian (pgs::RefMat jacobian,
+			    const_argument_ref arg)
       const;
 
     std::ostream& print_(std::ostream& o);
@@ -315,7 +315,7 @@ namespace roboptim
     void unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
       const;
 
-    void unmapTangentJacobian(jacobian_ref jacobian)
+    void unmapTangentJacobian(pgs::RefMat jacobian)
       const;
   };
 

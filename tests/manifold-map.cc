@@ -150,6 +150,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   typename Instance_F_On_FreeFlyerPlus10::gradient_t gradient = Eigen::VectorXd::Zero(22);
   typename Instance_F_On_FreeFlyerPlus10::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
 
+  Eigen::MatrixXd refJacobian = Eigen::MatrixXd::Zero(10, 22);
+
   for(int i = 0; i < 3; ++i)
     {
       input(i) = 1 + i;
@@ -169,7 +171,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   instWrap.jacobian(jacobian, input);
   std::cout << "jacobian: " << std::endl << jacobian << std::endl;
-  instWrap.manifold_jacobian(jacobian, input);
+  instWrap.manifold_jacobian(refJacobian, input);
 
   (*output) << (*descWrapPtr);
 

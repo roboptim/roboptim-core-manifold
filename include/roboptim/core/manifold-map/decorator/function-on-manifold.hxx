@@ -48,7 +48,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::unmapTangentJacobian(jacobian_ref jacobian)
+  FunctionOnManifold<U>::unmapTangentJacobian(pgs::RefMat jacobian)
   const
   {
     for (long i = 0; i < this->tangentMappingFromFunctionSize_; ++i)
@@ -99,7 +99,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::manifold_jacobian (jacobian_ref jacobian,
+  FunctionOnManifold<U>::manifold_jacobian (pgs::RefMat jacobian,
                                             const_argument_ref argument)\
   const
   {
