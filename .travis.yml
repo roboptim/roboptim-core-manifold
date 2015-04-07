@@ -1,3 +1,4 @@
+sudo: required
 language: cpp
 compiler:
   - gcc
@@ -10,7 +11,8 @@ env:
     - secure: "ZKC2yAvUcDb2nyrZQNqpLgEbi2pYFSKDn/+xIj9ZH+5nkn6iA5RT4AunK13qxuBkjIr2HJcUBtMFvk/mfpvpWynX+v9i3OhpVZCbkmcjQrATjiUcG6r95oEcex7NAM5uKd/41CqV/0fzTPc3uJgPozDJlt0wsBmCEarHiRNAoo0="
     - APT_DEPENDENCIES="doxygen doxygen-latex libltdl-dev libboost-all-dev liblog4cxx10-dev"
     - HOMEBREW_DEPENDENCIES="doxygen libtool boost log4cxx"
-    - GIT_DEPENDENCIES="roboptim/roboptim-core"
+    - GIT_DEPENDENCIES="roboptim/roboptim-core stanislas-brossette/manifolds"
+      MASTER_PPA="ubuntu-toolchain-r/test"
     - GH_USERNAME=thomas-moulard
     - GH_REPO=roboptim/roboptim-core-manifold
     - LCOV_IGNORE_RULES="*tests*"
@@ -26,8 +28,8 @@ script: ./.travis/run build
 after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
 before_install:
-  - ./.travis/run  before_install
   - ./.travis/dependencies/eigen-3.2
+  - ./.travis/run  before_install
 matrix:
   allow_failures:
     - compiler: clang
