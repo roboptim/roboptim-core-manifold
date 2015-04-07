@@ -53,7 +53,7 @@ namespace roboptim
   {
     for (long i = 0; i < this->tangentMappingFromFunctionSize_; ++i)
     {
-      jacobian.col(static_cast<long>(this->tangentMappingFromFunction_[i])) = this->mappedJacobian.col(i);
+      jacobian.col(static_cast<long>(this->tangentMappingFromFunction_[i])) = this->tangentMappedJacobian.col(i);
     }
   }
 
@@ -106,13 +106,13 @@ namespace roboptim
     this->mapArgument(argument);
     jacobian.setZero();
     this->mappedJacobian_.setZero();
-    this->tangentMappedJacobian_.setZero();
+    this->tangentMappedJacobian.setZero();
 
-    this->fct_->jacobian(this->mappedJacobian_, this->mappedArgument_);
+    this->fct_->jacobian(this->mappedJacobian_, this->mappedInput_);
 
-    this->manifold_->applyDiffRetractation(this->tangentMappedJacobian_, this->mappedJacobian_, this->mappedArgument_);
+    this->manifold_->applyDiffRetractation(this->tangentMappedJacobian, this->mappedJacobian_, this->mappedInput_);
 
-    this->tangentUnmapJacobian(jacobian);
+    this->unmapTangentJacobian(jacobian);
   }
 
   template <typename U>

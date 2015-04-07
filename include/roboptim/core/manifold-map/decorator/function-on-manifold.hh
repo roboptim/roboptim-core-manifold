@@ -192,7 +192,7 @@ namespace roboptim
       this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
       this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
       this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->mappingFromFunctionSize_);
-      this->tangentMappedJacobian_ = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->tangentMappingFromFunctionSize_);
+      this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap->fct().outputSize(), this->tangentMappingFromFunctionSize_);
 
       // This lambda computes the actual mapping between a manifold and the one
       // in its place in the global manifold of the problem.
@@ -305,7 +305,9 @@ namespace roboptim
     mutable vector_t mappedInput_;
     mutable gradient_t mappedGradient_;
     mutable jacobian_t mappedJacobian_;
-    mutable jacobian_t tangentMappedJacobian_;
+
+    // Dirty copy ONLY
+    mutable Eigen::MatrixXd tangentMappedJacobian;
 
     void mapArgument(const_argument_ref argument)
       const;

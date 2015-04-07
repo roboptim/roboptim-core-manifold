@@ -169,13 +169,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   instWrap.jacobian(jacobian, input);
   std::cout << "jacobian: " << std::endl << jacobian << std::endl;
+  instWrap.manifold_jacobian(jacobian, input);
 
   (*output) << (*descWrapPtr);
 
   BOOST_CHECK (output->match_pattern());
 
  }
-  //*/
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 {
@@ -360,7 +360,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
  BOOST_CHECK (output->match_pattern());
 }
 
-
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 {
   typedef F<T> Func;
@@ -411,7 +410,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
     }
 
   BOOST_CHECK(errorThrown);
-}//*/
+}
 
 
 BOOST_AUTO_TEST_SUITE_END ()
