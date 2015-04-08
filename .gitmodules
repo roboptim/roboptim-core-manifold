@@ -6,4 +6,4 @@
 	url = https://github.com/roboptim/roboptim-shared-tests
 [submodule ".travis"]
 	path = .travis
-	url = https://github.com/fdarricau/jrl-travis
+	url = https://github.com/jrl-umi3218/jrl-travis
