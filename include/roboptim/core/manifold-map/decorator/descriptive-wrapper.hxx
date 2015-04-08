@@ -19,7 +19,7 @@ namespace roboptim
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (boost::shared_ptr<U>& fct, const pgs::Manifold& manifold)
+  (boost::shared_ptr<U>& fct, pgs::Manifold& manifold)
   : fct_ (fct),
     manifold_ (&manifold)
   {
