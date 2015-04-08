@@ -26,8 +26,14 @@ SET(PROJECT_NAME roboptim-core-manifold)
 SET(PROJECT_DESCRIPTION "RobOptim Core - manifold support")
 SET(PROJECT_URL "http://github.com/roboptim/roboptim-core-manifold")
 
-# TODO: add headers
 SET(HEADERS
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hxx
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/function-on-manifold.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/function-on-manifold.hxx
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hxx
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-map.hh
   )
 
 SETUP_PROJECT()
@@ -36,7 +42,7 @@ SETUP_PROJECT()
 INCLUDE(CheckCCompilerFlag)
 CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAS_VISIBILITY)
 IF(HAS_VISIBILITY)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -std=c++0x")
 ENDIF()
 
 # TODO: Add main library to pkg-config file.
@@ -48,7 +54,10 @@ SET(BOOST_COMPONENTS
 SEARCH_FOR_BOOST()
 
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.2.0")
+ADD_REQUIRED_DEPENDENCY("liblog4cxx >= 0.10.0")
 ADD_REQUIRED_DEPENDENCY("roboptim-core >= 2.0")
+
+ADD_REQUIRED_DEPENDENCY("manifolds")
 
 HEADER_INSTALL("${HEADERS}")
 
