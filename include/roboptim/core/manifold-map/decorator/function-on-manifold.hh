@@ -14,7 +14,7 @@
 # include <manifolds/RealSpace.h>
 # include <manifolds/S2.h>
 
-# include <boost/core/noncopyable.hpp>
+# include <boost/noncopyable.hpp>
 
 namespace roboptim
 {
