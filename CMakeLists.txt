@@ -34,6 +34,8 @@ SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-map.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/problem-on-manifold.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/problem-on-manifold.hxx
   )
 
 SETUP_PROJECT()

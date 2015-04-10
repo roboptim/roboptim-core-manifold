@@ -14,6 +14,8 @@
 # include <manifolds/RealSpace.h>
 # include <manifolds/S2.h>
 
+# include <boost/core/noncopyable.hpp>
+
 namespace roboptim
 {
   /// \addtogroup roboptim_decorator
@@ -22,7 +24,7 @@ namespace roboptim
   /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
   /// \tparam U input function type.
   template <typename U>
-  class FunctionOnManifold : public detail::AutopromoteTrait<U>::T_type
+  class FunctionOnManifold : public detail::AutopromoteTrait<U>::T_type, private boost::noncopyable
   {
   public:
     typedef typename detail::AutopromoteTrait<U>::T_type parentType_t;
