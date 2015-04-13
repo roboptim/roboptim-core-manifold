@@ -30,7 +30,7 @@ namespace roboptim
     template<class ... Types>
     explicit DescriptiveWrapper (Types ... args);
 
-    DescriptiveWrapper (boost::shared_ptr<U>& f, pgs::Manifold& m);
+    DescriptiveWrapper (U& f, pgs::Manifold& m);
 
     ~DescriptiveWrapper ();
 
@@ -39,30 +39,20 @@ namespace roboptim
       return *manifold_;
     }
 
-    const boost::shared_ptr<U>& fctPointer () const
+    U& fct ()
     {
       return fct_;
     }
 
-    U& fct ()
-    {
-      return *fct_;
-    }
-
-    const boost::shared_ptr<pgs::Manifold>& manifoldPointer () const
-    {
-      return manifold_;
-    }
-
   private:
 
-    boost::shared_ptr<U>  fct_;
-    boost::shared_ptr<pgs::Manifold> manifold_;
+    U&              fct_;
+    pgs::Manifold*  manifold_;
   };
 
   template <typename U, typename V>
   boost::shared_ptr<DescriptiveWrapper<U, V> >
-  descriptivewrapper (boost::shared_ptr<U> fct,
+  descriptivewrapper (U& fct,
 		      pgs::Manifold& manifold)
   {
     return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
