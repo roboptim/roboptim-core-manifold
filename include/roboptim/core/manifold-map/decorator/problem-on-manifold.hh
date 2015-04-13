@@ -4,7 +4,6 @@
 # include <boost/shared_ptr.hpp>
 
 # include <roboptim/core/problem.hh>
-# include <pgsolver/solver/Problem.h>
 # include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 
 # include <manifolds/Manifold.h>

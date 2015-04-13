@@ -12,24 +12,23 @@ namespace roboptim
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (Types ... args)
   {
-    U* stdPtr = new U(args...);
-    this->fct_ = stdPtr;
-    this->manifold_ = V::getManifold(&(this->fct_));
+    this->fct_ = new U(args...);
+    this->manifold_ = V::getManifold(this->fct_);
   }
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (U& fct, pgs::Manifold& manifold)
+  (U* fct, pgs::Manifold& manifold)
   : fct_ (fct),
     manifold_ (&manifold)
   {
     long size = manifold_->representationDim();
-    if (fct_.inputSize() != size)
+    if (fct_->inputSize() != size)
     {
       std::stringstream* error = new std::stringstream;
       (*error) << "Representation dims mismatch on manifold "
                << manifold_->name() << " using function "
-               << fct_.getName() << ". Expected dimension :" << size
+               << fct_->getName() << ". Expected dimension :" << size
                << ", actual one is " << fct_->inputSize();
       throw std::runtime_error (error->str());
     }

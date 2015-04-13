@@ -51,8 +51,8 @@ namespace roboptim
      descWrap->fct().outputSize (),
      (boost::format ("%1%")
       % descWrap->fct().getName ()).str ()),
-      fct_(descWrap->fctPointer()),
-      manifold_(descWrap->manifoldPointer())
+      fct_(&descWrap->fct()),
+      manifold_(&descWrap->manifold())
     {
       // Assert to check the sizes of the restrictions' std::vector
       // Either they are the same, or the restrictions array is a single pair
@@ -295,8 +295,8 @@ namespace roboptim
     std::ostream& print_(std::ostream& o);
   private:
   public:
-    boost::shared_ptr<U> fct_;
-    boost::shared_ptr<pgs::Manifold> manifold_;
+    U* fct_;
+    pgs::Manifold* manifold_;
 
     size_t* mappingFromFunction_;
     long mappingFromFunctionSize_;
