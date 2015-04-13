@@ -275,6 +275,14 @@ namespace roboptim
     {
     }
 
+    /// \brief Traits type.
+    typedef typename parent_t::traits_t traits_t;
+
+    /// \brief Derivative type.
+    ///
+    /// Derivatives are column vectors.
+    ROBOPTIM_GENERATE_TRAITS_REFS_T(derivative,traits_t);
+
     ~FunctionOnManifold ();
 
     void impl_compute (result_ref result, const_argument_ref x)
@@ -305,7 +313,7 @@ namespace roboptim
     long tangentMappingFromFunctionSize_;
 
     mutable vector_t mappedInput_;
-    mutable gradient_t mappedGradient_;
+    mutable derivative_t mappedGradient_;
     mutable jacobian_t mappedJacobian_;
 
     // Dirty copy ONLY
