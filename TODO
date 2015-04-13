@@ -1,0 +1,5 @@
+- In manifold-desc, one should define the appropriated structs for all the
+remaining elementary manifolds
+
+- In DescriptiveWrapper, one should ideally create a default private
+constructor as the programmer should never have to instantiate it directly.

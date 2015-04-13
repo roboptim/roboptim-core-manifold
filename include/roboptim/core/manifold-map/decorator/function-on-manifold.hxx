@@ -40,6 +40,7 @@ namespace roboptim
 
   {
     delete [] this->mappingFromFunction_;
+    delete [] this->tangentMappingFromFunction_;
   }
 
   template <typename U>

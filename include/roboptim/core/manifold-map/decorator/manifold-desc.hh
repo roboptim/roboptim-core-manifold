@@ -23,15 +23,31 @@
 
 namespace roboptim
 {
+  /// \addtogroup roboptim_manifolds
+  /// @{
+
+  /// \brief Actual descriptive manifold class for non elementary manifold
+  ///
+  /// Programmer should rely on the DESC_MANIFOLD macro defined in the file
+  /// manifold-map.hh to properly define it.
+  ///
+  /// \tparam Types list of types representing the elementary manifolds
+  /// composing the descriptive manifold
   template<template <typename> class ... Types>
-  class ManiDesc
+  struct ManiDesc
   {
-  public:
+    /// \brief creates the actual manifold from the underlying library, given
+    /// a function
+    ///
+    /// \tparam U the function type
+    ///
+    /// \param function the function instance.
     template<class U>
     static pgs::Manifold* getManifold(U* function = nullptr);
 
   };
 
+  /// @}
 }
 
 # include "manifold-desc.hxx"

@@ -29,8 +29,6 @@
 #include <manifolds/ExpMapMatrix.h>
 #include <manifolds/S2.h>
 
-#define ROBOPTIM_DESCRIPTIVE_FWD_DECS(NAME) typedef NAME type
-
 #define REAL_SPACE(num) roboptim::Real<num>::Space
 
 #define DESC_MANIFOLD(name, ...) typedef roboptim::ManiDesc< __VA_ARGS__> name
@@ -62,32 +60,63 @@
 //
 // FIXME: define all remaining manifolds
 
-namespace roboptim {
 
+/// \brief Library-defined elementary descriptive manifolds
+///
+/// Each classes defined below should be instanciated by the user using one
+/// of the macros defined by this file.
+/// For instance, given a function type F and a manifold SO3, the user should
+/// write the following sequence to define the correct descriptive manifold:
+/// BIND_FUNCTION_ON_MANIFOLD(F, SO3);
+///
+/// He will therefore be able to define the FunctionOnManifold writing this:
+/// Instance_F_On_SO3(args...) where args are the arguments needed by the
+/// constructor of the FunctionOnManifold class.
+///
+/// Note that the classes names is the same as the manifold's one, as users
+/// should never directly use them for wrapping.
+namespace roboptim
+{
+  /// \addtogroup roboptim_manifolds
+  /// @{
+
+  /// \brief Descriptive manifold for S2
+  ///
+  /// \tparam FI function type
   template <class FI>
   struct S2
   {
+    /// \brief creates the actual manifold from the underlying library
     static pgs::Manifold* getInstance(FI*)
     {
       return new pgs::S2();
     }
   };
 
+  /// \brief Descriptive manifold for SO3
+  ///
+  /// \tparam FI function type
   template <class FI>
   struct SO3
   {
+    /// \brief creates the actual manifold from the underlying library
     static pgs::Manifold* getInstance(FI*)
     {
       return new pgs::SO3<pgs::ExpMapMatrix>();
     }
   };
 
+  /// \brief Descriptive manifold for the RealSpace family
+  ///
+  /// \tparam I dimension of the RealSpace
+  /// \tparam FI function type
   template<int I = 1>
   struct Real
   {
     template <class FI>
     struct Space
     {
+      /// \brief creates the actual manifold from the underlying library
       static pgs::Manifold* getInstance(FI*)
       {
 	return new pgs::RealSpace(I);
@@ -95,16 +124,24 @@ namespace roboptim {
     };
   };
 
+  /// \brief Automated descriptive manifold for the RealSpace family
+  ///
+  /// The dimension here is computed according to the function's size.
+  ///
+  /// \tparam FI function type
   template<class FI>
   struct Automated_Real
   {
-  public:
+    /// \brief creates the actual manifold from the underlying library
+    ///
+    /// \param function the function instance.
     static pgs::Manifold* getInstance(FI* function)
     {
       return new pgs::RealSpace(function->getSize());
     }
   };
 
+  /// @}
 }
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_MAP_HH
