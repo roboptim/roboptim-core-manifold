@@ -295,7 +295,7 @@ namespace roboptim
     std::ostream& print_(std::ostream& o);
   private:
   public:
-    U* fct_;
+    const U* fct_;
     pgs::Manifold* manifold_;
 
     size_t* mappingFromFunction_;

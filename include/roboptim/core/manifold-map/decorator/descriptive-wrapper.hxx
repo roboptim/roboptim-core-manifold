@@ -10,7 +10,7 @@ namespace roboptim
   template <typename U, typename V>
   template<class ... Types>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (Types& ... args)
+  (Types ... args)
   {
     this->fct_ = new U(args...);
     this->manifold_ = V::getManifold(this->fct_);
@@ -18,7 +18,7 @@ namespace roboptim
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (U* fct, pgs::Manifold& manifold)
+  (const U* fct, pgs::Manifold& manifold)
   : fct_ (fct),
     manifold_ (&manifold)
   {

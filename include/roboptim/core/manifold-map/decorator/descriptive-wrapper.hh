@@ -28,9 +28,9 @@ namespace roboptim
     /// \param fct input function.
     /// \param functionManifold the manifold describing the function's input vector.
     template<class ... Types>
-    explicit DescriptiveWrapper (Types& ... args);
+    explicit DescriptiveWrapper (Types ... args);
 
-    DescriptiveWrapper (U* f, pgs::Manifold& m);
+    DescriptiveWrapper (const U* f, pgs::Manifold& m);
 
     ~DescriptiveWrapper ();
 
@@ -39,14 +39,14 @@ namespace roboptim
       return *manifold_;
     }
 
-    U& fct ()
+    const U& fct ()
     {
       return *fct_;
     }
 
   private:
 
-    U*              fct_;
+    const U*              fct_;
     pgs::Manifold*  manifold_;
   };
 
