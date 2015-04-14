@@ -9,6 +9,7 @@
 #include <manifolds/RealSpace.h>
 #include <manifolds/CartesianProduct.h>
 #include <manifolds/ExpMapMatrix.h>
+#include <manifolds/ExpMapQuaternion.h>
 #include <manifolds/S2.h>
 
 #define ROBOPTIM_DESCRIPTIVE_FWD_DECS(NAME) typedef NAME type
@@ -57,6 +58,15 @@ namespace roboptim {
     static pgs::Manifold* getInstance(FI*)
     {
       return new pgs::SO3<pgs::ExpMapMatrix>();
+    }
+  };
+
+  template <class FI>
+  struct SO3Quat
+  {
+    static pgs::Manifold* getInstance(FI*)
+    {
+      return new pgs::SO3<pgs::ExpMapQuaternion>();
     }
   };
 

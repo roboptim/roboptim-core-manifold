@@ -23,6 +23,7 @@
 
 #include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 #include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
+#include <roboptim/core/manifold-map/decorator/problem-factory.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -141,8 +142,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   const pgs::CartesianProduct cartProd(joints, ori);
   const pgs::CartesianProduct myFuncManifold(cartProd, pos);
 
-  boost::shared_ptr<F_On_FreeFlyerPlus10>
-    descWrapPtr(new F_On_FreeFlyerPlus10());
+  F_On_FreeFlyerPlus10 descWrapPtr;
 
   Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, myFuncManifold);
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   std::cout << "jacobian: " << std::endl << jacobian << std::endl;
   instWrap.manifold_jacobian(refJacobian, input);
 
-  (*output) << (*descWrapPtr);
+  (*output) << descWrapPtr;
 
   BOOST_CHECK (output->match_pattern());
 
@@ -193,8 +193,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
   pgs::CartesianProduct problemManifold;
   const pgs::RealSpace descriptiveManifold(3);
 
-  boost::shared_ptr<F_On_Real3>
-    descWrapPtr(new F_On_Real3());
+ F_On_Real3 descWrapPtr;
 
   size_t posNumber = 15;
 
@@ -323,8 +322,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
   DESC_MANIFOLD(MultipleReal3, Manifold_MultipleReal3);
   NAMED_FUNCTION_BINDING(H_On_MultipleReal3, Func, MultipleReal3);
 
-  boost::shared_ptr<H_On_MultipleReal3>
-    descWrapPtr(new H_On_MultipleReal3());
+  H_On_MultipleReal3 descWrapPtr;
 
   typename Instance_H_On_MultipleReal3::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
   typename Instance_H_On_MultipleReal3::result_t result = Eigen::VectorXd::Zero(3);
@@ -381,8 +379,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
   DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
 
-  boost::shared_ptr<F_On_FreeFlyerPlus10>
-    descWrapPtr(new F_On_FreeFlyerPlus10());
+  F_On_FreeFlyerPlus10 descWrapPtr;
 
   std::vector<const pgs::Manifold*> restrictedManifolds;
   restrictedManifolds.push_back(&pos);
@@ -414,6 +411,5 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   BOOST_CHECK(errorThrown);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END ()
