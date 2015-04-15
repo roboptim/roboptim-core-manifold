@@ -1,3 +1,21 @@
+// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
+//                       Félix Darricau, AIST, CNRS, EPITA
+//
+// This file is part of the roboptim.
+//
+// roboptim is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// roboptim is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
+
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HH
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HH
 # include <vector>
@@ -11,26 +29,40 @@
 
 namespace roboptim
 {
-  /// \addtogroup roboptim_decorator
+  /// \addtogroup roboptim_manifolds
   /// @{
 
-  // FIXME: private constructor MAGIC
-
-  /// \brief apply a given roboptim function to a given dimension space
+  /// \brief wraps a roboptim function to a descriptive manifold
+  ///
   /// \tparam U input function type.
+  /// \tparam V descriptive manifold type.
   template <typename U, typename V>
   class DescriptiveWrapper
   {
   public:
     typedef boost::shared_ptr<DescriptiveWrapper> DescriptiveWrapperShPtr_t;
 
-    /// \brief map the function on the given manifold.
-    /// \param fct input function.
-    /// \param functionManifold the manifold describing the function's input vector.
+    /// \brief binds the function to the manifold
+    ///
+    /// This constructor takes a descriptive manifold as argument, that is in
+    /// charge of instantiating it.
+    /// It is the less error-prone way of creating a descriptive wrapper.
+    ///
+    /// \tparam Types list of types necessary to build the descriptive wrapper.
+    ///
+    /// \param args necessary arguments to build the descriptive wrapper
     template<class ... Types>
     explicit DescriptiveWrapper (Types ... args);
 
-    DescriptiveWrapper (const U* f, pgs::Manifold& m);
+    /// \brief binds directly the function to the manifold
+    ///
+    /// This constructor does not use the existing descriptive solution.
+    /// It should therefore only be used if it is necessary, as it can easily
+    /// bring errors.
+    ///
+    /// \param f input function.
+    /// \param m the manifold describing the function's input vector.
+	DescriptiveWrapper (const U* f, pgs::Manifold& m);
 
     ~DescriptiveWrapper ();
 
@@ -46,7 +78,9 @@ namespace roboptim
 
   private:
 
+    ///\brief the function
     const U*              fct_;
+    ///\brief the manifold
     pgs::Manifold*  manifold_;
   };
 
@@ -75,6 +109,7 @@ namespace roboptim
     return o;
   }
 
+  /// @}
 } // end of namespace roboptim.
 
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hxx>

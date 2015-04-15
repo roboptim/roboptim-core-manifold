@@ -1,3 +1,21 @@
+// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
+//                       Félix Darricau, AIST, CNRS, EPITA
+//
+// This file is part of the roboptim.
+//
+// roboptim is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// roboptim is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
+
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HH
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HH
 # include <vector>
@@ -18,11 +36,12 @@
 
 namespace roboptim
 {
-  /// \addtogroup roboptim_decorator
+  /// \addtogroup roboptim_manifolds
   /// @{
 
-  /// \brief Binds a DescriptiveWrapper to a instance of a submanifold.
-  /// \tparam U input function type.
+  /// \brief Maps a DescriptiveWrapper to a instance of a submanifold.
+  ///
+  /// \tparam U input roboptim function type.
   template <typename U>
   class FunctionOnManifold : public detail::AutopromoteTrait<U>::T_type, private boost::noncopyable
   {
@@ -32,17 +51,20 @@ namespace roboptim
 
     typedef boost::shared_ptr<FunctionOnManifold> FunctionOnManifoldShPtr_t;
 
-    /// \brief Create a mapping from the problem's manifold to the function's.
-    /// \param fct input function.
+    /// \brief Creates the mapping between the manifolds.
+    ///
+    /// Programmers should ideally not directly use this constructor, amd
+    /// rely on the macros defined in the file manifold-map.hh to get the well
+    /// defined FunctionOnManifold type, ready to be instantiated.
+    ///
+    /// \tparam V input function type templating the DescriptiveWrapper.
+    /// \tparam W descriptive manifold type templating the DescriptiveWrapper.
+    ///
+    /// \param descwrap instance of the DescriptiveWrapper
     /// \param problemManifold the manifold describing the whole variable vector.
     /// \param functionManifold the manifold describing the function's input vector.
     /// \param restrictedManifolds a list of elementary Manifolds to be restricted to a part of themselves
     /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
-
-    // Empty constructor, should be initialized
-    // later via a manual call to computeMapping
-    explicit FunctionOnManifold();
-
     template <typename V, typename W>
     explicit FunctionOnManifold
     (DescriptiveWrapper<V, W>& descWrap,
@@ -65,6 +87,19 @@ namespace roboptim
 		     restrictions);
     }
 
+
+    /// \brief Creates the mapping between the manifolds without restrictions.
+    ///
+    /// Programmers should ideally not directly use this constructor, amd
+    /// rely on the macros defined in the file manifold-map.hh to get the well
+    /// defined FunctionOnManifold type, ready to be instantiated.
+    ///
+    /// \tparam V input function type templating the DescriptiveWrapper.
+    /// \tparam W descriptive manifold type templating the DescriptiveWrapper.
+    ///
+    /// \param fct instance of the DescriptiveWrapper
+    /// \param problemManifold the manifold describing the whole variable vector.
+    /// \param functionManifold the manifold describing the function's input vector.
     template<typename V, typename W>
     explicit FunctionOnManifold (DescriptiveWrapper<V, W>& fct,
 				 const pgs::Manifold& problemManifold,
@@ -109,28 +144,47 @@ namespace roboptim
     std::ostream& print_(std::ostream& o);
   private:
   public:
+    /// \brief the function.
     const U* fct_;
+    /// \brief the problem manifold.
     pgs::Manifold* manifold_;
 
+    /// \brief array representing the restricted mapping
     size_t* mappingFromFunction_;
+    /// \brief size of the array
     long mappingFromFunctionSize_;
 
+    /// \brief array representing the restricted mapping for the tangent problem
     size_t* tangentMappingFromFunction_;
+    /// \brief size of the array
     long tangentMappingFromFunctionSize_;
 
+    /// \brief new input mapped to the restricted problem
     mutable vector_t mappedInput_;
+    /// \brief new gradient mapped to the restricted problem
     mutable derivative_t mappedGradient_;
+    /// \brief new jacobian mapped to the restricted problem
     mutable jacobian_t mappedJacobian_;
 
     // Dirty copy ONLY
     mutable Eigen::MatrixXd tangentMappedJacobian;
 
+    /// \brief map the input to the restricted problem
+    ///
+    /// \param argument the argument to map
     void mapArgument(const_argument_ref argument)
       const;
 
+    /// \brief gets the gradient from the restricted problem
+    ///
+    /// \param gradient the output gradient
+    /// \param mappedGradient the gradient computed to unmap
     void unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
       const;
 
+    /// \brief unmap the jacobian from the restricted problem
+    ///
+    /// \param jacobian the jacobian to unmap
     void unmapTangentJacobian(pgs::RefMat jacobian)
       const;
   };

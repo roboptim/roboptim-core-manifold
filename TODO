@@ -1,0 +1,10 @@
+- In manifold-desc, one should define the appropriated structs for all the
+  remaining elementary manifolds.
+
+- In DescriptiveWrapper, one should ideally create a default private
+  constructor as the programmer should never have to instantiate it directly.
+
+- In FunctionOnManifold, one should make the ROBOPTIM_DIFFERENTIABLE_FWD_DECS
+  non automatic, and using boost::enable_if therefore make it possible to
+  define Manifolds wrapping for non differentiable types of function, or more
+  specific ones (linear functions for example).

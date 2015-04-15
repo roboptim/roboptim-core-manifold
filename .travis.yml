@@ -9,13 +9,19 @@ env:
     - secure: "Slm+HqRT+Vy0SG7E9gEShuHvNz6XWRUmBhVBLVJEaYy/0Lo2qp4OjFEWDjiJwFIiXstW2Wclds4SuewAn3Tc4x7dsY+5uaMCX7S/HPzsBCjLXUwjKasUqEGaVTIYmtFJm57hOkz6K2SLUUV4intkMiwtCiq/R0xe92QTTKkHyfo="
     - secure: "F9mibfsT3Ezk0RRsgOHy8RUO82H05REGmJKLDKdHiHE3toxykQX64oNBB8txjHoi+UF0H1Gwmk4oB/pNeILtyHdSuB7hB1Muod9wspOuKrzO7SMTGdjpPw7nDjQEmtfrZFhXEGb/3xm66uSGojhwe0RJF5mOzyfno+G8SIJyos4="
     - secure: "ZKC2yAvUcDb2nyrZQNqpLgEbi2pYFSKDn/+xIj9ZH+5nkn6iA5RT4AunK13qxuBkjIr2HJcUBtMFvk/mfpvpWynX+v9i3OhpVZCbkmcjQrATjiUcG6r95oEcex7NAM5uKd/41CqV/0fzTPc3uJgPozDJlt0wsBmCEarHiRNAoo0="
-    - APT_DEPENDENCIES="doxygen doxygen-latex libltdl-dev liblog4cxx10-dev libboost1.55-all-dev g++-4.8 clang-3.5"
+    - APT_DEPENDENCIES="doxygen doxygen-latex libltdl-dev liblog4cxx10-dev libboost1.55-all-dev"
+    - GCC_NEEDED_VERSION="4.8"
+    - GCC_PPA="ubuntu-toolchain-r/test"
+    - CLANG_NEEDED_VERSION="3.5"
+    - CLANG_PPA="h-rayflood/llvm"
     - HOMEBREW_DEPENDENCIES="doxygen libtool boost log4cxx"
     - GIT_DEPENDENCIES="roboptim/roboptim-core stanislas-brossette/manifolds"
-    - MASTER_PPA="boost-latest/ppa ubuntu-toolchain-r/test h-rayflood/llvm"
+    - MASTER_PPA="boost-latest/ppa"
     - GH_USERNAME=thomas-moulard
     - GH_REPO=roboptim/roboptim-core-manifold
     - LCOV_IGNORE_RULES="*tests*"
+    - LCOV_UPDATE="yes"
+    - GCOV_TOOL="gcov-4.8"
 notifications:
   hipchat:
     rooms:
@@ -24,17 +30,30 @@ notifications:
 branches:
   only:
   - master
-script: ./.travis/run build
+script:
+  - if [[ ${CC} == "gcc" ]]; then
+      export CC=${CC}-${GCC_NEEDED_VERSION};
+      export CXX=${CXX}-${GCC_NEEDED_VERSION};
+    fi
+  - ./.travis/run build
 after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
 before_install:
+  - if [[ ${TRAVIS_OS_NAME} = linux ]]; then
+      if [[ ${GCC_NEEDED_VERSION} != "" && ${GCC_PPA} != "" && ${CC} == "gcc" ]]; then
+        sudo add-apt-repository -y ppa:${GCC_PPA};
+        sudo apt-get update -qq;
+        sudo apt-get install -qq ${CC}-${GCC_NEEDED_VERSION} ${CXX}-${GCC_NEEDED_VERSION};
+        export CC=${CC}-${GCC_NEEDED_VERSION};
+        export CXX=${CXX}-${GCC_NEEDED_VERSION};
+      elif [[ ${CLANG_NEEDED_VERSION} != "" && ${CLANG_PPA} != "" ]]; then
+        sudo add-apt-repository -y ppa:${CLANG_PPA};
+        sudo apt-get update -qq;
+        sudo apt-get install -qq ${CC}-${CLANG_NEEDED_VERSION};
+      fi;
+    fi;
   - ./.travis/dependencies/eigen-3.2
   - ./.travis/run  before_install
-  - if [ "$CXX" = "g++" ];
-    then
-      export CC=gcc-4.8;
-      export CXX=g++-4.8;
-    fi;
 matrix:
   allow_failures:
     - compiler: clang
