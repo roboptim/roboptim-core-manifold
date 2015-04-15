@@ -167,11 +167,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
     factory.addConstraint(cnstr4, joints, bounds);
   }
 
-  problem_t* manifoldProblem = factory.getProblem(objDesc, pos);
+  roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem(objDesc, pos);
 
-  std::cout << "manifoldProblem: " << *manifoldProblem << std::endl;
-
-  std::cout << "END OF TEST" << std::endl;
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
