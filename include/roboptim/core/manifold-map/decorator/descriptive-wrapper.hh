@@ -78,6 +78,9 @@ namespace roboptim
 
   private:
 
+    /// \brief dimension check between the function and the descriptive manifold
+    void checkDimension();
+
     ///\brief the function
     const U*              fct_;
     ///\brief the manifold
