@@ -1,4 +1,5 @@
-// Copyright (C) 2013 by Thomas Moulard, AIST, CNRS, INRIA.
+// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
+//                       Félix Darricau, AIST, CNRS, EPITA
 //
 // This file is part of the roboptim.
 //
