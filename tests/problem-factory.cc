@@ -149,12 +149,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   F_On_SO3 cnstr1;
   G_On_R3 objDesc;
   H_On_R10 cnstr2;
-  H_On_R10 cnstr3;
-  H_On_R10 cnstr4;
 
   factory.addConstraint(cnstr1, ori);
   factory.addConstraint(cnstr2, joints);
-  factory.addConstraint(cnstr3, joints);
+  factory.addConstraint(cnstr2, joints);
 
   {
     typename Hunc::intervals_t bounds;
@@ -164,12 +162,58 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 	bounds.push_back(roboptim::Function::makeLowerInterval(25));
       }
 
-    factory.addConstraint(cnstr4, joints, bounds);
+    factory.addConstraint(cnstr2, joints, bounds);
   }
 
-  roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem(objDesc, pos);
+  factory.setObjective(objDesc, pos);
+
+  roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
+{
+  typedef F<T> Func;
+  typedef G<T> Gunc;
+  typedef H<T> Hunc;
+
+  roboptim::ProblemFactory<problem_t> factory;
+
+  DESC_MANIFOLD(R3, REAL_SPACE(3));
+  NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
+
+  DESC_MANIFOLD(SO3, roboptim::SO3);
+  NAMED_FUNCTION_BINDING(F_On_SO3, Func, SO3);
+
+  DESC_MANIFOLD(R10, REAL_SPACE(10));
+  NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
+
+  pgs::RealSpace pos(3);
+  pgs::SO3<pgs::ExpMapMatrix> ori;
+  pgs::RealSpace joints(10);
+
+  F_On_SO3 cnstr1;
+  G_On_R3 objDesc;
+  H_On_R10 cnstr2;
+
+  factory.addConstraint(cnstr1, ori);
+  factory.addConstraint(cnstr2, joints);
+
+  {
+    typename Hunc::intervals_t bounds;
+
+    for(int i = 0; i < Hunc().outputSize(); ++i)
+      {
+	bounds.push_back(roboptim::Function::makeLowerInterval(25));
+      }
+
+    factory.addConstraint(cnstr2, joints, bounds);
+  }
+
+  roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
+
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 19);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

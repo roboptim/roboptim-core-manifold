@@ -42,6 +42,16 @@ namespace roboptim
   public:
     typedef boost::shared_ptr<DescriptiveWrapper> DescriptiveWrapperShPtr_t;
 
+    /// \brief binds directly the function to the manifold
+    ///
+    /// This constructor does not use the existing descriptive solution.
+    /// It should therefore only be used if it is necessary, as it can easily
+    /// bring errors.
+    ///
+    /// \param f input function.
+    /// \param m the manifold describing the function's input vector.
+    DescriptiveWrapper (const U* f, pgs::Manifold& m);
+
     /// \brief binds the function to the manifold
     ///
     /// This constructor takes a descriptive manifold as argument, that is in
@@ -53,16 +63,6 @@ namespace roboptim
     /// \param args necessary arguments to build the descriptive wrapper
     template<class ... Types>
     explicit DescriptiveWrapper (Types ... args);
-
-    /// \brief binds directly the function to the manifold
-    ///
-    /// This constructor does not use the existing descriptive solution.
-    /// It should therefore only be used if it is necessary, as it can easily
-    /// bring errors.
-    ///
-    /// \param f input function.
-    /// \param m the manifold describing the function's input vector.
-	DescriptiveWrapper (const U* f, pgs::Manifold& m);
 
     ~DescriptiveWrapper ();
 

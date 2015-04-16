@@ -257,11 +257,6 @@ namespace roboptim
     traverseFunctionManifold(functionManifold, 0);
   }
 
-  template<typename U>
-  FunctionOnManifold<U>::FunctionOnManifold()
-    : detail::AutopromoteTrait<U>::T_type(1, 1, "")
-  {}
-
   template <typename U>
   FunctionOnManifold<U>::~FunctionOnManifold()
 
