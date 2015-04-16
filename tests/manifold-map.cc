@@ -133,6 +133,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
   pgs::RealSpace pos(3);pos.name() = "position";
   pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
@@ -189,6 +190,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
   DESC_MANIFOLD(Real3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_Real3, Func, Real3);
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_Real3;
 
   std::vector<const pgs::RealSpace*> reals;
   pgs::CartesianProduct problemManifold;
@@ -322,6 +324,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 
   DESC_MANIFOLD(MultipleReal3, Manifold_MultipleReal3);
   NAMED_FUNCTION_BINDING(H_On_MultipleReal3, Func, MultipleReal3);
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_H_On_MultipleReal3;
 
   H_On_MultipleReal3 descWrapPtr;
 
@@ -379,6 +382,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
   F_On_FreeFlyerPlus10 descWrapPtr;
 
