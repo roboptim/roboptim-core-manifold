@@ -1,5 +1,5 @@
-// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
-//                       Félix Darricau, AIST, CNRS, EPITA
+// Copyright (C) 2015 by Félix Darricau, AIST, CNRS, EPITA
+//                       Grégoire Duchemin, AIST, CNRS, EPITA
 //
 // This file is part of the roboptim.
 //
