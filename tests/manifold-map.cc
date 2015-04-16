@@ -124,7 +124,7 @@ struct H : public roboptim::GenericDifferentiableFunction<T>
 boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
-/*
+
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 {
   output = retrievePattern("manifold-map");
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
     BOOST_CHECK (output->match_pattern());
   }
-*/
+
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 {
   output = retrievePattern("manifold-map-2");
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   BOOST_CHECK (output->match_pattern());
 
 }
-/*
+
 const size_t posNumber = 15;
 
 DEFINE_MANIFOLD(MultipleReal3)
@@ -418,5 +418,5 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   BOOST_CHECK(errorThrown);
 }
-*/
+
 BOOST_AUTO_TEST_SUITE_END ()
