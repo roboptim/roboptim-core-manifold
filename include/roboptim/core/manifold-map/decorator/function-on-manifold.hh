@@ -179,7 +179,7 @@ namespace roboptim
     ///
     /// \param gradient the output gradient
     /// \param mappedGradient the gradient computed to unmap
-    void unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
+    void unmapGradient(gradient_ref gradient, const_gradient_ref mappedGradient)
       const;
 
     /// \brief unmap the jacobian from the restricted problem
