@@ -282,10 +282,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
     (*output) << "std::runtime_error: " << e.what() << "\n";
   }
 
-  std::cout << "(*output): " << (*output).str() << std::endl;
-
   BOOST_CHECK (output->match_pattern());
-
 }
 
 const size_t posNumber = 15;

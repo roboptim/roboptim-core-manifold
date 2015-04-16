@@ -177,16 +177,32 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   pgs::RealSpace joints(10);
   pgs::CartesianProduct prod;
   prod.multiply(pos).multiply(ori).multiply(joints);
+  pgs::RealSpace r42(42);
+  pgs::RealSpace r27(27);
+  pgs::RealSpace r39(39);
+
+  pgs::CartesianProduct prod2;
+  prod2.multiply(r27).multiply(ori).multiply(r39);
+
 
   F_On_SO3 cnstr1;
   G_On_R3 objDesc;
   H_On_R10 cnstr2;
   I_On_R3XSO3XR10 cnstr3;
 
+  std::vector<const pgs::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  restricted.push_back(&r27);
+  restrictions.push_back(std::make_pair(14, 3));
+  restricted.push_back(&r39);
+  restrictions.push_back(std::make_pair(27, 10));
+
   factory.addConstraint(cnstr1, ori);
   factory.addConstraint(cnstr2, joints);
   factory.addConstraint(cnstr2, joints);
   factory.addConstraint(objDesc, pos);
+  factory.addConstraint(cnstr3, prod2, restricted, restrictions);
 
   {
     typename Hunc::intervals_t bounds;
@@ -196,14 +212,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 	bounds.push_back(roboptim::Function::makeLowerInterval(25));
       }
 
-    factory.addConstraint(cnstr2, joints, bounds);
+    factory.addConstraint(cnstr2, joints).setBounds(bounds);
   }
 
-  factory.setObjective(cnstr3, prod);
+  factory.setObjective(cnstr3, prod2, restricted, restrictions);
 
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22);
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 88);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
@@ -235,14 +251,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
   factory.addConstraint(cnstr2, joints);
 
   {
-    typename Hunc::intervals_t bounds;
+    std::vector<double> scales;
 
     for(int i = 0; i < Hunc().outputSize(); ++i)
       {
-	bounds.push_back(roboptim::Function::makeLowerInterval(25));
+	scales.push_back(1.);
       }
 
-    factory.addConstraint(cnstr2, joints, bounds);
+    factory.addConstraint(cnstr2, joints).setScales(scales);
   }
 
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
