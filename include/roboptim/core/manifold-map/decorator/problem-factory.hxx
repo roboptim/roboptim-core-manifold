@@ -1,7 +1,26 @@
+// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
+//                       Félix Darricau, AIST, CNRS, EPITA
+//
+// This file is part of the roboptim.
+//
+// roboptim is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// roboptim is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX
 # define ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX
 
-#include <boost/pointer_cast.hpp>
+# include <boost/pointer_cast.hpp>
+
+
 
 template<class U>
 void ProblemFactory<U>::addElementaryManifolds(const pgs::Manifold& instanceManifold)
@@ -35,7 +54,7 @@ void ProblemFactory<U>::addElementaryManifolds(const pgs::Manifold& instanceMani
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename V::intervals_t& bounds, typename U::scales_t& scales)
+void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename V::intervals_t& bounds, typename U::scales_t& scales)
 {
   this->addElementaryManifolds(instanceManifold);
 
@@ -47,11 +66,11 @@ void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWr
   // this lambda, which is awesome.
   auto addConstraint =
     [&descWrap, this, bounds, scales, &instanceManifold]
-    (roboptim::ProblemOnManifold<U>& problem,
+    (ProblemOnManifold<U>& problem,
      const pgs::Manifold& globMani)
     {
-      ::boost::shared_ptr<roboptim::FunctionOnManifold<typename V::parent_t>>
-      funcOnMani(new roboptim::FunctionOnManifold<typename V::parent_t>
+      ::boost::shared_ptr<FunctionOnManifold<typename V::parent_t>>
+      funcOnMani(new FunctionOnManifold<typename V::parent_t>
 		 (descWrap, globMani, instanceManifold)
 		 );
 
@@ -63,7 +82,7 @@ void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWr
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename V::intervals_t& bounds)
+void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename V::intervals_t& bounds)
 {
   typename U::scales_t scales;
 
@@ -77,13 +96,13 @@ void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWr
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename U::scales_t& scales)
+void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename U::scales_t& scales)
 {
   typename V::intervals_t bounds;
 
   for(int j = 0; j < descWrap.fct().outputSize(); ++j)
     {
-      bounds.push_back(roboptim::Function::makeInfiniteInterval());
+      bounds.push_back(Function::makeInfiniteInterval());
     }
 
   this->addConstraint(descWrap, instanceManifold, bounds, scales);
@@ -91,14 +110,14 @@ void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWr
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
 {
   typename V::intervals_t bounds;
   typename U::scales_t scales;
 
   for(int j = 0; j < descWrap.fct().outputSize(); ++j)
     {
-      bounds.push_back(roboptim::Function::makeInfiniteInterval());
+      bounds.push_back(Function::makeInfiniteInterval());
       scales.push_back(1.);
     }
 
@@ -108,7 +127,7 @@ void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWr
 // ---- //
 
 template<class U>
-pgs::Manifold* ProblemFactory<U>::getGlobalManifold()
+pgs::CartesianProduct* ProblemFactory<U>::getGlobalManifold()
 {
   pgs::CartesianProduct* globalManifold = new pgs::CartesianProduct();
 
@@ -123,17 +142,15 @@ pgs::Manifold* ProblemFactory<U>::getGlobalManifold()
 }
 
 template<class U>
-template<class V, class W>
-roboptim::ProblemOnManifold<U>* ProblemFactory<U>::getProblem(roboptim::DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+ProblemOnManifold<U>* ProblemFactory<U>::getProblem()
 {
-  this->addElementaryManifolds(instanceManifold);
+  // The global manifold is incomplete and only contains the
+  // elementary manifolds of the cosntraints here.
+  // The elementary manifolds of the objective function will
+  // be added by the objLambda_ function below.
+  pgs::CartesianProduct* globalManifold = this->getGlobalManifold();
 
-  pgs::Manifold* globalManifold = this->getGlobalManifold();
-
-  roboptim::FunctionOnManifold<typename V::parent_t>* instObjFunc = new roboptim::FunctionOnManifold<typename V::parent_t>(descWrap, *globalManifold, instanceManifold);
-
-  roboptim::ProblemOnManifold<U>* problem = new roboptim::ProblemOnManifold<U>(*globalManifold,
-									       *instObjFunc);
+  ProblemOnManifold<U>* problem = this->objLambda_(*globalManifold);
 
   for (auto lambda : this->lambdas_)
     {
@@ -141,6 +158,71 @@ roboptim::ProblemOnManifold<U>* ProblemFactory<U>::getProblem(roboptim::Descript
     }
 
   return problem;
+}
+
+// ---- //
+
+template<class U>
+template<class V, class W>
+void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+{
+  this->objLambda_ = [&descWrap, &instanceManifold, this](pgs::CartesianProduct& globMani)
+    {
+      std::vector<long> manifoldIds;
+      std::function<void(const pgs::Manifold&)> addElementaries =
+      [this, &addElementaries, &globMani, &manifoldIds]
+      (const pgs::Manifold& manifold)
+      {
+	if (manifold.isElementary())
+	  {
+	    // TODO: in-lambda list to avoid multiple inclusion from the objective itself
+	    if (!this->elementaryInstanceManifolds_.count(manifold.getInstanceId())
+		&& std::find(manifoldIds.begin(), manifoldIds.end(), manifold.getInstanceId()) == manifoldIds.end())
+	      {
+		manifoldIds.push_back(manifold.getInstanceId());
+		globMani.multiply(manifold);
+	      }
+	  }
+	else
+	  {
+	    for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
+	      {
+		addElementaries(manifold(i));
+	      }
+	  }
+      };
+
+      addElementaries(instanceManifold);
+
+      FunctionOnManifold<typename V::parent_t>* objOnMani =
+      new FunctionOnManifold<typename V::parent_t>
+      (descWrap, globMani, instanceManifold);
+
+      return new ProblemOnManifold<U>(globMani, *objOnMani);
+    };
+}
+
+template<class U>
+ProblemFactory<U>::ProblemFactory()
+{
+  this->objLambda_ = [](pgs::CartesianProduct& globMani)
+    {
+      typename GenericConstantFunction<EigenMatrixDense>::vector_t offset (globMani.representationDim());
+      GenericConstantFunction<EigenMatrixDense>* cst  = new GenericConstantFunction<EigenMatrixDense>(offset);
+
+      // We make a pgs::Manifold& out of the CartesianProduct& to explicitly call
+      // the overloaded constructor instead of the variadic one
+      pgs::Manifold& globberMani = globMani;
+
+      DescriptiveWrapper<GenericConstantFunction<EigenMatrixDense>, ManiDesc<>>
+      descWrap(cst, globberMani);
+
+      FunctionOnManifold<typename GenericConstantFunction<EigenMatrixDense>::parent_t>*
+      objOnMani = new FunctionOnManifold<typename GenericConstantFunction<EigenMatrixDense>::parent_t>
+      (descWrap, globMani, globMani);
+
+      return new ProblemOnManifold<U>(globMani, *objOnMani);
+      };
 }
 
 #endif //! ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX

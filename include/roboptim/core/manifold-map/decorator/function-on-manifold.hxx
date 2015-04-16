@@ -257,11 +257,6 @@ namespace roboptim
     traverseFunctionManifold(functionManifold, 0);
   }
 
-  template<typename U>
-  FunctionOnManifold<U>::FunctionOnManifold()
-    : detail::AutopromoteTrait<U>::T_type(1, 1, "")
-  {}
-
   template <typename U>
   FunctionOnManifold<U>::~FunctionOnManifold()
 
@@ -283,7 +278,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::unmapGradient(gradient_ref gradient, Eigen::VectorXd& mappedGradient)
+  FunctionOnManifold<U>::unmapGradient(gradient_ref gradient, const_gradient_ref mappedGradient)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)

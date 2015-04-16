@@ -34,6 +34,7 @@ namespace roboptim
   {
     this->fct_ = new U(args...);
     this->manifold_ = V::getManifold(this->fct_);
+    checkDimension();
   }
 
   template <typename U, typename V>
@@ -41,6 +42,17 @@ namespace roboptim
   (const U* fct, pgs::Manifold& manifold)
   : fct_ (fct),
     manifold_ (&manifold)
+  {
+    checkDimension();
+  }
+
+  template <typename U, typename V>
+  DescriptiveWrapper<U, V>::~DescriptiveWrapper()
+  {
+  }
+
+  template <typename U, typename V>
+  void DescriptiveWrapper<U, V>::checkDimension()
   {
     long size = manifold_->representationDim();
     if (fct_->inputSize() != size)
@@ -54,10 +66,6 @@ namespace roboptim
     }
   }
 
-  template <typename U, typename V>
-  DescriptiveWrapper<U, V>::~DescriptiveWrapper()
-  {
-  }
 } // end of namespace roboptim.
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HXX
