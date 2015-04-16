@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   typedef G<T> Gunc;
   typedef H<T> Hunc;
 
-  ProblemFactory<problem_t> factory;
+  roboptim::ProblemFactory<problem_t> factory;
 
   DESC_MANIFOLD(R3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);

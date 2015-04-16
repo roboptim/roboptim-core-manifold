@@ -50,7 +50,7 @@ void ProblemFactory<U>::addConstraint(roboptim::DescriptiveWrapper<V, W>& descWr
     (roboptim::ProblemOnManifold<U>& problem,
      const pgs::Manifold& globMani)
     {
-      boost::shared_ptr<roboptim::FunctionOnManifold<typename V::parent_t>>
+      ::boost::shared_ptr<roboptim::FunctionOnManifold<typename V::parent_t>>
       funcOnMani(new roboptim::FunctionOnManifold<typename V::parent_t>
 		 (descWrap, globMani, instanceManifold)
 		 );
