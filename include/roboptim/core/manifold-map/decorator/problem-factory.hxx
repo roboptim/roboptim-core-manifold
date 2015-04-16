@@ -1,5 +1,5 @@
-// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
-//                       Félix Darricau, AIST, CNRS, EPITA
+// Copyright (C) 2015 by Félix Darricau, AIST, CNRS, EPITA
+//                       Grégoire Duchemin, AIST, CNRS, EPITA
 //
 // This file is part of the roboptim.
 //
@@ -54,9 +54,12 @@ void ProblemFactory<U>::addElementaryManifolds(const pgs::Manifold& instanceMani
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename V::intervals_t& bounds, typename U::scales_t& scales)
+BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, std::vector<const pgs::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
+  this->boundsAndScales_.push_back(std::make_pair(typename V::intervals_t(), typename U::scales_t()));
+
+  std::pair<typename Function::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_.back());
 
   // We need the type of the function to instantiate the FunctionOnManifold
   // wrapper, hence why we capture the information we need here and wait
@@ -65,63 +68,55 @@ void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::M
   // ... in a sense, we are somewhat capturing the type information within
   // this lambda, which is awesome.
   auto addConstraint =
-    [&descWrap, this, bounds, scales, &instanceManifold]
+    [&descWrap, this, &instanceManifold, restricted, restrictions](size_t i){
+    return [&descWrap, this, &instanceManifold, restricted, restrictions, i]
     (ProblemOnManifold<U>& problem,
      const pgs::Manifold& globMani)
     {
+      std::pair<typename Function::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_[i]);
+
       ::boost::shared_ptr<FunctionOnManifold<typename V::parent_t>>
       funcOnMani(new FunctionOnManifold<typename V::parent_t>
-		 (descWrap, globMani, instanceManifold)
+		 (descWrap, globMani, instanceManifold, restricted, restrictions)
 		 );
 
-       problem.addConstraint(funcOnMani, bounds, scales);
+      while (bNSPair->first.size() < static_cast<size_t>(funcOnMani->outputSize()))
+	{
+	  std::cerr << "Warning: bounds not specified for output "
+		    << bNSPair->first.size() << " of constrained function "
+		    << funcOnMani->getName() << "." << std::endl
+		    << "Assuming no bounds..." << std::endl;
+	  bNSPair->first.push_back(Function::makeInfiniteInterval());
+	}
+
+      while (bNSPair->second.size() < static_cast<size_t>(funcOnMani->outputSize()))
+	{
+	  std::cerr << "Warning: scale not specified for output "
+	  << bNSPair->second.size() << " of constrained function "
+	  << funcOnMani->getName() << "." << std::endl
+	  << "Assuming a scale of 1..." << std::endl;
+	  bNSPair->second.push_back(1.);
+	}
+
+      problem.addConstraint(funcOnMani, bNSPair->first, bNSPair->second);
     };
+  }(this->boundsAndScales_.size() - 1);
 
   this->lambdas_.push_back(addConstraint);
+
+  return BoundsAndScalesSetter<U>(*bNSPair);
 }
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename V::intervals_t& bounds)
+BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
 {
-  typename U::scales_t scales;
-
-  for(int j = 0; j < descWrap.fct().outputSize(); ++j)
-    {
-      scales.push_back(1.);
-    }
-
-  this->addConstraint(descWrap, instanceManifold, bounds, scales);
-}
-
-template<class U>
-template<class V, class W>
-void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, typename U::scales_t& scales)
-{
-  typename V::intervals_t bounds;
-
-  for(int j = 0; j < descWrap.fct().outputSize(); ++j)
-    {
-      bounds.push_back(Function::makeInfiniteInterval());
-    }
-
-  this->addConstraint(descWrap, instanceManifold, bounds, scales);
-}
-
-template<class U>
-template<class V, class W>
-void ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
-{
-  typename V::intervals_t bounds;
-  typename U::scales_t scales;
-
-  for(int j = 0; j < descWrap.fct().outputSize(); ++j)
-    {
-      bounds.push_back(Function::makeInfiniteInterval());
-      scales.push_back(1.);
-    }
-
-  this->addConstraint(descWrap, instanceManifold, bounds, scales);
+  std::vector<const pgs::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+  return this->addConstraint(descWrap,
+			     instanceManifold,
+			     restricted,
+			     restrictions);
 }
 
 // ---- //
@@ -164,9 +159,9 @@ ProblemOnManifold<U>* ProblemFactory<U>::getProblem()
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, std::vector<const pgs::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
-  this->objLambda_ = [&descWrap, &instanceManifold, this](pgs::CartesianProduct& globMani)
+  this->objLambda_ = [&descWrap, &instanceManifold, this, restricted, restrictions](pgs::CartesianProduct& globMani)
     {
       std::vector<long> manifoldIds;
       std::function<void(const pgs::Manifold&)> addElementaries =
@@ -175,7 +170,6 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Ma
       {
 	if (manifold.isElementary())
 	  {
-	    // TODO: in-lambda list to avoid multiple inclusion from the objective itself
 	    if (!this->elementaryInstanceManifolds_.count(manifold.getInstanceId())
 		&& std::find(manifoldIds.begin(), manifoldIds.end(), manifold.getInstanceId()) == manifoldIds.end())
 	      {
@@ -196,10 +190,23 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Ma
 
       FunctionOnManifold<typename V::parent_t>* objOnMani =
       new FunctionOnManifold<typename V::parent_t>
-      (descWrap, globMani, instanceManifold);
+      (descWrap, globMani, instanceManifold, restricted, restrictions);
 
       return new ProblemOnManifold<U>(globMani, *objOnMani);
     };
+}
+
+template<class U>
+template<class V, class W>
+void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+{
+  std::vector<const pgs::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  return this->setObjective(descWrap,
+			    instanceManifold,
+			    restricted,
+			    restrictions);
 }
 
 template<class U>
@@ -224,5 +231,26 @@ ProblemFactory<U>::ProblemFactory()
       return new ProblemOnManifold<U>(globMani, *objOnMani);
       };
 }
+
+// ---- //
+
+template<class U>
+void BoundsAndScalesSetter<U>::setBounds(typename Function::intervals_t& bounds)
+{
+  this->bNSPair_.first.clear();
+  this->bNSPair_.first.insert(this->bNSPair_.first.end(), bounds.begin(), bounds.end());
+}
+
+template<class U>
+void BoundsAndScalesSetter<U>::setScales(typename U::scales_t& scales)
+{
+  this->bNSPair_.second.clear();
+  this->bNSPair_.second.insert(this->bNSPair_.second.end(), scales.begin(), scales.end());
+}
+
+template<class U>
+BoundsAndScalesSetter<U>::BoundsAndScalesSetter(std::pair<typename Function::intervals_t, typename U::scales_t>& bNSPair)
+  : bNSPair_(bNSPair)
+{}
 
 #endif //! ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX

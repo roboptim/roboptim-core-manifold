@@ -1,5 +1,5 @@
-// Copyright (C) 2015 by Grégoire Duchemin, AIST, CNRS, EPITA
-//                       Félix Darricau, AIST, CNRS, EPITA
+// Copyright (C) 2015 by Félix Darricau, AIST, CNRS, EPITA
+//                       Grégoire Duchemin, AIST, CNRS, EPITA
 //
 // This file is part of the roboptim.
 //
@@ -121,10 +121,37 @@ struct H : public roboptim::GenericDifferentiableFunction<T>
   }
 };
 
+template<class T>
+struct I : public roboptim::GenericDifferentiableFunction<T>
+{
+  ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_
+  (roboptim::GenericDifferentiableFunction<T>);
+
+  I () : roboptim::GenericDifferentiableFunction<T> (15, 15, "f_n (x) = sum(x)")
+  {}
+
+  void impl_compute (result_ref res, const_argument_ref argument) const
+  {
+    res.setZero ();
+    for (size_type i = 0; i < this->inputSize (); ++i)
+      {
+	res[i] = argument[i];
+      }
+  }
+
+  void impl_gradient (gradient_ref grad, const_argument_ref,
+		      size_type functionId) const
+  {
+    grad.setZero ();
+    for (size_type j = 0; j < this->inputSize (); ++j)
+      grad[j] = (functionId == j?1:0);
+  }
+};
+
 boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
-/*
+
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 {
   output = retrievePattern("manifold-map");
@@ -238,7 +265,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
     BOOST_CHECK (output->match_pattern());
   }
-*/
+
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 {
   output = retrievePattern("manifold-map-2");
@@ -282,12 +309,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
     (*output) << "std::runtime_error: " << e.what() << "\n";
   }
 
-  std::cout << "(*output): " << (*output).str() << std::endl;
-
   BOOST_CHECK (output->match_pattern());
-
 }
-/*
+
 const size_t posNumber = 15;
 
 DEFINE_MANIFOLD(MultipleReal3)
@@ -418,5 +442,130 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   BOOST_CHECK(errorThrown);
 }
-*/
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_manifold_into_pieces, T, functionTypes_t)
+{
+  typedef I<T> Iunc;
+
+  DESC_MANIFOLD(R5X3, REAL_SPACE(5), REAL_SPACE(5), REAL_SPACE(5));
+  NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
+  typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
+
+  pgs::RealSpace r15(15);
+  pgs::CartesianProduct splitR15;
+  splitR15.multiply(r15).multiply(r15).multiply(r15);
+
+  std::vector<const pgs::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  restricted.push_back(&r15);
+  restricted.push_back(&r15);
+  restricted.push_back(&r15);
+
+  restrictions.push_back(std::make_pair(5l, 5l));
+  restrictions.push_back(std::make_pair(10l, 5l));
+  restrictions.push_back(std::make_pair(0l, 5l));
+
+  I_On_R5X3 descI;
+  Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions);
+
+  typename Instance_I_On_R5X3::argument_t input = Eigen::VectorXd::Zero(15);
+  typename Instance_I_On_R5X3::result_t result = Eigen::VectorXd::Zero(15);
+
+  for(int i = 0; i < input.size(); ++i)
+    {
+      input(i) = i;
+    }
+
+  funcI(result, input);
+
+  for(int i = 0; i < 15; ++i)
+    {
+      BOOST_CHECK(result(i) == ((static_cast<int>(input(i)) + 5) % 15));
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_not_enough_restrictions, T, functionTypes_t)
+{
+  typedef I<T> Iunc;
+
+  DESC_MANIFOLD(R5X3, REAL_SPACE(5), REAL_SPACE(5), REAL_SPACE(5));
+  NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
+  typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
+
+  pgs::RealSpace r15(15);
+  pgs::CartesianProduct splitR15;
+  splitR15.multiply(r15).multiply(r15).multiply(r15);
+
+  std::vector<const pgs::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  restricted.push_back(&r15);
+  restricted.push_back(&r15);
+
+  restrictions.push_back(std::make_pair(5l, 5l));
+  restrictions.push_back(std::make_pair(10l, 5l));
+
+  I_On_R5X3 descI;
+
+  bool errorThrown = false;
+
+  try
+    {
+      Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions);
+    }
+  catch (std::runtime_error& e)
+    {
+      errorThrown = true;
+    }
+
+  BOOST_CHECK(errorThrown);
+  errorThrown = false;
+
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_restriction_on_unknown_manifold, T, functionTypes_t)
+{
+  typedef I<T> Iunc;
+
+  DESC_MANIFOLD(R5X3, REAL_SPACE(5), REAL_SPACE(5), REAL_SPACE(5));
+  NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
+  typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
+
+  pgs::RealSpace r15(15);
+  pgs::CartesianProduct splitR15;
+  pgs::SO3<pgs::ExpMapMatrix> so3;
+  splitR15.multiply(r15).multiply(r15).multiply(r15);
+
+  std::vector<const pgs::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  restricted.push_back(&r15);
+  restricted.push_back(&r15);
+  restricted.push_back(&r15);
+  restricted.push_back(&so3);
+
+  restrictions.push_back(std::make_pair(5l, 5l));
+  restrictions.push_back(std::make_pair(10l, 5l));
+  restrictions.push_back(std::make_pair(0l, 5l));
+  restrictions.push_back(std::make_pair(3l, 3l));
+
+  I_On_R5X3 descI;
+
+  bool errorThrown = false;
+
+  try
+    {
+      Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions);
+    }
+  catch (std::runtime_error& e)
+    {
+      errorThrown = true;
+    }
+
+  BOOST_CHECK(errorThrown);
+  errorThrown = false;
+
+}
+
 BOOST_AUTO_TEST_SUITE_END ()
