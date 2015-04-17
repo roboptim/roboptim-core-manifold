@@ -217,9 +217,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 88);
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42);
 
-  delete problem;
+  delete manifoldProblem;
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 19);
 
-  delete problem;
+  delete manifoldProblem;
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

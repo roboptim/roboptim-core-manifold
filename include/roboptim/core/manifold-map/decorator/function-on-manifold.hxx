@@ -251,7 +251,7 @@ namespace roboptim
 	    bool sameType = myManifold->getTypeId() == manifold.getTypeId();
 	    bool isNotRealSpace = myManifold->getTypeId() != pgs::RealSpace(1).getTypeId();
 	    bool sameSize = getRestriction(*myManifold, getCurrentOccurenceCount(*myManifold), 0).second == manifold.representationDim();
-	    incrementOccurenceCount(manifold);
+	    incrementOccurenceCount(*myManifold);
 
 	    if (sameType && (isNotRealSpace || sameSize))
 	      {
