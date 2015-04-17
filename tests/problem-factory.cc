@@ -178,9 +178,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   pgs::CartesianProduct prod;
   prod.multiply(pos).multiply(ori).multiply(joints);
   pgs::RealSpace r42(42);
+  pgs::RealSpace r39(39);
 
   pgs::CartesianProduct prod2;
   prod2.multiply(r42).multiply(ori).multiply(r42);
+  pgs::CartesianProduct prod3;
+  prod3.multiply(r39).multiply(ori).multiply(r39);
 
 
   F_On_SO3 cnstr1;
@@ -191,16 +194,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   std::vector<const pgs::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
-  restricted.push_back(&r42);
+  restricted.push_back(&r39);
   restrictions.push_back(std::make_pair(14, 3));
-  restricted.push_back(&r42);
+  restricted.push_back(&r39);
   restrictions.push_back(std::make_pair(27, 10));
 
   factory.addConstraint(cnstr1, ori);
   factory.addConstraint(cnstr2, joints);
   factory.addConstraint(cnstr2, joints);
   factory.addConstraint(objDesc, pos);
-  factory.addConstraint(cnstr3, prod2, restricted, restrictions);
+  factory.addConstraint(cnstr3, prod3, restricted, restrictions);
 
   {
     typename Hunc::intervals_t bounds;
@@ -213,11 +216,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
     factory.addConstraint(cnstr2, joints).setBounds(bounds);
   }
 
+  restricted.clear();
+  restricted.push_back(&r42);
+  restricted.push_back(&r42);
+
   factory.setObjective(cnstr3, prod2, restricted, restrictions);
 
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42);
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42 + 39);
 
   delete manifoldProblem;
 }
