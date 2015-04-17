@@ -220,35 +220,6 @@ namespace roboptim
 	    }
 	};
 
-      // Since with the last lambda (traverseFunctionManifold and
-      // getStartingIndexOfManifold), we are doing recursive trees traversal,
-      // we need two differents maps because we are at two different position
-      // in each tree at each time.
-      std::function<int(const pgs::Manifold&)> getCurrentOccurenceCountBis =
-	[&occurenceCount]
-	(const pgs::Manifold& manifold)
-	{
-	  if (occurenceCount.find(manifold.getInstanceId()) != occurenceCount.end())
-	    {
-	      return occurenceCount[manifold.getInstanceId()];
-	    }
-
-	  return 0;
-	};
-      std::function<void(const pgs::Manifold&)> incrementOccurenceCountBis =
-	[&occurenceCount]
-	(const pgs::Manifold& manifold)
-	{
-	  if (occurenceCount.find(manifold.getInstanceId()) != occurenceCount.end())
-	    {
-	      occurenceCount[manifold.getInstanceId()] += 1;
-	    }
-	  else
-	    {
-	      occurenceCount[manifold.getInstanceId()] = 1;
-	    }
-	};
-
       std::vector<const pgs::Manifold*> planarManifold;
 
     // This lambda converts a manifold tree to a std::vector of its leaf
