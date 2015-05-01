@@ -56,7 +56,7 @@ namespace roboptim
 
   /// \brief Factory to help with the generation of the global manifold
   ///
-  /// \tparam U robptim problem type to be generated.
+  /// \tparam U roboptim problem type to be generated.
   template<class U>
   class ProblemFactory {
   public:
@@ -98,7 +98,7 @@ namespace roboptim
 
     /// \brief break down a manifold in elementary manifolds and adds them to the map
     void addElementaryManifolds(const pgs::Manifold& instanceManifold);
-    /// \brief assemble all elemntary manifolds into the global manifold of the problem
+    /// \brief assemble all elementary manifolds into the global manifold of the problem
     pgs::CartesianProduct* getGlobalManifold();
   };
 
