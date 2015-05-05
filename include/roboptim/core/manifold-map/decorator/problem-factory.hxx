@@ -214,8 +214,9 @@ ProblemFactory<U>::ProblemFactory()
 {
   this->objLambda_ = [](pgs::CartesianProduct& globMani)
     {
-      typename GenericConstantFunction<EigenMatrixDense>::vector_t offset (globMani.representationDim());
-      GenericConstantFunction<EigenMatrixDense>* cst  = new GenericConstantFunction<EigenMatrixDense>(offset);
+      typename GenericConstantFunction<EigenMatrixDense>::vector_t offset (1);
+      offset.setZero();
+      GenericConstantFunction<EigenMatrixDense>* cst  = new GenericConstantFunction<EigenMatrixDense>(globMani.representationDim(),offset);
 
       // We make a pgs::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
