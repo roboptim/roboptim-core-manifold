@@ -18,14 +18,14 @@
 
 template<class T>
 template<typename ... Types>
-ProblemOnManifold<T>::ProblemOnManifold(pgs::Manifold& manifold, Types& ... args)
+ProblemOnManifold<T>::ProblemOnManifold(mnf::Manifold& manifold, Types& ... args)
   : T(args...),
     manifold_(manifold)
 {
 }
 
 template<class T>
-pgs::Manifold& ProblemOnManifold<T>::getManifold() const
+mnf::Manifold& ProblemOnManifold<T>::getManifold() const
 {
   return this->manifold_;
 }

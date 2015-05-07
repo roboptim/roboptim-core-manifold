@@ -162,14 +162,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
   typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
-  pgs::RealSpace pos(3);pos.name() = "position";
-  pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
-  const pgs::CartesianProduct freeFlyer(pos, ori);
-  pgs::RealSpace joints(10); joints.name() = "joints";
-  const pgs::CartesianProduct robot(freeFlyer, joints);
+  mnf::RealSpace pos(3);pos.name() = "position";
+  mnf::SO3<mnf::ExpMapMatrix> ori; ori.name() = "orientation";
+  const mnf::CartesianProduct freeFlyer(pos, ori);
+  mnf::RealSpace joints(10); joints.name() = "joints";
+  const mnf::CartesianProduct robot(freeFlyer, joints);
 
-  const pgs::CartesianProduct cartProd(joints, ori);
-  const pgs::CartesianProduct myFuncManifold(cartProd, pos);
+  const mnf::CartesianProduct cartProd(joints, ori);
+  const mnf::CartesianProduct myFuncManifold(cartProd, pos);
 
   F_On_FreeFlyerPlus10 descWrapPtr;
 
@@ -219,9 +219,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
   NAMED_FUNCTION_BINDING(F_On_Real3, Func, Real3);
   typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_Real3;
 
-  std::vector<const pgs::RealSpace*> reals;
-  pgs::CartesianProduct problemManifold;
-  const pgs::RealSpace descriptiveManifold(3);
+  std::vector<const mnf::RealSpace*> reals;
+  mnf::CartesianProduct problemManifold;
+  const mnf::RealSpace descriptiveManifold(3);
 
  F_On_Real3 descWrapPtr;
 
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      pgs::RealSpace* newR = new pgs::RealSpace(3);
+      mnf::RealSpace* newR = new mnf::RealSpace(3);
       newR->name() = "position (" + std::to_string(i) + ")";
       reals.push_back(newR);
       problemManifold.multiply(*reals.back());
@@ -316,11 +316,11 @@ const size_t posNumber = 15;
 
 DEFINE_MANIFOLD(MultipleReal3)
 {
-  pgs::CartesianProduct* cartesian = new pgs::CartesianProduct();
+  mnf::CartesianProduct* cartesian = new mnf::CartesianProduct();
 
   for(size_t i = 0; i < posNumber; ++i)
     {
-      cartesian->multiply(*(new pgs::RealSpace(3)));
+      cartesian->multiply(*(new mnf::RealSpace(3)));
     }
 
   return cartesian;
@@ -332,18 +332,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 
   typedef H<T> Func;
 
-  std::vector<const pgs::Manifold*> reals;
+  std::vector<const mnf::Manifold*> reals;
   std::vector<std::pair<long, long>> restrictions;
-  pgs::CartesianProduct problemManifold;
-  pgs::CartesianProduct descriptiveManifold;
+  mnf::CartesianProduct problemManifold;
+  mnf::CartesianProduct descriptiveManifold;
 
   for (size_t i = 0; i < posNumber; ++i)
     {
-      pgs::RealSpace* newR = new pgs::RealSpace(6);
+      mnf::RealSpace* newR = new mnf::RealSpace(6);
       newR->name() = "position (" + std::to_string(i) + ")";
       reals.push_back(newR);
       problemManifold.multiply(*reals.back());
-      descriptiveManifold.multiply(*(new pgs::RealSpace(3)));
+      descriptiveManifold.multiply(*(new mnf::RealSpace(3)));
     }
 
   restrictions.push_back(std::make_pair(3l, 3l));
@@ -395,16 +395,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 {
   typedef F<T> Func;
 
-  pgs::RealSpace pos(3);pos.name() = "position";
-  pgs::SO3<pgs::ExpMapMatrix> ori; ori.name() = "orientation";
-  const pgs::CartesianProduct freeFlyer(pos, ori);
-  pgs::RealSpace joints(10); joints.name() = "joints";
-  const pgs::CartesianProduct robot(freeFlyer, joints);
+  mnf::RealSpace pos(3);pos.name() = "position";
+  mnf::SO3<mnf::ExpMapMatrix> ori; ori.name() = "orientation";
+  const mnf::CartesianProduct freeFlyer(pos, ori);
+  mnf::RealSpace joints(10); joints.name() = "joints";
+  const mnf::CartesianProduct robot(freeFlyer, joints);
 
-  const pgs::S2 s2;
-  const pgs::CartesianProduct cartProd(joints, ori);
-  const pgs::CartesianProduct myFuncManifold(cartProd, s2);
-  const pgs::CartesianProduct mySubManifold(cartProd, pos);
+  const mnf::S2 s2;
+  const mnf::CartesianProduct cartProd(joints, ori);
+  const mnf::CartesianProduct myFuncManifold(cartProd, s2);
+  const mnf::CartesianProduct mySubManifold(cartProd, pos);
 
   DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
@@ -412,7 +412,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   F_On_FreeFlyerPlus10 descWrapPtr;
 
-  std::vector<const pgs::Manifold*> restrictedManifolds;
+  std::vector<const mnf::Manifold*> restrictedManifolds;
   restrictedManifolds.push_back(&pos);
   std::vector<std::pair<long, long>> restrictions;
   restrictions.push_back(std::make_pair(1l, 1l));
@@ -451,11 +451,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_manifold_into_pieces, T, funct
   NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
   typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
 
-  pgs::RealSpace r15(15);
-  pgs::CartesianProduct splitR15;
+  mnf::RealSpace r15(15);
+  mnf::CartesianProduct splitR15;
   splitR15.multiply(r15).multiply(r15).multiply(r15);
 
-  std::vector<const pgs::Manifold*> restricted;
+  std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
   restricted.push_back(&r15);
@@ -493,11 +493,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_not_enough_restrictions, 
   NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
   typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
 
-  pgs::RealSpace r15(15);
-  pgs::CartesianProduct splitR15;
+  mnf::RealSpace r15(15);
+  mnf::CartesianProduct splitR15;
   splitR15.multiply(r15).multiply(r15).multiply(r15);
 
-  std::vector<const pgs::Manifold*> restricted;
+  std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
   restricted.push_back(&r15);
@@ -532,12 +532,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_restriction_on_unknown_ma
   NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
   typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
 
-  pgs::RealSpace r15(15);
-  pgs::CartesianProduct splitR15;
-  pgs::SO3<pgs::ExpMapMatrix> so3;
+  mnf::RealSpace r15(15);
+  mnf::CartesianProduct splitR15;
+  mnf::SO3<mnf::ExpMapMatrix> so3;
   splitR15.multiply(r15).multiply(r15).multiply(r15);
 
-  std::vector<const pgs::Manifold*> restricted;
+  std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
   restricted.push_back(&r15);

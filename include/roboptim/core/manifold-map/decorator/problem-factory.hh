@@ -70,36 +70,36 @@ namespace roboptim
     /// \param bounds (optional) the constraint's bounds
     /// \param bounds (optional) scaling parameter for the constraint
     template<class V, class W>
-    BoundsAndScalesSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, std::vector<const pgs::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    BoundsAndScalesSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    BoundsAndScalesSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold);
+    BoundsAndScalesSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
     /// \brief set the objective function of the problem
     ///
     /// \param descWrap DescriptiveWrapper of the objective function
     /// \param instanceManifold manifold on which the objective function will be evaluated
     template<class V, class W>
-    void setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, std::vector<const pgs::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    void setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold);
+    void setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
     /// \brief generate and return the described problem
     ProblemOnManifold<U>* getProblem();
 
   private:
     /// \brief elementary manifolds composing the global manifold of the problem
-    std::map<long, const pgs::Manifold*> elementaryInstanceManifolds_;
+    std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
     /// \brief bounds and scales for each constraint
     std::vector<std::pair<typename Function::intervals_t, typename U::scales_t>> boundsAndScales_;
     /// \brief each std::function instantiate and add a constraint to the problem
-    std::vector<std::function<void(ProblemOnManifold<U>&, const pgs::Manifold&)>> lambdas_;
+    std::vector<std::function<void(ProblemOnManifold<U>&, const mnf::Manifold&)>> lambdas_;
     /// \brief instantiate and add the objective function to the problem
-    std::function<ProblemOnManifold<U>*(pgs::CartesianProduct&)> objLambda_;
+    std::function<ProblemOnManifold<U>*(mnf::CartesianProduct&)> objLambda_;
 
     /// \brief break down a manifold in elementary manifolds and adds them to the map
-    void addElementaryManifolds(const pgs::Manifold& instanceManifold);
+    void addElementaryManifolds(const mnf::Manifold& instanceManifold);
     /// \brief assemble all elementary manifolds into the global manifold of the problem
-    pgs::CartesianProduct* getGlobalManifold();
+    mnf::CartesianProduct* getGlobalManifold();
   };
 
 #include <roboptim/core/manifold-map/decorator/problem-factory.hxx>

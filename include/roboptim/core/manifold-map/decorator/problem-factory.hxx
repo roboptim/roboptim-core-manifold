@@ -23,11 +23,11 @@
 
 
 template<class U>
-void ProblemFactory<U>::addElementaryManifolds(const pgs::Manifold& instanceManifold)
+void ProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
 {
-  std::function<void(const pgs::Manifold&)> addElementaries =
+  std::function<void(const mnf::Manifold&)> addElementaries =
     [this, &addElementaries]
-    (const pgs::Manifold& manifold)
+    (const mnf::Manifold& manifold)
     {
       if (manifold.isElementary())
 	{
@@ -54,7 +54,7 @@ void ProblemFactory<U>::addElementaryManifolds(const pgs::Manifold& instanceMani
 
 template<class U>
 template<class V, class W>
-BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, std::vector<const pgs::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
   this->boundsAndScales_.push_back(std::make_pair(typename V::intervals_t(), typename U::scales_t()));
@@ -71,7 +71,7 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
     [&descWrap, this, &instanceManifold, restricted, restrictions](size_t i){
     return [&descWrap, this, &instanceManifold, restricted, restrictions, i]
     (ProblemOnManifold<U>& problem,
-     const pgs::Manifold& globMani)
+     const mnf::Manifold& globMani)
     {
       std::pair<typename Function::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_[i]);
 
@@ -109,9 +109,9 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
 
 template<class U>
 template<class V, class W>
-BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
-  std::vector<const pgs::Manifold*> restricted;
+  std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
   return this->addConstraint(descWrap,
 			     instanceManifold,
@@ -122,9 +122,9 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
 // ---- //
 
 template<class U>
-pgs::CartesianProduct* ProblemFactory<U>::getGlobalManifold()
+mnf::CartesianProduct* ProblemFactory<U>::getGlobalManifold()
 {
-  pgs::CartesianProduct* globalManifold = new pgs::CartesianProduct();
+  mnf::CartesianProduct* globalManifold = new mnf::CartesianProduct();
 
   for (auto ite = this->elementaryInstanceManifolds_.begin();
        ite != elementaryInstanceManifolds_.end();
@@ -143,7 +143,7 @@ ProblemOnManifold<U>* ProblemFactory<U>::getProblem()
   // elementary manifolds of the cosntraints here.
   // The elementary manifolds of the objective function will
   // be added by the objLambda_ function below.
-  pgs::CartesianProduct* globalManifold = this->getGlobalManifold();
+  mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
 
   ProblemOnManifold<U>* problem = this->objLambda_(*globalManifold);
 
@@ -159,14 +159,14 @@ ProblemOnManifold<U>* ProblemFactory<U>::getProblem()
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold, std::vector<const pgs::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
-  this->objLambda_ = [&descWrap, &instanceManifold, this, restricted, restrictions](pgs::CartesianProduct& globMani)
+  this->objLambda_ = [&descWrap, &instanceManifold, this, restricted, restrictions](mnf::CartesianProduct& globMani)
     {
       std::vector<long> manifoldIds;
-      std::function<void(const pgs::Manifold&)> addElementaries =
+      std::function<void(const mnf::Manifold&)> addElementaries =
       [this, &addElementaries, &globMani, &manifoldIds]
-      (const pgs::Manifold& manifold)
+      (const mnf::Manifold& manifold)
       {
 	if (manifold.isElementary())
 	  {
@@ -198,9 +198,9 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Ma
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Manifold& instanceManifold)
+void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
-  std::vector<const pgs::Manifold*> restricted;
+  std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
   return this->setObjective(descWrap,
@@ -212,15 +212,15 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, pgs::Ma
 template<class U>
 ProblemFactory<U>::ProblemFactory()
 {
-  this->objLambda_ = [](pgs::CartesianProduct& globMani)
+  this->objLambda_ = [](mnf::CartesianProduct& globMani)
     {
       typename GenericConstantFunction<EigenMatrixDense>::vector_t offset (1);
       offset.setZero();
       GenericConstantFunction<EigenMatrixDense>* cst  = new GenericConstantFunction<EigenMatrixDense>(globMani.representationDim(),offset);
 
-      // We make a pgs::Manifold& out of the CartesianProduct& to explicitly call
+      // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
-      pgs::Manifold& globberMani = globMani;
+      mnf::Manifold& globberMani = globMani;
 
       DescriptiveWrapper<GenericConstantFunction<EigenMatrixDense>, ManiDesc<>>
       descWrap(cst, globberMani);
