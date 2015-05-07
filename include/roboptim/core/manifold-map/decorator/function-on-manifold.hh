@@ -68,9 +68,9 @@ namespace roboptim
     template <typename V, typename W>
     explicit FunctionOnManifold
     (DescriptiveWrapper<V, W>& descWrap,
-     const pgs::Manifold& problemManifold,
-     const pgs::Manifold& functionManifold,
-     std::vector<const pgs::Manifold*> restrictedManifolds,
+     const mnf::Manifold& problemManifold,
+     const mnf::Manifold& functionManifold,
+     std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
       : detail::AutopromoteTrait<U>::T_type
 	(problemManifold.representationDim(),
@@ -102,18 +102,18 @@ namespace roboptim
     /// \param functionManifold the manifold describing the function's input vector.
     template<typename V, typename W>
     explicit FunctionOnManifold (DescriptiveWrapper<V, W>& fct,
-				 const pgs::Manifold& problemManifold,
-				 const pgs::Manifold& functionManifold)
+				 const mnf::Manifold& problemManifold,
+				 const mnf::Manifold& functionManifold)
       : FunctionOnManifold(fct, problemManifold, functionManifold,
-			   std::vector<const pgs::Manifold*>(), std::vector<std::pair<long, long>>())
+			   std::vector<const mnf::Manifold*>(), std::vector<std::pair<long, long>>())
     {
     }
 
     template <typename V, typename W>
     void computeMapping(DescriptiveWrapper<V, W>& descWrap,
-			const pgs::Manifold& problemManifold,
-			const pgs::Manifold& functionManifold,
-			std::vector<const pgs::Manifold*> restrictedManifolds,
+			const mnf::Manifold& problemManifold,
+			const mnf::Manifold& functionManifold,
+			std::vector<const mnf::Manifold*> restrictedManifolds,
 			std::vector<std::pair<long, long>> restrictions);
 
     /// \brief Traits type.
@@ -137,7 +137,7 @@ namespace roboptim
 			const_argument_ref arg)
       const;
 
-    void manifold_jacobian (pgs::RefMat jacobian,
+    void manifold_jacobian (mnf::RefMat jacobian,
 			    const_argument_ref arg)
       const;
 
@@ -147,7 +147,7 @@ namespace roboptim
     /// \brief the function.
     const U* fct_;
     /// \brief the problem manifold.
-    pgs::Manifold* manifold_;
+    mnf::Manifold* manifold_;
 
     /// \brief array representing the restricted mapping
     size_t* mappingFromFunction_;
@@ -185,7 +185,7 @@ namespace roboptim
     /// \brief unmap the jacobian from the restricted problem
     ///
     /// \param jacobian the jacobian to unmap
-    void unmapTangentJacobian(pgs::RefMat jacobian)
+    void unmapTangentJacobian(mnf::RefMat jacobian)
       const;
   };
 

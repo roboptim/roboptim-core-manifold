@@ -36,17 +36,17 @@
 
 #define DEFINE_MANIFOLD_FROM_FUNCTION(name) template<class U>	\
   struct Manifold_##name{					\
-    static pgs::Manifold* getInstance(U* function);		\
+    static mnf::Manifold* getInstance(U* function);		\
   };								\
   template<class U>						\
-  pgs::Manifold* Manifold_##name <U>::getInstance(U* function)
+  mnf::Manifold* Manifold_##name <U>::getInstance(U* function)
 
 #define DEFINE_MANIFOLD(name) template<class U>		\
   struct Manifold_##name{				\
-    static pgs::Manifold* getInstance(U* function);	\
+    static mnf::Manifold* getInstance(U* function);	\
   };							\
   template<class U>					\
-  pgs::Manifold* Manifold_##name <U>::getInstance(U*)
+  mnf::Manifold* Manifold_##name <U>::getInstance(U*)
 
 #define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold;
 
@@ -86,9 +86,9 @@ namespace roboptim
   struct S2
   {
     /// \brief creates the actual manifold from the underlying library
-    static pgs::Manifold* getInstance(FI*)
+    static mnf::Manifold* getInstance(FI*)
     {
-      return new pgs::S2();
+      return new mnf::S2();
     }
   };
 
@@ -99,9 +99,9 @@ namespace roboptim
   struct SO3
   {
     /// \brief creates the actual manifold from the underlying library
-    static pgs::Manifold* getInstance(FI*)
+    static mnf::Manifold* getInstance(FI*)
     {
-      return new pgs::SO3<pgs::ExpMapMatrix>();
+      return new mnf::SO3<mnf::ExpMapMatrix>();
     }
   };
 
@@ -111,9 +111,9 @@ namespace roboptim
   template <class FI>
   struct SO3Quat
   {
-    static pgs::Manifold* getInstance(FI*)
+    static mnf::Manifold* getInstance(FI*)
     {
-      return new pgs::SO3<pgs::ExpMapQuaternion>();
+      return new mnf::SO3<mnf::ExpMapQuaternion>();
     }
   };
 
@@ -128,9 +128,9 @@ namespace roboptim
     struct Space
     {
       /// \brief creates the actual manifold from the underlying library
-      static pgs::Manifold* getInstance(FI*)
+      static mnf::Manifold* getInstance(FI*)
       {
-	return new pgs::RealSpace(I);
+	return new mnf::RealSpace(I);
       }
     };
   };
@@ -146,9 +146,9 @@ namespace roboptim
     /// \brief creates the actual manifold from the underlying library
     ///
     /// \param function the function instance.
-    static pgs::Manifold* getInstance(FI* function)
+    static mnf::Manifold* getInstance(FI* function)
     {
-      return new pgs::RealSpace(function->getSize());
+      return new mnf::RealSpace(function->getSize());
     }
   };
 

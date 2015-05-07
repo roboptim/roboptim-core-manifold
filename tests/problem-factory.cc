@@ -172,17 +172,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   DESC_MANIFOLD(R3XSO3XR10, REAL_SPACE(3), roboptim::SO3, REAL_SPACE(10));
   NAMED_FUNCTION_BINDING(I_On_R3XSO3XR10, Iunc, R3XSO3XR10);
 
-  pgs::RealSpace pos(3);
-  pgs::SO3<pgs::ExpMapMatrix> ori;
-  pgs::RealSpace joints(10);
-  pgs::CartesianProduct prod;
+  mnf::RealSpace pos(3);
+  mnf::SO3<mnf::ExpMapMatrix> ori;
+  mnf::RealSpace joints(10);
+  mnf::CartesianProduct prod;
   prod.multiply(pos).multiply(ori).multiply(joints);
-  pgs::RealSpace r42(42);
-  pgs::RealSpace r39(39);
+  mnf::RealSpace r42(42);
+  mnf::RealSpace r39(39);
 
-  pgs::CartesianProduct prod2;
+  mnf::CartesianProduct prod2;
   prod2.multiply(r42).multiply(ori).multiply(r42);
-  pgs::CartesianProduct prod3;
+  mnf::CartesianProduct prod3;
   prod3.multiply(r39).multiply(ori).multiply(r39);
 
 
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   H_On_R10 cnstr2;
   I_On_R3XSO3XR10 cnstr3;
 
-  std::vector<const pgs::Manifold*> restricted;
+  std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
   restricted.push_back(&r39);
@@ -246,9 +246,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
   DESC_MANIFOLD(R10, REAL_SPACE(10));
   NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
 
-  pgs::RealSpace pos(3);
-  pgs::SO3<pgs::ExpMapMatrix> ori;
-  pgs::RealSpace joints(10);
+  mnf::RealSpace pos(3);
+  mnf::SO3<mnf::ExpMapMatrix> ori;
+  mnf::RealSpace joints(10);
 
   F_On_SO3 cnstr1;
   G_On_R3 objDesc;

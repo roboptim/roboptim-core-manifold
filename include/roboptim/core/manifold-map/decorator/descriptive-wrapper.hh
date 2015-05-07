@@ -50,7 +50,7 @@ namespace roboptim
     ///
     /// \param f input function.
     /// \param m the manifold describing the function's input vector.
-    DescriptiveWrapper (const U* f, pgs::Manifold& m);
+    DescriptiveWrapper (const U* f, mnf::Manifold& m);
 
     /// \brief binds the function to the manifold
     ///
@@ -66,7 +66,7 @@ namespace roboptim
 
     ~DescriptiveWrapper ();
 
-    pgs::Manifold& manifold () const
+    mnf::Manifold& manifold () const
     {
       return *manifold_;
     }
@@ -84,13 +84,13 @@ namespace roboptim
     ///\brief the function
     const U*              fct_;
     ///\brief the manifold
-    pgs::Manifold*  manifold_;
+    mnf::Manifold*  manifold_;
   };
 
   template <typename U, typename V>
   boost::shared_ptr<DescriptiveWrapper<U, V> >
   descriptivewrapper (U* fct,
-		      pgs::Manifold& manifold)
+		      mnf::Manifold& manifold)
   {
     return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
   }

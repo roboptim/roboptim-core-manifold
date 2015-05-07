@@ -27,7 +27,7 @@ template<template <typename> class T>
 struct Pusher
 {
   template<class FI>
-  static void backPusher(std::vector<pgs::Manifold*>& manifolds, FI* function, const T<FI>& t)
+  static void backPusher(std::vector<mnf::Manifold*>& manifolds, FI* function, const T<FI>& t)
   {
     // TODO: using new to create manifolds is mandatory, since we store a pointer
     // to them in the cartesian product. However, because we are not using a
@@ -41,9 +41,9 @@ namespace roboptim
 
   template<template <typename> class ... Typ>
   template<class U>
-  pgs::Manifold* ManiDesc<Typ...>::getManifold(U* function)
+  mnf::Manifold* ManiDesc<Typ...>::getManifold(U* function)
   {
-    std::vector<pgs::Manifold*> manifolds;
+    std::vector<mnf::Manifold*> manifolds;
 
     // G++ seems to expand our arguments in the wrong order
     // when inside a call to a anonymous lambda.
@@ -67,7 +67,7 @@ namespace roboptim
 	return manifolds[0];
       }
 
-    pgs::CartesianProduct* cartesian = new pgs::CartesianProduct();
+    mnf::CartesianProduct* cartesian = new mnf::CartesianProduct();
 
     for (size_t i = 0; i < manifolds.size(); ++i)
       {

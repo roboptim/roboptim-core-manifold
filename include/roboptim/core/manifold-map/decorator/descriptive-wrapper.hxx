@@ -39,7 +39,7 @@ namespace roboptim
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (const U* fct, pgs::Manifold& manifold)
+  (const U* fct, mnf::Manifold& manifold)
   : fct_ (fct),
     manifold_ (&manifold)
   {

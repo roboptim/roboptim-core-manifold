@@ -40,9 +40,9 @@ namespace roboptim
   template <typename V, typename W>
   void FunctionOnManifold<U>::
   computeMapping(DescriptiveWrapper<V, W>& descWrap,
-		 const pgs::Manifold& problemManifold,
-		 const pgs::Manifold& functionManifold,
-		 std::vector<const pgs::Manifold*> restrictedManifolds,
+		 const mnf::Manifold& problemManifold,
+		 const mnf::Manifold& functionManifold,
+		 std::vector<const mnf::Manifold*> restrictedManifolds,
 		 std::vector<std::pair<long, long>> restrictions)
   {
     // TODO: refactor EVERYTHING into smaller methods, and call them
@@ -67,7 +67,7 @@ namespace roboptim
     occurenceCount.clear();
     std::map<long, int> traversalOccurences;
     traversalOccurences.clear();
-    std::map<long, const pgs::Manifold*> manifoldsById;
+    std::map<long, const mnf::Manifold*> manifoldsById;
 
     // Compute the number of time each manifold should appear
     // If 0, the manifold can appear as much as it wants
@@ -90,9 +90,9 @@ namespace roboptim
 
     // Compute the occurences of each manifold in the submanifold
     // on which the function will be instantiated
-    std::function<void(const pgs::Manifold&)> checkOccurences =
+    std::function<void(const mnf::Manifold&)> checkOccurences =
       [&traversalOccurences, &checkOccurences, &manifoldsById]
-      (const pgs::Manifold& manifold)
+      (const mnf::Manifold& manifold)
       {
 	if (manifold.isElementary())
 	  {
@@ -158,9 +158,9 @@ namespace roboptim
     // This lambda returns a std::pair of long representing a restriction
     // of the manifold. The pair contains the starting index as the first
     // element and the size of the restriction as the second element.
-      std::function<std::pair<long, long>(const pgs::Manifold&, const int, int)> getRestriction =
+      std::function<std::pair<long, long>(const mnf::Manifold&, const int, int)> getRestriction =
 	[&restrictedManifolds, &restrictions, &onTangentSpace]
-	(const pgs::Manifold& manifold, const int searchedIndex, int currIndex)
+	(const mnf::Manifold& manifold, const int searchedIndex, int currIndex)
 	{
 	  // A (-1, -1) is equivalent to no restrictions at all
 	  std::pair<long, long> ans = std::make_pair(-1l, -1l);
@@ -195,9 +195,9 @@ namespace roboptim
       // These helpers function will help us to track the id of the manifolds
       // we encounter while traversing the manifold trees, reusing the maps
       // we first used to check the occurences counts of manifolds
-      std::function<int(const pgs::Manifold&)> getCurrentOccurenceCount =
+      std::function<int(const mnf::Manifold&)> getCurrentOccurenceCount =
 	[&traversalOccurences]
-	(const pgs::Manifold& manifold)
+	(const mnf::Manifold& manifold)
 	{
 	  if (traversalOccurences.find(manifold.getInstanceId()) != traversalOccurences.end())
 	    {
@@ -206,9 +206,9 @@ namespace roboptim
 
 	  return 0;
 	};
-      std::function<void(const pgs::Manifold&)> incrementOccurenceCount =
+      std::function<void(const mnf::Manifold&)> incrementOccurenceCount =
 	[&traversalOccurences]
-	(const pgs::Manifold& manifold)
+	(const mnf::Manifold& manifold)
 	{
 	  if (traversalOccurences.find(manifold.getInstanceId()) != traversalOccurences.end())
 	    {
@@ -220,11 +220,11 @@ namespace roboptim
 	    }
 	};
 
-      std::vector<const pgs::Manifold*> planarManifold;
+      std::vector<const mnf::Manifold*> planarManifold;
 
     // This lambda converts a manifold tree to a std::vector of its leaf
     // which should all be elementary manifolds.
-    std::function<void(const pgs::Manifold&)> manifoldTreeToVector = [&planarManifold, &manifoldTreeToVector](const pgs::Manifold& manifold)
+    std::function<void(const mnf::Manifold&)> manifoldTreeToVector = [&planarManifold, &manifoldTreeToVector](const mnf::Manifold& manifold)
       {
 	if (manifold.isElementary())
 	  {
@@ -243,13 +243,13 @@ namespace roboptim
     // of elementary manifolds.
     // This is because the tree structure of the manifold is
     // not important for the mapping; only the ordering counts.
-    std::function<long(const pgs::Manifold&, long)> checkManifold = [&planarManifold, &checkManifold, &getRestriction, &getCurrentOccurenceCount, &incrementOccurenceCount](const pgs::Manifold& manifold, long index)
+    std::function<long(const mnf::Manifold&, long)> checkManifold = [&planarManifold, &checkManifold, &getRestriction, &getCurrentOccurenceCount, &incrementOccurenceCount](const mnf::Manifold& manifold, long index)
       {
 	if (manifold.isElementary())
 	  {
-	    const pgs::Manifold* myManifold = planarManifold[static_cast<size_t>(index)];
+	    const mnf::Manifold* myManifold = planarManifold[static_cast<size_t>(index)];
 	    bool sameType = myManifold->getTypeId() == manifold.getTypeId();
-	    bool isNotRealSpace = myManifold->getTypeId() != pgs::RealSpace(1).getTypeId();
+	    bool isNotRealSpace = myManifold->getTypeId() != mnf::RealSpace(1).getTypeId();
 	    bool sameSize = getRestriction(*myManifold, getCurrentOccurenceCount(*myManifold), 0).second == manifold.representationDim();
 	    incrementOccurenceCount(*myManifold);
 
@@ -289,7 +289,7 @@ namespace roboptim
       }
 
     // This lambda computes the dimension of the input space while taking the restrictions into account
-    std::function<long(const pgs::Manifold&)> computeRestrictedDimension = [&computeRestrictedDimension, &getRestriction, &getCurrentOccurenceCount, &incrementOccurenceCount](const pgs::Manifold& manifold)
+    std::function<long(const mnf::Manifold&)> computeRestrictedDimension = [&computeRestrictedDimension, &getRestriction, &getCurrentOccurenceCount, &incrementOccurenceCount](const mnf::Manifold& manifold)
       {
 	long mySize = 0;
 
@@ -332,7 +332,7 @@ namespace roboptim
 
     // This lambda computes the actual mapping between a manifold and the one
     // in its place in the global manifold of the problem.
-    std::function<long(const pgs::Manifold&, long, int, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction, &onTangentSpace](const pgs::Manifold& manifold, long targetId, int targetIndex, long functionStartIndex, long startIndex)
+    std::function<long(const mnf::Manifold&, long, int, long, long)> getStartingIndexOfManifold = [&getStartingIndexOfManifold, this, &getRestriction, &onTangentSpace](const mnf::Manifold& manifold, long targetId, int targetIndex, long functionStartIndex, long startIndex)
       {
 	if (targetId == manifold.getInstanceId())
 	  {
@@ -376,7 +376,7 @@ namespace roboptim
 
     // This lambda recursively traverse the manifold tree, computing the mapping
     /// for each leaf (elementary manifold) it reaches.
-    std::function<int(const pgs::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold, &getRestriction, &onTangentSpace, &getCurrentOccurenceCount, &incrementOccurenceCount](const pgs::Manifold& manifold, int startIndex)
+    std::function<int(const mnf::Manifold&, int)> traverseFunctionManifold = [&traverseFunctionManifold, &getStartingIndexOfManifold, &problemManifold, &getRestriction, &onTangentSpace, &getCurrentOccurenceCount, &incrementOccurenceCount](const mnf::Manifold& manifold, int startIndex)
       {
 	if (manifold.isElementary())
 	  {
@@ -443,7 +443,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::unmapTangentJacobian(pgs::RefMat jacobian)
+  FunctionOnManifold<U>::unmapTangentJacobian(mnf::RefMat jacobian)
   const
   {
     for (long i = 0; i < this->tangentMappingFromFunctionSize_; ++i)
@@ -494,7 +494,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::manifold_jacobian (pgs::RefMat jacobian,
+  FunctionOnManifold<U>::manifold_jacobian (mnf::RefMat jacobian,
                                             const_argument_ref argument)\
   const
   {

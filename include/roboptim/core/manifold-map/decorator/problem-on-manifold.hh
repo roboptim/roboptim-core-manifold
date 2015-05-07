@@ -35,14 +35,14 @@ namespace roboptim {
       typedef T wrappedType_t;
 
       template<typename ... Types>
-      ProblemOnManifold(pgs::Manifold& manifold, Types& ... args);
+      ProblemOnManifold(mnf::Manifold& manifold, Types& ... args);
 
-      pgs::Manifold& getManifold() const;
+      mnf::Manifold& getManifold() const;
 
       virtual ~ProblemOnManifold();
 
     private:
-      pgs::Manifold& manifold_;
+      mnf::Manifold& manifold_;
     };
 
 # include <roboptim/core/manifold-map/decorator/problem-on-manifold.hxx>
