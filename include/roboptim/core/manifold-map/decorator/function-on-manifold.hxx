@@ -149,7 +149,7 @@ namespace roboptim
 
     // --METHOD START-- //
 
-      bool onTangentSpace = false;
+    bool onTangentSpace = false;
     //	this->fct_ = descWrap.fct();
 
     // TODO: should be memoized for performance, although we can compute
@@ -158,69 +158,69 @@ namespace roboptim
     // This lambda returns a std::pair of long representing a restriction
     // of the manifold. The pair contains the starting index as the first
     // element and the size of the restriction as the second element.
-      std::function<std::pair<long, long>(const pgs::Manifold&, const int, int)> getRestriction =
-	[&restrictedManifolds, &restrictions, &onTangentSpace]
-	(const pgs::Manifold& manifold, const int searchedIndex, int currIndex)
-	{
-	  // A (-1, -1) is equivalent to no restrictions at all
-	  std::pair<long, long> ans = std::make_pair(-1l, -1l);
+    std::function<std::pair<long, long>(const pgs::Manifold&, const int, int)> getRestriction =
+      [&restrictedManifolds, &restrictions, &onTangentSpace]
+      (const pgs::Manifold& manifold, const int searchedIndex, int currIndex)
+      {
+	// A (-1, -1) is equivalent to no restrictions at all
+	std::pair<long, long> ans = std::make_pair(-1l, -1l);
 
-	  for (size_t i = 0; i < restrictedManifolds.size(); ++i)
-	    {
-	      if (manifold.getInstanceId() == restrictedManifolds[i]->getInstanceId())
-		{
-		  if (searchedIndex == currIndex)
-		    {
-		      ans = restrictions[(restrictions.size() == 1?0:i)];
-		      break;
-		    }
-		  else
-		    {
-		      ++currIndex;
-		    }
-		}
-	    }
+	for (size_t i = 0; i < restrictedManifolds.size(); ++i)
+	  {
+	    if (manifold.getInstanceId() == restrictedManifolds[i]->getInstanceId())
+	      {
+		if (searchedIndex == currIndex)
+		  {
+		    ans = restrictions[(restrictions.size() == 1?0:i)];
+		    break;
+		  }
+		else
+		  {
+		    ++currIndex;
+		  }
+	      }
+	  }
 
-	  // If we could not find a restriction for this manifold
-	  // we set the restriction to the entire manifold's size
-	  ans.first = std::max(0l, ans.first);
-	  if (ans.second < 0)
-	    {
-	      ans.second = (onTangentSpace?manifold.tangentDim():manifold.representationDim());
-	    }
+	// If we could not find a restriction for this manifold
+	// we set the restriction to the entire manifold's size
+	ans.first = std::max(0l, ans.first);
+	if (ans.second < 0)
+	  {
+	    ans.second = (onTangentSpace?manifold.tangentDim():manifold.representationDim());
+	  }
 
-	  return ans;
-	};
+	return ans;
+      };
 
-      // These helpers function will help us to track the id of the manifolds
-      // we encounter while traversing the manifold trees, reusing the maps
-      // we first used to check the occurences counts of manifolds
-      std::function<int(const pgs::Manifold&)> getCurrentOccurenceCount =
-	[&traversalOccurences]
-	(const pgs::Manifold& manifold)
-	{
-	  if (traversalOccurences.find(manifold.getInstanceId()) != traversalOccurences.end())
-	    {
-	      return traversalOccurences[manifold.getInstanceId()];
-	    }
+    // These helpers function will help us to track the id of the manifolds
+    // we encounter while traversing the manifold trees, reusing the maps
+    // we first used to check the occurences counts of manifolds
+    std::function<int(const pgs::Manifold&)> getCurrentOccurenceCount =
+      [&traversalOccurences]
+      (const pgs::Manifold& manifold)
+      {
+	if (traversalOccurences.find(manifold.getInstanceId()) != traversalOccurences.end())
+	  {
+	    return traversalOccurences[manifold.getInstanceId()];
+	  }
 
-	  return 0;
-	};
-      std::function<void(const pgs::Manifold&)> incrementOccurenceCount =
-	[&traversalOccurences]
-	(const pgs::Manifold& manifold)
-	{
-	  if (traversalOccurences.find(manifold.getInstanceId()) != traversalOccurences.end())
-	    {
-	      traversalOccurences[manifold.getInstanceId()] += 1;
-	    }
-	  else
-	    {
-	      traversalOccurences[manifold.getInstanceId()] = 1;
-	    }
-	};
+	return 0;
+      };
+    std::function<void(const pgs::Manifold&)> incrementOccurenceCount =
+      [&traversalOccurences]
+      (const pgs::Manifold& manifold)
+      {
+	if (traversalOccurences.find(manifold.getInstanceId()) != traversalOccurences.end())
+	  {
+	    traversalOccurences[manifold.getInstanceId()] += 1;
+	  }
+	else
+	  {
+	    traversalOccurences[manifold.getInstanceId()] = 1;
+	  }
+      };
 
-      std::vector<const pgs::Manifold*> planarManifold;
+    std::vector<const pgs::Manifold*> planarManifold;
 
     // This lambda converts a manifold tree to a std::vector of its leaf
     // which should all be elementary manifolds.
@@ -250,7 +250,9 @@ namespace roboptim
 	    const pgs::Manifold* myManifold = planarManifold[static_cast<size_t>(index)];
 	    bool sameType = myManifold->getTypeId() == manifold.getTypeId();
 	    bool isNotRealSpace = myManifold->getTypeId() != pgs::RealSpace(1).getTypeId();
-	    bool sameSize = getRestriction(*myManifold, getCurrentOccurenceCount(*myManifold), 0).second == manifold.representationDim();
+	    long size1 = getRestriction(*myManifold, getCurrentOccurenceCount(*myManifold), 0).second;
+	    long size2 = manifold.representationDim();
+	    bool sameSize = size1 == size2;
 	    incrementOccurenceCount(*myManifold);
 
 	    if (sameType && (isNotRealSpace || sameSize))
@@ -258,6 +260,11 @@ namespace roboptim
 		return ++index;
 	      }
 
+	    if (sameType && !isNotRealSpace && !sameSize)
+	      {
+		std::cerr << "RealSpaces must be of same size: Expecting "
+		<< size1 << " but got " << size2 << " instead." << std::endl;
+	      }
 	    return -1l;
 	  }
 
@@ -396,18 +403,18 @@ namespace roboptim
 	return static_cast<int>(startIndex);
       };
 
-	    // Clear the traversalOccurences map to ensure a clean use of
-	    // the getCurrentOccurenceCount and incrementOccurenceCount
-	    // helper lambda functions.
-	    traversalOccurences.clear();
-	    // Computes the mapping
+    // Clear the traversalOccurences map to ensure a clean use of
+    // the getCurrentOccurenceCount and incrementOccurenceCount
+    // helper lambda functions.
+    traversalOccurences.clear();
+    // Computes the mapping
     traverseFunctionManifold(functionManifold, 0);
 
-	    // Clear the traversalOccurences map to ensure a clean use of
-	    // the getCurrentOccurenceCount and incrementOccurenceCount
-	    // helper lambda functions.
-	    traversalOccurences.clear();
-	    onTangentSpace = true;
+    // Clear the traversalOccurences map to ensure a clean use of
+    // the getCurrentOccurenceCount and incrementOccurenceCount
+    // helper lambda functions.
+    traversalOccurences.clear();
+    onTangentSpace = true;
     traverseFunctionManifold(functionManifold, 0);
   }
 
@@ -444,12 +451,12 @@ namespace roboptim
   template <typename U>
   void
   FunctionOnManifold<U>::unmapTangentJacobian(pgs::RefMat jacobian)
-  const
+    const
   {
     for (long i = 0; i < this->tangentMappingFromFunctionSize_; ++i)
-    {
-      jacobian.col(static_cast<long>(this->tangentMappingFromFunction_[i])) = this->tangentMappedJacobian.col(i);
-    }
+      {
+	jacobian.col(static_cast<long>(this->tangentMappingFromFunction_[i])) = this->tangentMappedJacobian.col(i);
+      }
   }
 
   template <typename U>
@@ -465,8 +472,8 @@ namespace roboptim
   template <typename U>
   void
   FunctionOnManifold<U>::impl_gradient (gradient_ref gradient,
-			 const_argument_ref argument,
-			 size_type functionId)
+					const_argument_ref argument,
+					size_type functionId)
     const
   {
     this->mapArgument(argument);
@@ -479,7 +486,7 @@ namespace roboptim
   template <typename U>
   void
   FunctionOnManifold<U>::impl_jacobian (jacobian_ref jacobian,
-			 const_argument_ref argument)
+					const_argument_ref argument)
     const
   {
     this->mapArgument(argument);
@@ -496,7 +503,7 @@ namespace roboptim
   void
   FunctionOnManifold<U>::manifold_jacobian (pgs::RefMat jacobian,
                                             const_argument_ref argument)\
-  const
+    const
   {
     this->mapArgument(argument);
     jacobian.setZero();
