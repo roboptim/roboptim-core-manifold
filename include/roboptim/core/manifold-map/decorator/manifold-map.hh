@@ -148,7 +148,7 @@ namespace roboptim
     /// \param function the function instance.
     static pgs::Manifold* getInstance(FI* function)
     {
-      return new pgs::RealSpace(function->getSize());
+      return new pgs::RealSpace(function->inputSize());
     }
   };
 
