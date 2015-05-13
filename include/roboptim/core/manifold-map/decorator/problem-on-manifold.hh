@@ -28,22 +28,22 @@
 
 namespace roboptim {
 
-    template<class T>
-    class ProblemOnManifold : public T
-    {
-    public:
-      typedef T wrappedType_t;
+  template<class T>
+  class ProblemOnManifold : public T
+  {
+  public:
+    typedef T wrappedType_t;
 
-      template<typename ... Types>
-      ProblemOnManifold(mnf::Manifold& manifold, Types& ... args);
+    template<typename ... Types>
+    ProblemOnManifold(mnf::Manifold& manifold, Types& ... args);
 
-      mnf::Manifold& getManifold() const;
+    mnf::Manifold& getManifold() const;
 
-      virtual ~ProblemOnManifold();
+    virtual ~ProblemOnManifold();
 
-    private:
-      mnf::Manifold& manifold_;
-    };
+  private:
+    mnf::Manifold& manifold_;
+  };
 
 # include <roboptim/core/manifold-map/decorator/problem-on-manifold.hxx>
 }

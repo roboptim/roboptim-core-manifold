@@ -59,7 +59,7 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
   this->addElementaryManifolds(instanceManifold);
   this->boundsAndScales_.push_back(std::make_pair(typename V::intervals_t(), typename U::scales_t()));
 
-  std::pair<typename Function::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_.back());
+  std::pair<typename U::function_t::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_.back());
 
   // We need the type of the function to instantiate the FunctionOnManifold
   // wrapper, hence why we capture the information we need here and wait
@@ -73,7 +73,7 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
     (ProblemOnManifold<U>& problem,
      const mnf::Manifold& globMani)
     {
-      std::pair<typename Function::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_[i]);
+      std::pair<typename U::function_t::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_[i]);
 
       ::boost::shared_ptr<FunctionOnManifold<typename V::parent_t>>
       funcOnMani(new FunctionOnManifold<typename V::parent_t>
@@ -86,7 +86,7 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
 		    << bNSPair->first.size() << " of constrained function "
 		    << funcOnMani->getName() << "." << std::endl
 		    << "Assuming no bounds..." << std::endl;
-	  bNSPair->first.push_back(Function::makeInfiniteInterval());
+	  bNSPair->first.push_back(U::function_t::makeInfiniteInterval());
 	}
 
       while (bNSPair->second.size() < static_cast<size_t>(funcOnMani->outputSize()))
@@ -214,29 +214,29 @@ ProblemFactory<U>::ProblemFactory()
 {
   this->objLambda_ = [](mnf::CartesianProduct& globMani)
     {
-      typename GenericConstantFunction<EigenMatrixDense>::vector_t offset (1);
+      typename GenericConstantFunction<typename U::function_t::traits_t>::vector_t offset (1);
       offset.setZero();
-      GenericConstantFunction<EigenMatrixDense>* cst  = new GenericConstantFunction<EigenMatrixDense>(globMani.representationDim(),offset);
+      GenericConstantFunction<typename U::function_t::traits_t>* cst  = new GenericConstantFunction<typename U::function_t::traits_t>(static_cast<typename U::function_t::size_type>(globMani.representationDim()),offset);
 
       // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
       mnf::Manifold& globberMani = globMani;
 
-      DescriptiveWrapper<GenericConstantFunction<EigenMatrixDense>, ManiDesc<>>
+      DescriptiveWrapper<GenericConstantFunction<typename U::function_t::traits_t>, ManiDesc<>>
       descWrap(cst, globberMani);
 
-      FunctionOnManifold<typename GenericConstantFunction<EigenMatrixDense>::parent_t>*
-      objOnMani = new FunctionOnManifold<typename GenericConstantFunction<EigenMatrixDense>::parent_t>
+      FunctionOnManifold<typename GenericConstantFunction<typename U::function_t::traits_t>::parent_t>*
+      objOnMani = new FunctionOnManifold<typename GenericConstantFunction<typename U::function_t::traits_t>::parent_t>
       (descWrap, globMani, globMani);
 
       return new ProblemOnManifold<U>(globMani, *objOnMani);
-      };
+    };
 }
 
 // ---- //
 
 template<class U>
-BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setBounds(typename Function::intervals_t& bounds)
+BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setBounds(typename U::function_t::intervals_t& bounds)
 {
   this->bNSPair_.first.clear();
   this->bNSPair_.first.insert(this->bNSPair_.first.end(), bounds.begin(), bounds.end());
@@ -254,7 +254,7 @@ BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setScales(typename U::scales
 }
 
 template<class U>
-BoundsAndScalesSetter<U>::BoundsAndScalesSetter(std::pair<typename Function::intervals_t, typename U::scales_t>& bNSPair)
+BoundsAndScalesSetter<U>::BoundsAndScalesSetter(std::pair<typename U::function_t::intervals_t, typename U::scales_t>& bNSPair)
   : bNSPair_(bNSPair)
 {}
 

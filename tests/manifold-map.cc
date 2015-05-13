@@ -34,8 +34,8 @@
 
 //using namespace roboptim;
 
-typedef boost::mpl::list< ::roboptim::EigenMatrixDense/*,
-			  ::roboptim::EigenMatrixSparse*/> functionTypes_t;
+typedef boost::mpl::list< ::roboptim::EigenMatrixDense,
+			  ::roboptim::EigenMatrixSparse> functionTypes_t;
 
 template<class T>
 struct F : public roboptim::GenericDifferentiableFunction<T>
@@ -57,7 +57,7 @@ struct F : public roboptim::GenericDifferentiableFunction<T>
   }
 
   void impl_gradient (gradient_ref grad, const_argument_ref,
-		      size_type functionId) const
+                      size_type functionId) const
   {
     grad.setZero ();
     for (size_type j = 0; j < 3; ++j)
@@ -66,6 +66,17 @@ struct F : public roboptim::GenericDifferentiableFunction<T>
       }
   }
 };
+
+template <>
+inline void
+F<roboptim::EigenMatrixSparse>::impl_gradient(gradient_ref grad, const_argument_ref, size_type functionId) const
+{
+  grad.setZero ();
+  for (size_type j = 0; j < 3; ++j)
+    {
+      grad.insert (19 + j) += (value_type)functionId;
+    }
+}
 
 template<class T>
 struct G : public roboptim::GenericDifferentiableFunction<T>
@@ -94,6 +105,17 @@ struct G : public roboptim::GenericDifferentiableFunction<T>
   }
 };
 
+template <>
+inline void
+G<roboptim::EigenMatrixSparse>::impl_gradient(gradient_ref grad, const_argument_ref, size_type functionId) const
+{
+  grad.setZero ();
+  for (size_type j = 0; j < 3; ++j)
+    {
+      grad.insert (j) = functionId * 0 + 1;
+    }
+}
+
 template<class T>
 struct H : public roboptim::GenericDifferentiableFunction<T>
 {
@@ -121,6 +143,17 @@ struct H : public roboptim::GenericDifferentiableFunction<T>
   }
 };
 
+template <>
+inline void
+H<roboptim::EigenMatrixSparse>::impl_gradient(gradient_ref grad, const_argument_ref, size_type functionId) const
+{
+  grad.setZero ();
+  for (size_type j = 0; j < 45; ++j)
+    {
+      grad.insert (j) = (functionId == (j % 3));
+    }
+}
+
 template<class T>
 struct I : public roboptim::GenericDifferentiableFunction<T>
 {
@@ -147,6 +180,29 @@ struct I : public roboptim::GenericDifferentiableFunction<T>
       grad[j] = (functionId == j?1:0);
   }
 };
+
+template <>
+inline void
+I<roboptim::EigenMatrixSparse>::impl_gradient(gradient_ref grad, const_argument_ref, size_type functionId) const
+{
+  grad.setZero ();
+  for (size_type j = 0; j < this->inputSize (); ++j)
+    {
+      grad.insert (j) = (functionId == j?1:0);
+    }
+}
+
+inline roboptim::GenericFunctionTraits<roboptim::EigenMatrixDense>::matrix_t
+to_dense (roboptim::GenericFunctionTraits<roboptim::EigenMatrixDense>::const_matrix_ref m)
+{
+  return m;
+}
+
+inline roboptim::GenericFunctionTraits<roboptim::EigenMatrixDense>::matrix_t
+to_dense (roboptim::GenericFunctionTraits<roboptim::EigenMatrixSparse>::const_matrix_ref m)
+{
+  return roboptim::sparse_to_dense (m);
+}
 
 boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
@@ -177,8 +233,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   typename Instance_F_On_FreeFlyerPlus10::argument_t input = Eigen::VectorXd::Zero(22);
   typename Instance_F_On_FreeFlyerPlus10::result_t result = Eigen::VectorXd::Zero(10);
-  typename Instance_F_On_FreeFlyerPlus10::gradient_t gradient = Eigen::VectorXd::Zero(22);
-  typename Instance_F_On_FreeFlyerPlus10::jacobian_t jacobian = Eigen::MatrixXd::Zero(10, 22);
+  typename Instance_F_On_FreeFlyerPlus10::gradient_t gradient(22);
+  gradient.setZero();
+  typename Instance_F_On_FreeFlyerPlus10::jacobian_t jacobian(10, 22);
+  jacobian.setZero();
 
   Eigen::MatrixXd refJacobian = Eigen::MatrixXd::Zero(10, 22);
 
@@ -187,27 +245,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
       input(i) = 1 + i;
     }
 
-  (*output) << instWrap << "\n";
-  std::cout << instWrap << std::endl;
-  std::cout << "input: " << input.transpose() << std::endl;
+  (*output) << instWrap << roboptim::iendl;
   instWrap(result, input);
-  std::cout << "result: " << result.transpose() << std::endl << std::endl;
 
   for (int i = 0; i < 10; ++i)
     {
-      std::cout << "i: " << i << std::endl;
       instWrap.gradient(gradient, input, i);
     }
 
   instWrap.jacobian(jacobian, input);
-  std::cout << "jacobian: " << std::endl << jacobian << std::endl;
-  instWrap.manifold_jacobian(refJacobian, input);
-
-  (*output) << descWrapPtr;
-
+  try
+    {
+      instWrap.manifold_jacobian(refJacobian, input);
+    }
+  catch(std::runtime_error e)
+    {
+      std::cout << e.what() << std::endl;
+    }
+  (*output) << descWrapPtr << roboptim::iendl;
+  std::cout << output->str() << std::endl;
   BOOST_CHECK (output->match_pattern());
-
- }
+}
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 {
@@ -223,7 +281,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
   mnf::CartesianProduct problemManifold;
   const mnf::RealSpace descriptiveManifold(3);
 
- F_On_Real3 descWrapPtr;
+  F_On_Real3 descWrapPtr;
 
   size_t posNumber = 15;
 
@@ -237,25 +295,32 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
   typename Instance_F_On_Real3::argument_t input = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
   typename Instance_F_On_Real3::result_t result = Eigen::VectorXd::Zero(1);
-  typename Instance_F_On_Real3::gradient_t gradient = Eigen::VectorXd::Zero(3 * static_cast<long>(posNumber));
-  typename Instance_F_On_Real3::jacobian_t jacobian = Eigen::MatrixXd::Zero(1, 3 * static_cast<long>(posNumber));
+  typename Instance_F_On_Real3::gradient_t gradient(3 * static_cast<int> (posNumber));
+  gradient.setZero();
+  typename Instance_F_On_Real3::jacobian_t jacobian(1, 3 * static_cast<int> (posNumber));
+  jacobian.setZero();
 
   for (int i = 0; i < input.size(); ++i)
     {
       input(i) = i;
     }
-
   for (size_t i = 0; i < posNumber; ++i)
     {
       Instance_F_On_Real3 instWrap(descWrapPtr, problemManifold, *reals[i]);
 
+      (*output) << "This is the FunctionOnManifold number " << i << ":"
+		<< roboptim::incindent;
+      (*output) << roboptim::iendl << instWrap;
       instWrap(result, input);
+      (*output) << roboptim::iendl << "Result:";
+      (*output) << roboptim::iendl << result;
 
       BOOST_CHECK(result(0) == (3 * (3 * i + 1)));
 
       instWrap.jacobian(jacobian, input);
-      std::cout << jacobian << std::endl;
-      (*output) << jacobian << std::endl;
+      (*output) << roboptim::iendl << "Jacobian:";
+      (*output) << roboptim::iendl << to_dense(jacobian) << roboptim::decindent
+		<< roboptim::iendl;
     }
 
   for (size_t i = 0; i < posNumber; ++i)
@@ -263,8 +328,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
       delete reals[i];
     }
 
-    BOOST_CHECK (output->match_pattern());
-  }
+  std::cout << output->str() << std::endl;
+  BOOST_CHECK (output->match_pattern());
+}
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 {
@@ -277,37 +343,37 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   typedef roboptim::DescriptiveWrapper<Gunc, Real2> G_On_Real2;
 
   try
-  {
-    new G_On_Real2();
-  }
+    {
+      new G_On_Real2();
+    }
   catch (std::runtime_error& e)
-  {
-    (*output) << "std::runtime_error: " << e.what() << "\n";
-  }
+    {
+      (*output) << "std::runtime_error: " << e.what() << roboptim::iendl;
+    }
 
   DESC_MANIFOLD(Manifold2, roboptim::SO3);
   typedef roboptim::DescriptiveWrapper<Func, Manifold2> F_On_Manifold2;
 
   try
-  {
-    new F_On_Manifold2();
-  }
+    {
+      new F_On_Manifold2();
+    }
   catch (std::runtime_error& e)
-  {
-    (*output) << "std::runtime_error: " << e.what() << "\n";
-  }
+    {
+      (*output) << "std::runtime_error: " << e.what() << roboptim::iendl;
+    }
 
   DESC_MANIFOLD(Manifold3, REAL_SPACE(2), roboptim::SO3);
   typedef roboptim::DescriptiveWrapper<Gunc, Manifold3> G_On_Manifold3;
 
   try
-  {
-    new G_On_Manifold3();
-  }
+    {
+      new G_On_Manifold3();
+    }
   catch (std::runtime_error& e)
-  {
-    (*output) << "std::runtime_error: " << e.what() << "\n";
-  }
+    {
+      (*output) << "std::runtime_error: " << e.what() << roboptim::iendl;
+    }
 
   BOOST_CHECK (output->match_pattern());
 }
@@ -356,39 +422,38 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 
   typename Instance_H_On_MultipleReal3::argument_t input = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
   typename Instance_H_On_MultipleReal3::result_t result = Eigen::VectorXd::Zero(3);
-  typename Instance_H_On_MultipleReal3::gradient_t gradient = Eigen::VectorXd::Zero(6 * static_cast<long>(posNumber));
-  typename Instance_H_On_MultipleReal3::jacobian_t jacobian = Eigen::MatrixXd::Zero(3, 6 * static_cast<long>(posNumber));
+  typename Instance_H_On_MultipleReal3::gradient_t gradient(6 * static_cast<int> (posNumber));
+  gradient.setZero();
+  typename Instance_H_On_MultipleReal3::jacobian_t jacobian(3, 6 * static_cast<int> (posNumber));
+  jacobian.setZero();
 
   Instance_H_On_MultipleReal3 instWrap(descWrapPtr, problemManifold, problemManifold, reals, restrictions);
 
- for (int i = 0; i < input.size(); ++i)
+  for (int i = 0; i < input.size(); ++i)
     {
       input(i) = (i % 6) > 2;
     }
 
- instWrap(result, input);
+  instWrap(result, input);
 
- (*output) << instWrap;
+  (*output) << instWrap;
 
- std::cout << "result: " << result << std::endl;
+  BOOST_CHECK (result(0) == 15);
+  BOOST_CHECK (result(1) == 15);
+  BOOST_CHECK (result(2) == 15);
 
- BOOST_CHECK (result(0) == 15);
- BOOST_CHECK (result(1) == 15);
- BOOST_CHECK (result(2) == 15);
+  instWrap.jacobian(jacobian, input);
 
- instWrap.jacobian(jacobian, input);
+  Eigen::MatrixXd jac = to_dense(jacobian);
 
- Eigen::MatrixXd jac = jacobian;
+  (*output) << roboptim::iendl;
 
- (*output) << "\n";
+  for (int i = 0; i < jac.rows(); ++i)
+    {
+      (*output) << jac.row(i) << roboptim::iendl;
+    }
 
- for (int i = 0; i < jac.rows(); ++i)
-   {
-     std::cout << jac.row(i) << std::endl;
-     (*output) << jac.row(i) << std::endl;
-   }
-
- BOOST_CHECK (output->match_pattern());
+  BOOST_CHECK (output->match_pattern());
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
@@ -431,7 +496,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
   BOOST_CHECK(errorThrown);
   errorThrown = false;
 
-    try
+  try
     {
       Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
     }

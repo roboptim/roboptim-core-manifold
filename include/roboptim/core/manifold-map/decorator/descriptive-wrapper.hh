@@ -100,15 +100,16 @@ namespace roboptim
   operator<<(std::ostream& o, DescriptiveWrapper<U, V>& descWrap)
   {
     o <<
-    "Displaying info about function in DescriptiveWrapper :" << "\n" <<
-    "the function is " << descWrap.fct().getName() << "\n" <<
-    "the function input size is " << descWrap.fct().inputSize() << "\n" <<
-    "the function output size is " << descWrap.fct().outputSize() << "\n" <<
-    "Displaying info about the function manifold in DescriptiveWrapper :" << "\n" <<
-    "the manifold is " << descWrap.manifold().name() << "\n" <<
-    "Is the manifold elementary ? : " <<
-    (descWrap.manifold().isElementary() ? "yes" : "no" ) << "\n" <<
-    "the manifold dimension is " << descWrap.manifold().representationDim() << "\n";
+      "DescriptiveWrapper's function:" << incindent <<
+      iendl << "Name: " << descWrap.fct().getName() <<
+      iendl << "Input size: " << descWrap.fct().inputSize() <<
+      iendl << "Output size: " << descWrap.fct().outputSize() << decindent <<
+      iendl << "DescriptiveWrapper's manifold:" << incindent <<
+      iendl << "Name: " << descWrap.manifold().name() <<
+      iendl << "Elementary: " <<
+      (descWrap.manifold().isElementary() ? "yes" : "no" ) <<
+      iendl << "Dimension: " << descWrap.manifold().representationDim()
+							      << decindent;
     return o;
   }
 
