@@ -483,7 +483,8 @@ namespace roboptim
     this->mapArgument(argument);
     jacobian.setZero();
 
-    roboptim::Dispatcher<U, typename U::traits_t>::jacobian(this, jacobian);
+    this->fct_->jacobian(this->mappedJacobian_, this->mappedInput_);
+    roboptim::Dispatcher<U, typename U::traits_t>::unmapJacobian(this, jacobian);
   }
 
   template <typename U>

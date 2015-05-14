@@ -26,8 +26,37 @@ namespace roboptim
 {
   template <typename U> class FunctionOnManifold;
 
+  /// \addtogroup roboptim_manifolds
+  /// @{
+
+  /// \brief Implements the differentiation between Sparse and Dense
+  /// FunctionOnManifold.
+  ///
+  /// \tparam U input roboptim function type.
+  /// \tparam T traits type of U. Either EigenMatrixDense or EigenMatrixSparse.
   template <typename U, typename T>
-  struct Dispatcher;
+  struct Dispatcher
+  {
+    /// \brief gets the gradient from the restricted problem
+    ///
+    /// \param instance the FunctionOnManifold
+    /// \param gradient the output gradient
+    static void unmapGradient(const FunctionOnManifold<U>*,
+			      typename U::gradient_ref);
+
+    /// \brief gets the jacobian from the restricted problem
+    ///
+    /// \param instance the FunctionOnManifold
+    /// \param jacobian the output jacobian
+    static void unmapJacobian(const FunctionOnManifold<U>*,
+			      typename U::jacobian_ref);
+
+    /// \brief sets the jacobian on the manifold's tangent space with the
+    /// computed value
+    ///
+    /// \param instance the FunctionOnManifold
+    static void applyDiff(const FunctionOnManifold<U>*);
+  };
 
   template <typename U>
   struct Dispatcher <U, roboptim::EigenMatrixDense>
@@ -35,19 +64,23 @@ namespace roboptim
     static void unmapGradient(const FunctionOnManifold<U>* instance,
 			      typename U::gradient_ref gradient)
     {
+      assert(gradient.cols() == instance->inputSize());
+
       for (long i = 0; i < instance->mappingFromFunctionSize_; ++i)
 	{
 	  gradient(static_cast<long>(instance->mappingFromFunction_[i])) = instance->mappedGradient_(i);
 	}
     }
 
-    static void jacobian(const FunctionOnManifold<U>* instance,
-                         typename U::jacobian_ref jacobian)
+    static void unmapJacobian(const FunctionOnManifold<U>* instance,
+			      typename U::jacobian_ref jacobian)
     {
-      for (long j = 0; j < jacobian.rows(); ++j)
+      assert(jacobian.cols() == instance->inputSize());
+      assert(jacobian.rows() == instance->outputSize());
+
+      for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
 	{
-	  instance->fct_->gradient(instance->mappedGradient_, instance->mappedInput_, j);
-	  Dispatcher<U, roboptim::EigenMatrixDense>::unmapGradient(instance, jacobian.row(j));
+	  jacobian.col(static_cast<int>(instance->mappingFromFunction_[i])) = instance->mappedJacobian_.col(i);
 	}
     }
 
@@ -63,7 +96,7 @@ namespace roboptim
     static void unmapGradient(const FunctionOnManifold<U>* instance,
 			      typename U::gradient_ref gradient)
     {
-    assert(gradient.cols() == instance->inputSize());
+      assert(gradient.cols() == instance->inputSize());
 
       for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
 	{
@@ -71,19 +104,15 @@ namespace roboptim
 	}
     }
 
-    static void jacobian(const FunctionOnManifold<U>* instance,
-                         typename U::jacobian_ref jacobian)
+    static void unmapJacobian(const FunctionOnManifold<U>* instance,
+			      typename U::jacobian_ref jacobian)
     {
-    assert(jacobian.cols() == instance->inputSize());
-    assert(jacobian.rows() == instance->outputSize());
+      assert(jacobian.cols() == instance->inputSize());
+      assert(jacobian.rows() == instance->outputSize());
 
-      for (int j = 0; j < jacobian.rows(); ++j)
+      for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
 	{
-	  instance->fct_->gradient(instance->mappedGradient_, instance->mappedInput_, j);
-	  for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
-	    {
-	      jacobian.coeffRef(j,static_cast<int>(instance->mappingFromFunction_[i])) = instance->mappedGradient_.coeffRef(i);
-	    }
+	  jacobian.col(static_cast<int>(instance->mappingFromFunction_[i])) = instance->mappedJacobian_.col(i);
 	}
     }
 

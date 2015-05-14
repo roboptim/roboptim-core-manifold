@@ -254,13 +254,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
     }
 
   instWrap.jacobian(jacobian, input);
-  try
+  if (std::is_same<T, roboptim::EigenMatrixDense>::value)
     {
       instWrap.manifold_jacobian(refJacobian, input);
+      BOOST_CHECK (to_dense(jacobian) == refJacobian);
     }
-  catch(std::runtime_error e)
+  else
     {
-      std::cout << e.what() << std::endl;
+      BOOST_CHECK_THROW (instWrap.manifold_jacobian(refJacobian, input), std::runtime_error);
     }
   (*output) << descWrapPtr << roboptim::iendl;
   std::cout << output->str() << std::endl;
@@ -299,6 +300,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
   gradient.setZero();
   typename Instance_F_On_Real3::jacobian_t jacobian(1, 3 * static_cast<int> (posNumber));
   jacobian.setZero();
+  typename Eigen::MatrixXd tangentJacobian(1, 3 * static_cast<int> (posNumber));
+  tangentJacobian.setZero();
+
 
   for (int i = 0; i < input.size(); ++i)
     {
@@ -318,8 +322,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
       BOOST_CHECK(result(0) == (3 * (3 * i + 1)));
 
       instWrap.jacobian(jacobian, input);
-      (*output) << roboptim::iendl << "Jacobian:";
-      (*output) << roboptim::iendl << to_dense(jacobian) << roboptim::decindent
+      instWrap.manifold_jacobian(tangentJacobian, input);
+      (*output) << roboptim::iendl << "Jacobian:" <<
+	roboptim::iendl << to_dense(jacobian) <<
+	roboptim::iendl << "Jacobian on tangent Space:" <<
+	roboptim::iendl << to_dense(tangentJacobian) << roboptim::decindent
 		<< roboptim::iendl;
     }
 
@@ -453,6 +460,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
       (*output) << jac.row(i) << roboptim::iendl;
     }
 
+  std::cout << output->str() << std::endl;
   BOOST_CHECK (output->match_pattern());
 }
 
@@ -482,30 +490,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
   std::vector<std::pair<long, long>> restrictions;
   restrictions.push_back(std::make_pair(1l, 1l));
 
-  bool errorThrown = false;
-
-  try
-    {
-      Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, myFuncManifold);
-    }
-  catch (std::runtime_error& e)
-    {
-      errorThrown = true;
-    }
-
-  BOOST_CHECK(errorThrown);
-  errorThrown = false;
-
-  try
-    {
-      Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions);
-    }
-  catch (std::runtime_error& e)
-    {
-      errorThrown = true;
-    }
-
-  BOOST_CHECK(errorThrown);
+  BOOST_CHECK_THROW (Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, myFuncManifold), std::runtime_error);
+  BOOST_CHECK_THROW (Instance_F_On_FreeFlyerPlus10 instWrap(descWrapPtr, robot, mySubManifold, restrictedManifolds, restrictions), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_manifold_into_pieces, T, functionTypes_t)
@@ -573,20 +559,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_not_enough_restrictions, 
 
   I_On_R5X3 descI;
 
-  bool errorThrown = false;
-
-  try
-    {
-      Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions);
-    }
-  catch (std::runtime_error& e)
-    {
-      errorThrown = true;
-    }
-
-  BOOST_CHECK(errorThrown);
-  errorThrown = false;
-
+  BOOST_CHECK_THROW (Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_restriction_on_unknown_manifold, T, functionTypes_t)
@@ -617,20 +590,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_restriction_on_unknown_ma
 
   I_On_R5X3 descI;
 
-  bool errorThrown = false;
-
-  try
-    {
-      Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions);
-    }
-  catch (std::runtime_error& e)
-    {
-      errorThrown = true;
-    }
-
-  BOOST_CHECK(errorThrown);
-  errorThrown = false;
-
+  BOOST_CHECK_THROW (Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

@@ -57,12 +57,12 @@ namespace roboptim
     long size = manifold_->representationDim();
     if (fct_->inputSize() != size)
       {
-	std::stringstream* error = new std::stringstream;
-	(*error) << "Representation dims mismatch on manifold "
-		 << manifold_->name() << " using function "
-		 << fct_->getName() << ". Expected dimension :" << size
-		 << ", actual one is " << fct_->inputSize();
-	throw std::runtime_error (error->str());
+	std::stringstream error;
+	error << "Representation dims mismatch on manifold "
+	      << manifold_->name() << " using function "
+	      << fct_->getName() << ". Expected dimension :" << size
+	      << ", actual one is " << fct_->inputSize();
+	throw std::runtime_error (error.str());
       }
   }
 
