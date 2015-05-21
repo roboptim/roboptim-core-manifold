@@ -45,8 +45,8 @@ namespace roboptim
   template<class U>
   struct BoundsAndScalesSetter
   {
-    void setBounds(typename Function::intervals_t& bounds);
-    void setScales(typename U::scales_t& scales);
+    BoundsAndScalesSetter<U>& setBounds(typename Function::intervals_t& bounds);
+    BoundsAndScalesSetter<U>& setScales(typename U::scales_t& scales);
 
   private:
     std::pair<typename Function::intervals_t, typename U::scales_t>& bNSPair_;

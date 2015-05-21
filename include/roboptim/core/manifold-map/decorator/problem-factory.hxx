@@ -236,17 +236,21 @@ ProblemFactory<U>::ProblemFactory()
 // ---- //
 
 template<class U>
-void BoundsAndScalesSetter<U>::setBounds(typename Function::intervals_t& bounds)
+BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setBounds(typename Function::intervals_t& bounds)
 {
   this->bNSPair_.first.clear();
   this->bNSPair_.first.insert(this->bNSPair_.first.end(), bounds.begin(), bounds.end());
+
+  return *this;
 }
 
 template<class U>
-void BoundsAndScalesSetter<U>::setScales(typename U::scales_t& scales)
+BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setScales(typename U::scales_t& scales)
 {
   this->bNSPair_.second.clear();
   this->bNSPair_.second.insert(this->bNSPair_.second.end(), scales.begin(), scales.end());
+
+  return *this;
 }
 
 template<class U>
