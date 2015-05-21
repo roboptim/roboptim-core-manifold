@@ -34,8 +34,8 @@
 
 //using namespace roboptim;
 
-typedef boost::mpl::list< ::roboptim::EigenMatrixDense/*,
-			  ::roboptim::EigenMatrixSparse*/> functionTypes_t;
+typedef boost::mpl::list< ::roboptim::EigenMatrixDense,
+			  ::roboptim::EigenMatrixSparse> functionTypes_t;
 
 template<class T>
 struct F : public roboptim::GenericDifferentiableFunction<T>
@@ -67,6 +67,17 @@ struct F : public roboptim::GenericDifferentiableFunction<T>
   }
 };
 
+template<>
+inline void
+F<roboptim::EigenMatrixSparse>::impl_gradient (gradient_ref grad, const_argument_ref,
+					       size_type) const
+{
+  for (size_type i =0; i < this->inputSize(); ++i)
+    {
+      grad.coeffRef(i) = 1;
+    }
+}
+
 template<class T>
 struct G : public roboptim::GenericDifferentiableFunction<T>
 {
@@ -91,6 +102,17 @@ struct G : public roboptim::GenericDifferentiableFunction<T>
     grad.setOnes ();
   }
 };
+
+template<>
+inline void
+G<roboptim::EigenMatrixSparse>::impl_gradient (gradient_ref grad, const_argument_ref,
+					       size_type) const
+{
+  for (size_type i =0; i < this->inputSize(); ++i)
+    {
+      grad.coeffRef(i) = 1;
+    }
+}
 
 template<class T>
 struct H : public roboptim::GenericDifferentiableFunction<T>
@@ -117,6 +139,17 @@ struct H : public roboptim::GenericDifferentiableFunction<T>
   }
 };
 
+template<>
+inline void
+H<roboptim::EigenMatrixSparse>::impl_gradient (gradient_ref grad, const_argument_ref,
+					       size_type) const
+{
+  for (size_type i =0; i < this->inputSize(); ++i)
+    {
+      grad.coeffRef(i) = 1;
+    }
+}
+
 template<class T>
 struct I : public roboptim::GenericDifferentiableFunction<T>
 {
@@ -142,17 +175,28 @@ struct I : public roboptim::GenericDifferentiableFunction<T>
   }
 };
 
+template<>
+inline void
+I<roboptim::EigenMatrixSparse>::impl_gradient (gradient_ref grad, const_argument_ref,
+					       size_type) const
+{
+  for (size_type i =0; i < this->inputSize(); ++i)
+    {
+      grad.coeffRef(i) = 1;
+    }
+}
+
 
 boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
-typedef roboptim::Problem< roboptim::DifferentiableFunction,
-			   boost::mpl::vector<roboptim::LinearFunction,
-					      roboptim::DifferentiableFunction > > problem_t;
-
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 {
+  typedef roboptim::Problem< roboptim::GenericDifferentiableFunction<T>,
+			     boost::mpl::vector<roboptim::GenericLinearFunction<T>,
+						roboptim::GenericDifferentiableFunction<T> > > problem_t;
+
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef H<T> Hunc;
@@ -231,6 +275,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
 {
+  typedef roboptim::Problem< roboptim::GenericDifferentiableFunction<T>,
+			     boost::mpl::vector<roboptim::GenericLinearFunction<T>,
+						roboptim::GenericDifferentiableFunction<T> > > problem_t;
+
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef H<T> Hunc;

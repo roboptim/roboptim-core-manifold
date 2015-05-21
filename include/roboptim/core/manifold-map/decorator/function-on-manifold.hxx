@@ -333,9 +333,11 @@ namespace roboptim
     onTangentSpace = false;
 
     this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
-    this->mappedGradient_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
-    this->mappedJacobian_ = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->mappingFromFunctionSize_);
+    this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
+    this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
     this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
+    this->mappedGradient_.setZero();
+    this->mappedJacobian_.setZero();
 
     // This lambda computes the actual mapping between a manifold and the one
     // in its place in the global manifold of the problem.
@@ -439,17 +441,6 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::unmapGradient(gradient_ref gradient, const_gradient_ref mappedGradient)
-    const
-  {
-    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
-      {
-	gradient(static_cast<long>(this->mappingFromFunction_[i])) = mappedGradient(i);
-      }
-  }
-
-  template <typename U>
-  void
   FunctionOnManifold<U>::unmapTangentJacobian(mnf::RefMat jacobian)
     const
   {
@@ -480,7 +471,7 @@ namespace roboptim
     this->fct_->gradient(this->mappedGradient_, this->mappedInput_, functionId);
 
     gradient.setZero();
-    this->unmapGradient(gradient, this->mappedGradient_);
+    roboptim::Dispatcher<U, typename U::traits_t>::unmapGradient(this, gradient);
   }
 
   template <typename U>
@@ -492,17 +483,14 @@ namespace roboptim
     this->mapArgument(argument);
     jacobian.setZero();
 
-    for (long j = 0; j < jacobian.rows(); ++j)
-      {
-	this->fct_->gradient(this->mappedGradient_, this->mappedInput_, j);
-	this->unmapGradient(jacobian.row(j), this->mappedGradient_);
-      }
+    this->fct_->jacobian(this->mappedJacobian_, this->mappedInput_);
+    roboptim::Dispatcher<U, typename U::traits_t>::unmapJacobian(this, jacobian);
   }
 
   template <typename U>
   void
   FunctionOnManifold<U>::manifold_jacobian (mnf::RefMat jacobian,
-                                            const_argument_ref argument)\
+                                            const_argument_ref argument)
     const
   {
     this->mapArgument(argument);
@@ -512,7 +500,7 @@ namespace roboptim
 
     this->fct_->jacobian(this->mappedJacobian_, this->mappedInput_);
 
-    this->manifold_->applyDiffRetractation(this->tangentMappedJacobian, this->mappedJacobian_, this->mappedInput_);
+    roboptim::Dispatcher<U, typename U::traits_t>::applyDiff(this);
 
     this->unmapTangentJacobian(jacobian);
   }

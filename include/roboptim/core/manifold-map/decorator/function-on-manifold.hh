@@ -27,6 +27,7 @@
 # include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/differentiable-function.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
+# include <roboptim/core/manifold-map/decorator/dispatcher.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
@@ -73,7 +74,7 @@ namespace roboptim
      std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
       : detail::AutopromoteTrait<U>::T_type
-	(problemManifold.representationDim(),
+	(static_cast<size_type>(problemManifold.representationDim()),
 	 descWrap.fct().outputSize (),
 	 (boost::format ("%1%")
 	  % descWrap.fct().getName ()).str ()),
@@ -162,7 +163,7 @@ namespace roboptim
     /// \brief new input mapped to the restricted problem
     mutable vector_t mappedInput_;
     /// \brief new gradient mapped to the restricted problem
-    mutable derivative_t mappedGradient_;
+    mutable gradient_t mappedGradient_;
     /// \brief new jacobian mapped to the restricted problem
     mutable jacobian_t mappedJacobian_;
 
@@ -173,13 +174,6 @@ namespace roboptim
     ///
     /// \param argument the argument to map
     void mapArgument(const_argument_ref argument)
-      const;
-
-    /// \brief gets the gradient from the restricted problem
-    ///
-    /// \param gradient the output gradient
-    /// \param mappedGradient the gradient computed to unmap
-    void unmapGradient(gradient_ref gradient, const_gradient_ref mappedGradient)
       const;
 
     /// \brief unmap the jacobian from the restricted problem

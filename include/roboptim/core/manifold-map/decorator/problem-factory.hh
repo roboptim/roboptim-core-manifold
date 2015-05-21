@@ -45,12 +45,12 @@ namespace roboptim
   template<class U>
   struct BoundsAndScalesSetter
   {
-    BoundsAndScalesSetter<U>& setBounds(typename Function::intervals_t& bounds);
+    BoundsAndScalesSetter<U>& setBounds(typename U::function_t::intervals_t& bounds);
     BoundsAndScalesSetter<U>& setScales(typename U::scales_t& scales);
 
   private:
-    std::pair<typename Function::intervals_t, typename U::scales_t>& bNSPair_;
-    BoundsAndScalesSetter(std::pair<typename Function::intervals_t, typename U::scales_t>& bNSPair);
+    std::pair<typename U::function_t::intervals_t, typename U::scales_t>& bNSPair_;
+    BoundsAndScalesSetter(std::pair<typename U::function_t::intervals_t, typename U::scales_t>& bNSPair);
     friend ProblemFactory<U>;
   };
 
@@ -90,7 +90,7 @@ namespace roboptim
     /// \brief elementary manifolds composing the global manifold of the problem
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
     /// \brief bounds and scales for each constraint
-    std::vector<std::pair<typename Function::intervals_t, typename U::scales_t>> boundsAndScales_;
+    std::vector<std::pair<typename U::function_t::intervals_t, typename U::scales_t>> boundsAndScales_;
     /// \brief each std::function instantiate and add a constraint to the problem
     std::vector<std::function<void(ProblemOnManifold<U>&, const mnf::Manifold&)>> lambdas_;
     /// \brief instantiate and add the objective function to the problem
