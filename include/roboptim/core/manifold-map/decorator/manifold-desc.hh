@@ -43,7 +43,7 @@ namespace roboptim
     ///
     /// \param function the function instance.
     template<class U>
-    static mnf::Manifold* getManifold(U* function = nullptr);
+    static const mnf::Manifold* getManifold(U* function = nullptr);
 
   };
 

@@ -37,13 +37,6 @@ namespace roboptim
   template <typename U, typename T>
   struct Dispatcher
   {
-    /// \brief gets the gradient from the restricted problem
-    ///
-    /// \param instance the FunctionOnManifold
-    /// \param gradient the output gradient
-    static void unmapGradient(const FunctionOnManifold<U>*,
-			      typename U::gradient_ref);
-
     /// \brief gets the jacobian from the restricted problem
     ///
     /// \param instance the FunctionOnManifold
@@ -61,17 +54,6 @@ namespace roboptim
   template <typename U>
   struct Dispatcher <U, roboptim::EigenMatrixDense>
   {
-    static void unmapGradient(const FunctionOnManifold<U>* instance,
-			      typename U::gradient_ref gradient)
-    {
-      assert(gradient.cols() == instance->inputSize());
-
-      for (long i = 0; i < instance->mappingFromFunctionSize_; ++i)
-	{
-	  gradient(static_cast<long>(instance->mappingFromFunction_[i])) = instance->mappedGradient_(i);
-	}
-    }
-
     static void unmapJacobian(const FunctionOnManifold<U>* instance,
 			      typename U::jacobian_ref jacobian)
     {
@@ -93,17 +75,6 @@ namespace roboptim
   template <typename U>
   struct Dispatcher <U, roboptim::EigenMatrixSparse>
   {
-    static void unmapGradient(const FunctionOnManifold<U>* instance,
-			      typename U::gradient_ref gradient)
-    {
-      assert(gradient.cols() == instance->inputSize());
-
-      for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
-	{
-	  gradient.coeffRef(static_cast<int>(instance->mappingFromFunction_[i])) = instance->mappedGradient_.coeffRef(i);
-	}
-    }
-
     static void unmapJacobian(const FunctionOnManifold<U>* instance,
 			      typename U::jacobian_ref jacobian)
     {

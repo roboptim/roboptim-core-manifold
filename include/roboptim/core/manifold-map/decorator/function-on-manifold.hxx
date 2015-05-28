@@ -38,7 +38,7 @@ namespace roboptim
 
   template <typename U>
   template <typename V, typename W>
-  void FunctionOnManifold<U>::
+  void BecauseUsersCanDoShit<U>::
   computeMapping(DescriptiveWrapper<V, W>& descWrap,
 		 const mnf::Manifold& problemManifold,
 		 const mnf::Manifold& functionManifold,
@@ -333,11 +333,6 @@ namespace roboptim
     onTangentSpace = false;
 
     this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
-    this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
-    this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
-    this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
-    this->mappedGradient_.setZero();
-    this->mappedJacobian_.setZero();
 
     // This lambda computes the actual mapping between a manifold and the one
     // in its place in the global manifold of the problem.
@@ -421,6 +416,35 @@ namespace roboptim
   }
 
   template <typename U>
+  template <typename V, typename W>
+  void DifferentiableFunctionOnManifold<U>::
+  computeMapping(DescriptiveWrapper<V, W>& descWrap,
+		 const mnf::Manifold&,
+		 const mnf::Manifold&,
+		 std::vector<const mnf::Manifold*>,
+		 std::vector<std::pair<long, long>>)
+  {
+    this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
+    this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+    this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
+    this->mappedGradient_.setZero();
+    this->mappedJacobian_.setZero();
+  }
+
+  template <typename U>
+  template <typename V, typename W>
+  void TwiceDifferentiableFunctionOnManifold<U>::
+  computeMapping(DescriptiveWrapper<V, W>& descWrap,
+		 const mnf::Manifold&,
+		 const mnf::Manifold&,
+		 std::vector<const mnf::Manifold*>,
+		 std::vector<std::pair<long, long>>)
+  {
+    this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+    this->mappedHessian_.setZero();
+  }
+
+  template <typename U>
   FunctionOnManifold<U>::~FunctionOnManifold()
 
   {
@@ -430,7 +454,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::mapArgument (const_argument_ref argument)
+  BecauseUsersCanDoShit<U>::mapArgument (const_argument_ref argument)
     const
   {
     for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
@@ -441,7 +465,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::unmapTangentJacobian(mnf::RefMat jacobian)
+  DifferentiableFunctionOnManifold<U>::unmapTangentJacobian(mnf::RefMat jacobian)
     const
   {
     for (long i = 0; i < this->tangentMappingFromFunctionSize_; ++i)
@@ -452,7 +476,7 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::impl_compute
+  BecauseUsersCanDoShit<U>::impl_compute
   (result_ref result, const_argument_ref x)
     const
   {
@@ -462,22 +486,34 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::impl_gradient (gradient_ref gradient,
-					const_argument_ref argument,
-					size_type functionId)
+  DifferentiableFunctionOnManifold<U>::unmapGradient(gradient_ref gradient) const
+  {
+    assert(gradient.cols() == this->inputSize());
+
+    for (int i = 0; i < this->mappingFromFunctionSize_; ++i)
+      {
+	gradient.coeffRef(static_cast<size_t>(this->mappingFromFunction_[i])) = this->mappedGradient_.coeffRef(i);
+      }
+  }
+
+  template <typename U>
+  void
+  DifferentiableFunctionOnManifold<U>::impl_gradient (gradient_ref gradient,
+						      const_argument_ref argument,
+						      size_type functionId)
     const
   {
     this->mapArgument(argument);
     this->fct_->gradient(this->mappedGradient_, this->mappedInput_, functionId);
 
     gradient.setZero();
-    roboptim::Dispatcher<U, typename U::traits_t>::unmapGradient(this, gradient);
+    unmapGradient(gradient);
   }
 
   template <typename U>
   void
-  FunctionOnManifold<U>::impl_jacobian (jacobian_ref jacobian,
-					const_argument_ref argument)
+  DifferentiableFunctionOnManifold<U>::impl_jacobian (jacobian_ref jacobian,
+						      const_argument_ref argument)
     const
   {
     this->mapArgument(argument);
@@ -489,8 +525,8 @@ namespace roboptim
 
   template <typename U>
   void
-  FunctionOnManifold<U>::manifold_jacobian (mnf::RefMat jacobian,
-                                            const_argument_ref argument)
+  DifferentiableFunctionOnManifold<U>::manifold_jacobian (mnf::RefMat jacobian,
+							  const_argument_ref argument)
     const
   {
     this->mapArgument(argument);
@@ -517,6 +553,50 @@ namespace roboptim
     return o;
   }
 
+  // ---- //
+
+  template<typename U>
+  GenericDifferentiableFunctionOnManifold<U>::GenericDifferentiableFunctionOnManifold(const roboptim::GenericDifferentiableFunction<U>* wrappedFunction, const mnf::Manifold* manifold)
+    : wrappedFunction_(wrappedFunction),
+      manifold_(manifold)
+  {}
+
+  template<typename U>
+  const roboptim::GenericDifferentiableFunction<U>* GenericDifferentiableFunctionOnManifold<U>::getWrappedFunction() const
+  {
+    return this->wrappedFunction_;
+  }
+
+  template<typename U>
+  const mnf::Manifold* GenericDifferentiableFunctionOnManifold<U>::getManifold() const
+  {
+    return this->manifold_;
+  }
+
+  template<typename U>
+  void
+  TwiceDifferentiableFunctionOnManifold<U>::unmapHessian(hessian_ref hessian) const
+  {
+    assert (hessian.cols() == this->inputSize());
+    assert (hessian.cols() == this->inputSize());
+
+    for (int i = 0; i < this->mappingFromFunctionSize_; ++i)
+      {
+	for (int j = 0; j < this->inputSize(); ++j)
+	  hessian.coeffRef(i,j) = this->mappedHessian_.coeffRef(i,j);
+      }
+  }
+
+  template<typename U>
+  void
+  TwiceDifferentiableFunctionOnManifold<U>::impl_hessian(hessian_ref hessian, const_argument_ref argument, size_type) const
+  {
+    this->mapArgument(argument);
+    hessian.setZero();
+
+    this->fct_->hessian(this->mappedHessian_, this->mappedInput_);
+    unmapHessian(this, hessian);
+  }
 
 } // end of namespace roboptim.
 
