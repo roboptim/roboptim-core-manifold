@@ -32,7 +32,7 @@ void ProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceMani
       if (manifold.isElementary())
 	{
 	  // Only add the manifold if there was not any other one
-	  // with the same id in the map
+	  // with the same instanceId in the map
 	  if (!this->elementaryInstanceManifolds_.count(manifold.getInstanceId()))
 	    {
 	      this->elementaryInstanceManifolds_[manifold.getInstanceId()] = &manifold;
@@ -212,6 +212,19 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Ma
 template<class U>
 ProblemFactory<U>::ProblemFactory()
 {
+  // We only call this method here to set the objective funtion lambda,
+  // thus avoiding to duplicate or isolate the the code needed
+  // to create it
+  this->reset();
+}
+
+template<class U>
+void ProblemFactory<U>::reset()
+{
+  elementaryInstanceManifolds_.clear();
+  boundsAndScales_.clear();
+  lambdas_.clear();
+
   this->objLambda_ = [](mnf::CartesianProduct& globMani)
     {
       typename GenericConstantFunction<typename U::function_t::traits_t>::vector_t offset (1);

@@ -86,6 +86,9 @@ namespace roboptim
     /// \brief generate and return the described problem
     ProblemOnManifold<U>* getProblem();
 
+    /// \brief reset the factory to be able to create a completely new problem
+    void reset();
+
   private:
     /// \brief elementary manifolds composing the global manifold of the problem
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
