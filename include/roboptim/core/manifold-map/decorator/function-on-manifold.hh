@@ -50,7 +50,7 @@ namespace roboptim
     GenericDifferentiableFunctionOnManifold() = delete;
 
     const roboptim::GenericDifferentiableFunction<U>* wrappedFunction_;
-    const mnf::Manifold* manifold_;
+    const mnf::Manifold* instManifold_;
   public:
     GenericDifferentiableFunctionOnManifold(const roboptim::GenericDifferentiableFunction<U>* wrappedFunction, const mnf::Manifold* manifold);
 
@@ -58,19 +58,29 @@ namespace roboptim
     const mnf::Manifold* getManifold() const;
   };
 
+  // ---- //
+
   // TODO: Move to a separate file
   template<typename U>
-  class BecauseUsersCanDoShit
+  class BaseFunctionOnManifold : public detail::AutopromoteTrait<U>::T_type
   {
   public:
     ROBOPTIM_FUNCTION_FWD_TYPEDEFS_ (roboptim::GenericFunction<typename U::traits_t>);
     template<typename V, typename W>
-    explicit BecauseUsersCanDoShit
+    explicit BaseFunctionOnManifold
     (DescriptiveWrapper<V, W>& descWrap,
      const mnf::Manifold& problemManifold,
      const mnf::Manifold& functionManifold,
      std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
+      :
+      detail::AutopromoteTrait<U>::T_type
+      (static_cast<size_type>(problemManifold.representationDim()),
+       descWrap.fct().outputSize (),
+       (boost::format ("%1%")
+	% descWrap.fct().getName ()).str ()),
+      fct_ (&descWrap.fct()),
+      manifold_ (&descWrap.manifold())
     {
       computeMapping(descWrap,
                      problemManifold,
@@ -96,6 +106,8 @@ namespace roboptim
     void mapArgument(const_argument_ref argument)
       const;
 
+    friend Dispatcher<U, typename U::traits_t>;
+
     /// \brief the function.
     const U* fct_;
     /// \brief the problem manifold.
@@ -116,7 +128,7 @@ namespace roboptim
   };
 
   template <typename U>
-  class DifferentiableFunctionOnManifold : public BecauseUsersCanDoShit<U>, public GenericDifferentiableFunctionOnManifold<typename U::traits_t>
+  class DifferentiableFunctionOnManifold : public BaseFunctionOnManifold<U>, public GenericDifferentiableFunctionOnManifold<typename U::traits_t>
   {
   public:
     ROBOPTIM_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (roboptim::GenericDifferentiableFunction<typename U::traits_t>);
@@ -131,14 +143,21 @@ namespace roboptim
      const mnf::Manifold& functionManifold,
      std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
-      : GenericDifferentiableFunctionOnManifold<typename U::traits_t> (&descWrap.fct(), &functionManifold)
+      : BaseFunctionOnManifold<U>(descWrap, problemManifold, functionManifold, restrictedManifolds, restrictions),
+      GenericDifferentiableFunctionOnManifold<typename U::traits_t> (&descWrap.fct(), &functionManifold)
     {
-      computeMapping(descWrap,
-                     problemManifold,
-                     functionManifold,
-                     restrictedManifolds,
-                     restrictions);
+      this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
+      this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+      this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
+      this->mappedGradient_.setZero();
+      this->mappedJacobian_.setZero();
     }
+
+    void manifold_jacobian (mnf::RefMat jacobian,
+                            const_argument_ref arg)
+      const;
+
+    friend Dispatcher<U, typename U::traits_t>;
 
   protected:
     template <typename V, typename W>
@@ -154,10 +173,6 @@ namespace roboptim
       const;
     void impl_jacobian (jacobian_ref jacobian,
                         const_argument_ref arg)
-      const;
-
-    void manifold_jacobian (mnf::RefMat jacobian,
-                            const_argument_ref arg)
       const;
 
     /// \brief gets the gradient from the restricted problem
@@ -204,36 +219,38 @@ namespace roboptim
      const mnf::Manifold& functionManifold,
      std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
+      : DifferentiableFunctionOnManifold<U>(descWrap, problemManifold, functionManifold, restrictedManifolds, restrictions)
     {
-      computeMapping(descWrap,
-                     problemManifold,
-                     functionManifold,
-                     restrictedManifolds,
-                     restrictions);
+      this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+      this->mappedHessian_.setZero();
     }
 
   protected:
     void impl_hessian(hessian_ref, const_argument_ref, size_type) const;
     void unmapHessian(hessian_ref hessian) const;
 
+    friend Dispatcher<U, typename U::traits_t>;
+
     mutable hessian_t mappedHessian_;
   };
 
   /// \brief Maps a DescriptiveWrapper to a instance of a submanifold.
   ///
+  /// WARNING: A FunctionOnManifold must be templated on the underlying roboptim
+  /// function type
+  ///
   /// \tparam U input roboptim function type.
   // TODO: deactivate gradient and jacobian when not inheriting from DifferentiableFunction
   template <typename U>
   class FunctionOnManifold :
-    public detail::AutopromoteTrait<U>::T_type,
     private boost::noncopyable,
     public std::conditional<std::is_base_of<roboptim::GenericTwiceDifferentiableFunction<typename U::traits_t>,
 					    U>::value,
 			    TwiceDifferentiableFunctionOnManifold<U>,
 			    typename std::conditional<std::is_base_of<roboptim::GenericDifferentiableFunction<typename U::traits_t>,
-							     U>::value,
-					     DifferentiableFunctionOnManifold<U>,
-					     BecauseUsersCanDoShit<U> >::type >::type
+								      U>::value,
+						      DifferentiableFunctionOnManifold<U>,
+						      BaseFunctionOnManifold<U> >::type >::type
   {
   public:
     ROBOPTIM_FUNCTION_FWD_TYPEDEFS_ (U);
@@ -260,18 +277,14 @@ namespace roboptim
      const mnf::Manifold& functionManifold,
      std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
-      : detail::AutopromoteTrait<U>::T_type
-	(static_cast<size_type>(problemManifold.representationDim()),
-	 descWrap.fct().outputSize (),
-	 (boost::format ("%1%")
-	  % descWrap.fct().getName ()).str ()),
-	std::conditional<std::is_base_of<roboptim::GenericTwiceDifferentiableFunction<typename U::traits_t>,
-					 U>::value,
-			 TwiceDifferentiableFunctionOnManifold<U>,
-			 typename std::conditional<std::is_base_of<roboptim::GenericDifferentiableFunction<typename U::traits_t>,
-							  U>::value,
-					  DifferentiableFunctionOnManifold<U>,
-					  BecauseUsersCanDoShit<U> >::type >::type(descWrap, problemManifold, functionManifold, restrictedManifolds, restrictions)
+      :
+      std::conditional<std::is_base_of<roboptim::GenericTwiceDifferentiableFunction<typename U::traits_t>,
+      U>::value,
+      TwiceDifferentiableFunctionOnManifold<U>,
+      typename std::conditional<std::is_base_of<roboptim::GenericDifferentiableFunction<typename U::traits_t>,
+						U>::value,
+				DifferentiableFunctionOnManifold<U>,
+				BaseFunctionOnManifold<U> >::type >::type(descWrap, problemManifold, functionManifold, restrictedManifolds, restrictions)
     {
     }
 

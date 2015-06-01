@@ -24,7 +24,7 @@
 
 namespace roboptim
 {
-  template <typename U> class FunctionOnManifold;
+  template <typename U> class DifferentiableFunctionOnManifold;
 
   /// \addtogroup roboptim_manifolds
   /// @{
@@ -41,20 +41,20 @@ namespace roboptim
     ///
     /// \param instance the FunctionOnManifold
     /// \param jacobian the output jacobian
-    static void unmapJacobian(const FunctionOnManifold<U>*,
+    static void unmapJacobian(const DifferentiableFunctionOnManifold<U>*,
 			      typename U::jacobian_ref);
 
     /// \brief sets the jacobian on the manifold's tangent space with the
     /// computed value
     ///
     /// \param instance the FunctionOnManifold
-    static void applyDiff(const FunctionOnManifold<U>*);
+    static void applyDiff(const DifferentiableFunctionOnManifold<U>*);
   };
 
   template <typename U>
   struct Dispatcher <U, roboptim::EigenMatrixDense>
   {
-    static void unmapJacobian(const FunctionOnManifold<U>* instance,
+    static void unmapJacobian(const DifferentiableFunctionOnManifold<U>* instance,
 			      typename U::jacobian_ref jacobian)
     {
       assert(jacobian.cols() == instance->inputSize());
@@ -66,7 +66,7 @@ namespace roboptim
 	}
     }
 
-    static void applyDiff(const FunctionOnManifold<U>* instance)
+    static void applyDiff(const DifferentiableFunctionOnManifold<U>* instance)
     {
       instance->manifold_->applyDiffRetractation(instance->tangentMappedJacobian, instance->mappedJacobian_, instance->mappedInput_);
     }
@@ -75,7 +75,7 @@ namespace roboptim
   template <typename U>
   struct Dispatcher <U, roboptim::EigenMatrixSparse>
   {
-    static void unmapJacobian(const FunctionOnManifold<U>* instance,
+    static void unmapJacobian(const DifferentiableFunctionOnManifold<U>* instance,
 			      typename U::jacobian_ref jacobian)
     {
       assert(jacobian.cols() == instance->inputSize());
@@ -87,7 +87,7 @@ namespace roboptim
 	}
     }
 
-    static void applyDiff(const FunctionOnManifold<U>* instance)
+    static void applyDiff(const DifferentiableFunctionOnManifold<U>* instance)
     {
       if (instance->manifold_->getTypeId() != mnf::RealSpace(1).getTypeId())
         throw std::runtime_error("No Sparse support for non RealSpaces manifolds");

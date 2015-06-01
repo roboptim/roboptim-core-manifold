@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include <roboptim/core/differentiable-function.hh>
+#include <roboptim/core/numeric-quadratic-function.hh>
 
 #include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 #include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
@@ -232,7 +233,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
-  typedef roboptim::FunctionOnManifold<Func> Instance_F_On_FreeFlyerPlus10;
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
   // Instantiation of a N function for coverage purposes
   DESC_MANIFOLD(R3, REAL_SPACE(3));
@@ -299,23 +300,39 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
 
   typename roboptim::GenericNumericQuadraticFunction<T>::matrix_t A(5,5);
   typename roboptim::GenericNumericQuadraticFunction<T>::vector_t B(5);
+  typename roboptim::GenericNumericQuadraticFunction<T>::hessian_t computedhessian(5,5);
+  typename roboptim::GenericNumericQuadraticFunction<T>::argument_t arg(5);
+  typedef roboptim::FunctionOnManifold<roboptim::GenericTwiceDifferentiableFunction<T>>
+    Instance_numeric_On_R5;
   A.setZero();
   B.setZero();
   for (int i = 0; i < 5; ++i)
   {
     for (int j = 0; j < 5; ++j)
     {
-      A(i,j) = i*j;
+      A.coeffRef(i,j) = i*j;
     }
+    arg[i] = 1;
     B[i] = i;
   }
   DESC_MANIFOLD(Real5, REAL_SPACE(5));
   NAMED_FUNCTION_BINDING(numeric_on_Real5, roboptim::GenericNumericQuadraticFunction<T>, Real5);
-  numeric_on_Real5* nun = new numeric_on_Real5(A,B);
+  numeric_on_Real5* TDDW = new numeric_on_Real5(A,B);
+  mnf::RealSpace R5(5);
+  Instance_numeric_On_R5 TDFoM (*TDDW, R5, R5);
+  TDFoM.hessian(computedhessian, arg);
+  for (int i = 0; i < 5; ++i)
+  {
+    for (int j = 0; j < 5; ++j)
+    {
+      BOOST_CHECK(A.coeffRef(i,j) == computedhessian.coeffRef(i,j));
+    }
+    B[i] = i;
+  }
 
   DESC_MANIFOLD(Real3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_Real3, Func, Real3);
-  typedef roboptim::FunctionOnManifold<Func> Instance_F_On_Real3;
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_Real3;
 
   std::vector<const mnf::RealSpace*> reals;
   mnf::CartesianProduct problemManifold;
@@ -461,7 +478,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 
   DESC_MANIFOLD(MultipleReal3, Manifold_MultipleReal3);
   NAMED_FUNCTION_BINDING(H_On_MultipleReal3, Func, MultipleReal3);
-  typedef roboptim::FunctionOnManifold<Func> Instance_H_On_MultipleReal3;
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_H_On_MultipleReal3;
 
   H_On_MultipleReal3 descWrapPtr;
 
@@ -519,7 +536,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 
   DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
   NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
-  typedef roboptim::FunctionOnManifold<Func> Instance_F_On_FreeFlyerPlus10;
+  typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
   F_On_FreeFlyerPlus10 descWrapPtr;
 
