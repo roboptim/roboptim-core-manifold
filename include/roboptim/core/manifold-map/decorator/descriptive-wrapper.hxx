@@ -20,7 +20,7 @@
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HXX
 # include <boost/format.hpp>
 # include <manifolds/Manifold.h>
-# include "manifold-desc.hh"
+# include <roboptim/core/manifold-map/decorator/manifold-desc.hh>
 
 namespace roboptim
 {

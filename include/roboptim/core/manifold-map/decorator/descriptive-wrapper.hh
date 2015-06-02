@@ -66,11 +66,13 @@ namespace roboptim
 
     ~DescriptiveWrapper ();
 
+    /// \brief const getter to the descriptive manifold
     const mnf::Manifold& manifold () const
     {
       return *manifold_;
     }
 
+    /// \brief const getter to the function
     const U& fct ()
     {
       return *fct_;

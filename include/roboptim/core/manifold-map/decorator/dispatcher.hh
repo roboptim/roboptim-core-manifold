@@ -51,50 +51,8 @@ namespace roboptim
     static void applyDiff(const DifferentiableFunctionOnManifold<U>*);
   };
 
-  template <typename U>
-  struct Dispatcher <U, roboptim::EigenMatrixDense>
-  {
-    static void unmapJacobian(const DifferentiableFunctionOnManifold<U>* instance,
-			      typename U::jacobian_ref jacobian)
-    {
-      assert(jacobian.cols() == instance->inputSize());
-      assert(jacobian.rows() == instance->outputSize());
-
-      for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
-	{
-	  jacobian.col(static_cast<int>(instance->mappingFromFunction_[i])) = instance->mappedJacobian_.col(i);
-	}
-    }
-
-    static void applyDiff(const DifferentiableFunctionOnManifold<U>* instance)
-    {
-      instance->manifold_->applyDiffRetractation(instance->tangentMappedJacobian, instance->mappedJacobian_, instance->mappedInput_);
-    }
-  };
-
-  template <typename U>
-  struct Dispatcher <U, roboptim::EigenMatrixSparse>
-  {
-    static void unmapJacobian(const DifferentiableFunctionOnManifold<U>* instance,
-			      typename U::jacobian_ref jacobian)
-    {
-      assert(jacobian.cols() == instance->inputSize());
-      assert(jacobian.rows() == instance->outputSize());
-
-      for (int i = 0; i < instance->mappingFromFunctionSize_; ++i)
-	{
-	  jacobian.col(static_cast<int>(instance->mappingFromFunction_[i])) = instance->mappedJacobian_.col(i);
-	}
-    }
-
-    static void applyDiff(const DifferentiableFunctionOnManifold<U>* instance)
-    {
-      if (instance->manifold_->getTypeId() != mnf::RealSpace(1).getTypeId())
-        throw std::runtime_error("No Sparse support for non RealSpaces manifolds");
-      else
-        instance->tangentMappedJacobian = instance->mappedJacobian_;
-    }
-  };
 } // end of namespace roboptim
+
+# include <roboptim/core/manifold-map/decorator/dispatcher.hxx>
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DISPATCHER_HH

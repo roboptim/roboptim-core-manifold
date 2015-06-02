@@ -68,7 +68,7 @@ namespace roboptim
     /// \param descWrap DescriptiveWrapper of the constraint function
     /// \param instanceManifold manifold on which the constraint will be evaluated
     /// \param bounds (optional) the constraint's bounds
-    /// \param bounds (optional) scaling parameter for the constraint
+    /// \param scaling (optional) scaling parameter for the constraint
     template<class V, class W>
     BoundsAndScalingSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>

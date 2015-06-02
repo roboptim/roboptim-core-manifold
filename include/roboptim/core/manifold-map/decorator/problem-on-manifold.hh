@@ -15,8 +15,9 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
-#ifndef ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_ON_MANIFOLD_HH
-# define ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_ON_MANIFOLD_HH
+
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HH
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HH
 
 # include <boost/shared_ptr.hpp>
 
@@ -26,8 +27,8 @@
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
 
-namespace roboptim {
-
+namespace roboptim
+{
   template<class T>
   class ProblemOnManifold : public T
   {
@@ -45,7 +46,8 @@ namespace roboptim {
     mnf::Manifold& manifold_;
   };
 
-# include <roboptim/core/manifold-map/decorator/problem-on-manifold.hxx>
 }
 
-#endif //! ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_ON_MANIFOLD_HH
+# include <roboptim/core/manifold-map/decorator/problem-on-manifold.hxx>
+
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HH
