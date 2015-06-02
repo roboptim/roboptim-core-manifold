@@ -54,12 +54,12 @@ void ProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceMani
 
 template<class U>
 template<class V, class W>
-BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+BoundsAndScalingSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
-  this->boundsAndScales_.push_back(std::make_pair(typename V::intervals_t(), typename U::scales_t()));
+  this->boundsAndScaling_.push_back(std::make_pair(typename V::intervals_t(), typename U::scaling_t()));
 
-  std::pair<typename U::function_t::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_.back());
+  std::pair<typename U::function_t::intervals_t, typename U::scaling_t>* bNSPair = &(this->boundsAndScaling_.back());
 
   // We need the type of the function to instantiate the FunctionOnManifold
   // wrapper, hence why we capture the information we need here and wait
@@ -73,7 +73,7 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
     (ProblemOnManifold<U>& problem,
      const mnf::Manifold& globMani)
     {
-      std::pair<typename U::function_t::intervals_t, typename U::scales_t>* bNSPair = &(this->boundsAndScales_[i]);
+      std::pair<typename U::function_t::intervals_t, typename U::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
 
       ::boost::shared_ptr<FunctionOnManifold<typename V::parent_t>>
       funcOnMani(new FunctionOnManifold<typename V::parent_t>
@@ -100,16 +100,16 @@ BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, 
 
       problem.addConstraint(funcOnMani, bNSPair->first, bNSPair->second);
     };
-  }(this->boundsAndScales_.size() - 1);
+  }(this->boundsAndScaling_.size() - 1);
 
   this->lambdas_.push_back(addConstraint);
 
-  return BoundsAndScalesSetter<U>(*bNSPair);
+  return BoundsAndScalingSetter<U>(*bNSPair);
 }
 
 template<class U>
 template<class V, class W>
-BoundsAndScalesSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+BoundsAndScalingSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -222,7 +222,7 @@ template<class U>
 void ProblemFactory<U>::reset()
 {
   elementaryInstanceManifolds_.clear();
-  boundsAndScales_.clear();
+  boundsAndScaling_.clear();
   lambdas_.clear();
 
   this->objLambda_ = [](mnf::CartesianProduct& globMani)
@@ -249,7 +249,7 @@ void ProblemFactory<U>::reset()
 // ---- //
 
 template<class U>
-BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setBounds(typename U::function_t::intervals_t& bounds)
+BoundsAndScalingSetter<U>& BoundsAndScalingSetter<U>::setBounds(typename U::function_t::intervals_t& bounds)
 {
   this->bNSPair_.first.clear();
   this->bNSPair_.first.insert(this->bNSPair_.first.end(), bounds.begin(), bounds.end());
@@ -258,16 +258,16 @@ BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setBounds(typename U::functi
 }
 
 template<class U>
-BoundsAndScalesSetter<U>& BoundsAndScalesSetter<U>::setScales(typename U::scales_t& scales)
+BoundsAndScalingSetter<U>& BoundsAndScalingSetter<U>::setScaling(typename U::scaling_t& scaling)
 {
   this->bNSPair_.second.clear();
-  this->bNSPair_.second.insert(this->bNSPair_.second.end(), scales.begin(), scales.end());
+  this->bNSPair_.second.insert(this->bNSPair_.second.end(), scaling.begin(), scaling.end());
 
   return *this;
 }
 
 template<class U>
-BoundsAndScalesSetter<U>::BoundsAndScalesSetter(std::pair<typename U::function_t::intervals_t, typename U::scales_t>& bNSPair)
+BoundsAndScalingSetter<U>::BoundsAndScalingSetter(std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair)
   : bNSPair_(bNSPair)
 {}
 

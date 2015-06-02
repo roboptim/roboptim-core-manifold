@@ -41,7 +41,7 @@ namespace roboptim
 
   template<template <typename> class ... Typ>
   template<class U>
-  mnf::Manifold* ManiDesc<Typ...>::getManifold(U* function)
+  const mnf::Manifold* ManiDesc<Typ...>::getManifold(U* function)
   {
     std::vector<mnf::Manifold*> manifolds;
 

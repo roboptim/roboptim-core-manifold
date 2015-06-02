@@ -50,7 +50,7 @@ namespace roboptim
     ///
     /// \param f input function.
     /// \param m the manifold describing the function's input vector.
-    DescriptiveWrapper (const U* f, mnf::Manifold& m);
+    DescriptiveWrapper (const U* f, const mnf::Manifold& m);
 
     /// \brief binds the function to the manifold
     ///
@@ -66,11 +66,13 @@ namespace roboptim
 
     ~DescriptiveWrapper ();
 
-    mnf::Manifold& manifold () const
+    /// \brief const getter to the descriptive manifold
+    const mnf::Manifold& manifold () const
     {
       return *manifold_;
     }
 
+    /// \brief const getter to the function
     const U& fct ()
     {
       return *fct_;
@@ -84,13 +86,13 @@ namespace roboptim
     ///\brief the function
     const U*              fct_;
     ///\brief the manifold
-    mnf::Manifold*  manifold_;
+    const mnf::Manifold*  manifold_;
   };
 
   template <typename U, typename V>
   boost::shared_ptr<DescriptiveWrapper<U, V> >
   descriptivewrapper (U* fct,
-		      mnf::Manifold& manifold)
+		      const mnf::Manifold& manifold)
   {
     return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
   }
@@ -109,7 +111,7 @@ namespace roboptim
       iendl << "Elementary: " <<
       (descWrap.manifold().isElementary() ? "yes" : "no" ) <<
       iendl << "Dimension: " << descWrap.manifold().representationDim()
-							      << decindent;
+				       << decindent;
     return o;
   }
 

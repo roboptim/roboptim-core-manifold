@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
 	scales.push_back(1.);
       }
 
-    factory.addConstraint(cnstr2, joints).setScales(scales);
+    factory.addConstraint(cnstr2, joints).setScaling(scales);
   }
 
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();

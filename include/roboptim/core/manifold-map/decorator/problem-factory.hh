@@ -40,17 +40,17 @@ namespace roboptim
   template<class U>
   class ProblemFactory;
 
-  /// \brief allows to set the bounds and scales of a constraint
+  /// \brief allows to set the bounds and scaling of a constraint
   /// after defining the constraint
   template<class U>
-  struct BoundsAndScalesSetter
+  struct BoundsAndScalingSetter
   {
-    BoundsAndScalesSetter<U>& setBounds(typename U::function_t::intervals_t& bounds);
-    BoundsAndScalesSetter<U>& setScales(typename U::scales_t& scales);
+    BoundsAndScalingSetter<U>& setBounds(typename U::function_t::intervals_t& bounds);
+    BoundsAndScalingSetter<U>& setScaling(typename U::scaling_t& scaling);
 
   private:
-    std::pair<typename U::function_t::intervals_t, typename U::scales_t>& bNSPair_;
-    BoundsAndScalesSetter(std::pair<typename U::function_t::intervals_t, typename U::scales_t>& bNSPair);
+    std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair_;
+    BoundsAndScalingSetter(std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair);
     friend ProblemFactory<U>;
   };
 
@@ -68,11 +68,11 @@ namespace roboptim
     /// \param descWrap DescriptiveWrapper of the constraint function
     /// \param instanceManifold manifold on which the constraint will be evaluated
     /// \param bounds (optional) the constraint's bounds
-    /// \param bounds (optional) scaling parameter for the constraint
+    /// \param scaling (optional) scaling parameter for the constraint
     template<class V, class W>
-    BoundsAndScalesSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    BoundsAndScalingSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    BoundsAndScalesSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    BoundsAndScalingSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
     /// \brief set the objective function of the problem
     ///
@@ -92,8 +92,8 @@ namespace roboptim
   private:
     /// \brief elementary manifolds composing the global manifold of the problem
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
-    /// \brief bounds and scales for each constraint
-    std::vector<std::pair<typename U::function_t::intervals_t, typename U::scales_t>> boundsAndScales_;
+    /// \brief bounds and scaling for each constraint
+    std::vector<std::pair<typename U::function_t::intervals_t, typename U::scaling_t>> boundsAndScaling_;
     /// \brief each std::function instantiate and add a constraint to the problem
     std::vector<std::function<void(ProblemOnManifold<U>&, const mnf::Manifold&)>> lambdas_;
     /// \brief instantiate and add the objective function to the problem

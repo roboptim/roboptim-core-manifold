@@ -36,20 +36,20 @@ namespace roboptim
   template<template <typename> class ... Types>
   struct ManiDesc
   {
-    /// \brief creates the actual manifold from the underlying library, given
-    /// a function
+    /// \brief creates the actual const manifold from the underlying library,
+    /// given a function.
     ///
     /// \tparam U the function type
     ///
     /// \param function the function instance.
     template<class U>
-    static mnf::Manifold* getManifold(U* function = nullptr);
+    static const mnf::Manifold* getManifold(U* function = nullptr);
 
   };
 
   /// @}
 }
 
-# include "manifold-desc.hxx"
+# include <roboptim/core/manifold-map/decorator/manifold-desc.hxx>
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_DESC_HH
