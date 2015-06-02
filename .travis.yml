@@ -5,7 +5,8 @@ compiler:
   - clang
 env:
   global:
-    - secure: "Qu8mVoUePFsfwAIkE4D6wvN6TlkBjSw/Ct5NZX7xab8NgudhYGHy9dlOrky1NsO7lEa2Ulf/toXroMNNfiIyn3HmLuUN2VsMv9dZ7mA7TdBEUdKKtWqMvsRLFFeeb/8+aWDfzPvck/zeUIRodE7DSc46xR74SyRx24uz+MgfMKQ="
+    # COVERITY_SCAN_TOKEN:
+    - secure: "Bvrw+JHnz7Y3ZidQBAG+bc/fTq7/1hBti8TxxtvYdvDV7NJ/77hHPZfX5p6AfIS4dxSO2BVntY7mVx/qwt4fY2YQDxUjs3l1sbDwo0AGap8JHOv0iyHSJ51VIgeYejlifLAfM51v83N6cPwGqcocmxls3QOeM3fM+XSQ2mVULvk="
     - secure: "Slm+HqRT+Vy0SG7E9gEShuHvNz6XWRUmBhVBLVJEaYy/0Lo2qp4OjFEWDjiJwFIiXstW2Wclds4SuewAn3Tc4x7dsY+5uaMCX7S/HPzsBCjLXUwjKasUqEGaVTIYmtFJm57hOkz6K2SLUUV4intkMiwtCiq/R0xe92QTTKkHyfo="
     - secure: "F9mibfsT3Ezk0RRsgOHy8RUO82H05REGmJKLDKdHiHE3toxykQX64oNBB8txjHoi+UF0H1Gwmk4oB/pNeILtyHdSuB7hB1Muod9wspOuKrzO7SMTGdjpPw7nDjQEmtfrZFhXEGb/3xm66uSGojhwe0RJF5mOzyfno+G8SIJyos4="
     - secure: "ZKC2yAvUcDb2nyrZQNqpLgEbi2pYFSKDn/+xIj9ZH+5nkn6iA5RT4AunK13qxuBkjIr2HJcUBtMFvk/mfpvpWynX+v9i3OhpVZCbkmcjQrATjiUcG6r95oEcex7NAM5uKd/41CqV/0fzTPc3uJgPozDJlt0wsBmCEarHiRNAoo0="
@@ -30,12 +31,13 @@ notifications:
 branches:
   only:
   - master
+  - travis
 script:
   - if [[ ${CC} == "gcc" ]]; then
       export CC=${CC}-${GCC_NEEDED_VERSION};
       export CXX=${CXX}-${GCC_NEEDED_VERSION};
     fi
-  - ./.travis/run build
+  - if [ "${COVERITY_SCAN_BRANCH}" != "1" ]; then ./.travis/run build; fi
 after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
 before_install:
@@ -58,6 +60,16 @@ matrix:
   allow_failures:
     - compiler: clang
     - os: osx
+    - env: COVERITY_SCAN_BRANCH=1
 os:
   - linux
   - osx
+addons:
+  coverity_scan:
+    project:
+      name: "roboptim/roboptim-core-manifold"
+      description: "Build submitted via Travis CI"
+    notification_email: roboptim@googlegroups.com
+    build_command_prepend: ". .travis/common.sh && mkdir coverity && cd coverity && cmake .."
+    build_command: "make"
+    branch_pattern: coverity_scan
