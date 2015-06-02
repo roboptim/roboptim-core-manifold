@@ -32,6 +32,7 @@ branches:
   only:
   - master
   - travis
+  - coverity_scan
 script:
   - if [[ ${CC} == "gcc" ]]; then
       export CC=${CC}-${GCC_NEEDED_VERSION};
