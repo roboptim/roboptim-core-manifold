@@ -24,7 +24,7 @@
 
 #include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 #include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
-#include <roboptim/core/manifold-map/decorator/problem-factory.hh>
+#include <roboptim/core/manifold-map/decorator/manifold-problem-factory.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -202,19 +202,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   typedef H<T> Hunc;
   typedef I<T> Iunc;
 
-  roboptim::ProblemFactory<problem_t> factory;
+  roboptim::ManifoldProblemFactory<problem_t> factory;
 
-  DESC_MANIFOLD(R3, REAL_SPACE(3));
-  NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
+  ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
 
-  DESC_MANIFOLD(SO3, roboptim::SO3);
-  NAMED_FUNCTION_BINDING(F_On_SO3, Func, SO3);
+  ROBOPTIM_DESC_MANIFOLD(SO3, roboptim::SO3);
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_SO3, Func, SO3);
 
-  DESC_MANIFOLD(R10, REAL_SPACE(10));
-  NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
+  ROBOPTIM_DESC_MANIFOLD(R10, ROBOPTIM_REAL_SPACE(10));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
 
-  DESC_MANIFOLD(R3XSO3XR10, REAL_SPACE(3), roboptim::SO3, REAL_SPACE(10));
-  NAMED_FUNCTION_BINDING(I_On_R3XSO3XR10, Iunc, R3XSO3XR10);
+  ROBOPTIM_DESC_MANIFOLD(R3XSO3XR10, ROBOPTIM_REAL_SPACE(3), roboptim::SO3, ROBOPTIM_REAL_SPACE(10));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(I_On_R3XSO3XR10, Iunc, R3XSO3XR10);
 
   mnf::RealSpace pos(3);
   mnf::SO3<mnf::ExpMapMatrix> ori;
@@ -283,16 +283,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
   typedef G<T> Gunc;
   typedef H<T> Hunc;
 
-  roboptim::ProblemFactory<problem_t> factory;
+  roboptim::ManifoldProblemFactory<problem_t> factory;
 
-  DESC_MANIFOLD(R3, REAL_SPACE(3));
-  NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
+  ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
 
-  DESC_MANIFOLD(SO3, roboptim::SO3);
-  NAMED_FUNCTION_BINDING(F_On_SO3, Func, SO3);
+  ROBOPTIM_DESC_MANIFOLD(SO3, roboptim::SO3);
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_SO3, Func, SO3);
 
-  DESC_MANIFOLD(R10, REAL_SPACE(10));
-  NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
+  ROBOPTIM_DESC_MANIFOLD(R10, ROBOPTIM_REAL_SPACE(10));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
 
   mnf::RealSpace pos(3);
   mnf::SO3<mnf::ExpMapMatrix> ori;

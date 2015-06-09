@@ -41,6 +41,7 @@ namespace roboptim
   {
   public:
     typedef boost::shared_ptr<DescriptiveWrapper> DescriptiveWrapperShPtr_t;
+    typedef U wrappedFunction_t;
 
     /// \brief binds directly the function to the manifold
     ///
@@ -66,20 +67,21 @@ namespace roboptim
 
     ~DescriptiveWrapper ();
 
-    /// \brief const getter to the descriptive manifold
+    /// \brief const descriptive manifold getter
     const mnf::Manifold& manifold () const
     {
       return *manifold_;
     }
 
-    /// \brief const getter to the function
+    /// \brief const wrapped function getter
     const U& fct ()
     {
       return *fct_;
     }
 
-  private:
+    static DescriptiveWrapper<U, V>* makeUNCHECKEDDescriptiveWrapper(const U* fct, const mnf::Manifold& manifold);
 
+  private:
     /// \brief dimension check between the function and the descriptive manifold
     void checkDimension();
 

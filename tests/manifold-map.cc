@@ -24,8 +24,6 @@
 #include <roboptim/core/numeric-quadratic-function.hh>
 
 #include <roboptim/core/manifold-map/decorator/manifold-map.hh>
-#include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
-#include <roboptim/core/manifold-map/decorator/problem-factory.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -231,13 +229,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
 
   typedef F<T> Func;
 
-  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
-  NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
+  ROBOPTIM_DESC_MANIFOLD(FreeFlyerPlus10, ROBOPTIM_REAL_SPACE(10), roboptim::SO3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
   typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
   // Instantiation of a N function for coverage purposes
-  DESC_MANIFOLD(R3, REAL_SPACE(3));
-  NAMED_FUNCTION_BINDING(N_On_R3, N<T>, R3);
+  ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(N_On_R3, N<T>, R3);
   N_On_R3 toto;
 
   mnf::RealSpace pos(3);pos.name() = "position";
@@ -315,8 +313,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
     arg[i] = 1;
     B[i] = i;
   }
-  DESC_MANIFOLD(Real5, REAL_SPACE(5));
-  NAMED_FUNCTION_BINDING(numeric_on_Real5, roboptim::GenericNumericQuadraticFunction<T>, Real5);
+  ROBOPTIM_DESC_MANIFOLD(Real5, ROBOPTIM_REAL_SPACE(5));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(numeric_on_Real5, roboptim::GenericNumericQuadraticFunction<T>, Real5);
   numeric_on_Real5* TDDW = new numeric_on_Real5(A,B);
   mnf::RealSpace R5(5);
   Instance_numeric_On_R5 TDFoM (*TDDW, R5, R5);
@@ -330,8 +328,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
     B[i] = i;
   }
 
-  DESC_MANIFOLD(Real3, REAL_SPACE(3));
-  NAMED_FUNCTION_BINDING(F_On_Real3, Func, Real3);
+  ROBOPTIM_DESC_MANIFOLD(Real3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_Real3, Func, Real3);
   typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_Real3;
 
   std::vector<const mnf::RealSpace*> reals;
@@ -401,36 +399,36 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 
   typedef F<T> Func;
   typedef G<T> Gunc;
-  DESC_MANIFOLD(Real2, REAL_SPACE(2));
+  ROBOPTIM_DESC_MANIFOLD(Real2, ROBOPTIM_REAL_SPACE(2));
   typedef roboptim::DescriptiveWrapper<Gunc, Real2> G_On_Real2;
 
   try
     {
-      new G_On_Real2();
+      delete new G_On_Real2();
     }
   catch (std::runtime_error& e)
     {
       (*output) << "std::runtime_error: " << e.what() << roboptim::iendl;
     }
 
-  DESC_MANIFOLD(Manifold2, roboptim::SO3);
+  ROBOPTIM_DESC_MANIFOLD(Manifold2, roboptim::SO3);
   typedef roboptim::DescriptiveWrapper<Func, Manifold2> F_On_Manifold2;
 
   try
     {
-      new F_On_Manifold2();
+      delete new F_On_Manifold2();
     }
   catch (std::runtime_error& e)
     {
       (*output) << "std::runtime_error: " << e.what() << roboptim::iendl;
     }
 
-  DESC_MANIFOLD(Manifold3, REAL_SPACE(2), roboptim::SO3);
+  ROBOPTIM_DESC_MANIFOLD(Manifold3, ROBOPTIM_REAL_SPACE(2), roboptim::SO3);
   typedef roboptim::DescriptiveWrapper<Gunc, Manifold3> G_On_Manifold3;
 
   try
     {
-      new G_On_Manifold3();
+      delete new G_On_Manifold3();
     }
   catch (std::runtime_error& e)
     {
@@ -438,11 +436,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
     }
 
   BOOST_CHECK (output->match_pattern());
+
+  BOOST_CHECK_NO_THROW(
+		       {
+			 mnf::RealSpace r(45);
+			 delete F_On_Manifold2::makeUNCHECKEDDescriptiveWrapper(new F<T>(), r);
+		       }
+		      );
 }
 
 const size_t posNumber = 15;
 
-DEFINE_MANIFOLD(MultipleReal3)
+ROBOPTIM_DEFINE_MANIFOLD(MultipleReal3)
 {
   mnf::CartesianProduct* cartesian = new mnf::CartesianProduct();
 
@@ -476,8 +481,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
 
   restrictions.push_back(std::make_pair(3l, 3l));
 
-  DESC_MANIFOLD(MultipleReal3, Manifold_MultipleReal3);
-  NAMED_FUNCTION_BINDING(H_On_MultipleReal3, Func, MultipleReal3);
+  ROBOPTIM_DESC_MANIFOLD(MultipleReal3, Manifold_MultipleReal3);
+  ROBOPTIM_NAMED_FUNCTION_BINDING(H_On_MultipleReal3, Func, MultipleReal3);
   typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_H_On_MultipleReal3;
 
   H_On_MultipleReal3 descWrapPtr;
@@ -534,8 +539,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
   const mnf::CartesianProduct myFuncManifold(cartProd, s2);
   const mnf::CartesianProduct mySubManifold(cartProd, pos);
 
-  DESC_MANIFOLD(FreeFlyerPlus10, REAL_SPACE(10), roboptim::SO3, REAL_SPACE(3));
-  NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
+  ROBOPTIM_DESC_MANIFOLD(FreeFlyerPlus10, ROBOPTIM_REAL_SPACE(10), roboptim::SO3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_FreeFlyerPlus10, Func, FreeFlyerPlus10);
   typedef roboptim::FunctionOnManifold<typename Func::parent_t> Instance_F_On_FreeFlyerPlus10;
 
   F_On_FreeFlyerPlus10 descWrapPtr;
@@ -553,8 +558,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_manifold_into_pieces, T, funct
 {
   typedef I<T> Iunc;
 
-  DESC_MANIFOLD(R5X3, REAL_SPACE(5), REAL_SPACE(5), REAL_SPACE(5));
-  NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
+  ROBOPTIM_DESC_MANIFOLD(R5X3, ROBOPTIM_REAL_SPACE(5), ROBOPTIM_REAL_SPACE(5), ROBOPTIM_REAL_SPACE(5));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
   typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
 
   mnf::RealSpace r15(15);
@@ -595,8 +600,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_not_enough_restrictions, 
 {
   typedef I<T> Iunc;
 
-  DESC_MANIFOLD(R5X3, REAL_SPACE(5), REAL_SPACE(5), REAL_SPACE(5));
-  NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
+  ROBOPTIM_DESC_MANIFOLD(R5X3, ROBOPTIM_REAL_SPACE(5), ROBOPTIM_REAL_SPACE(5), ROBOPTIM_REAL_SPACE(5));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
   typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
 
   mnf::RealSpace r15(15);
@@ -621,8 +626,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_restriction_on_unknown_ma
 {
   typedef I<T> Iunc;
 
-  DESC_MANIFOLD(R5X3, REAL_SPACE(5), REAL_SPACE(5), REAL_SPACE(5));
-  NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
+  ROBOPTIM_DESC_MANIFOLD(R5X3, ROBOPTIM_REAL_SPACE(5), ROBOPTIM_REAL_SPACE(5), ROBOPTIM_REAL_SPACE(5));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(I_On_R5X3, Iunc, R5X3);
   typedef roboptim::FunctionOnManifold<typename Iunc::parent_t> Instance_I_On_R5X3;
 
   mnf::RealSpace r15(15);

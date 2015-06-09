@@ -15,15 +15,15 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
-#ifndef ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX
-# define ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HXX
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HXX
 
 # include <boost/pointer_cast.hpp>
 
-
+namespace roboptim {
 
 template<class U>
-void ProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
+void ManifoldProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
 {
   std::function<void(const mnf::Manifold&)> addElementaries =
     [this, &addElementaries]
@@ -54,7 +54,7 @@ void ProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceMani
 
 template<class U>
 template<class V, class W>
-BoundsAndScalingSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
   this->boundsAndScaling_.push_back(std::make_pair(typename V::intervals_t(), typename U::scaling_t()));
@@ -109,7 +109,7 @@ BoundsAndScalingSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V,
 
 template<class U>
 template<class V, class W>
-BoundsAndScalingSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -122,7 +122,7 @@ BoundsAndScalingSetter<U> ProblemFactory<U>::addConstraint(DescriptiveWrapper<V,
 // ---- //
 
 template<class U>
-mnf::CartesianProduct* ProblemFactory<U>::getGlobalManifold()
+mnf::CartesianProduct* ManifoldProblemFactory<U>::getGlobalManifold()
 {
   mnf::CartesianProduct* globalManifold = new mnf::CartesianProduct();
 
@@ -137,7 +137,7 @@ mnf::CartesianProduct* ProblemFactory<U>::getGlobalManifold()
 }
 
 template<class U>
-ProblemOnManifold<U>* ProblemFactory<U>::getProblem()
+ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
 {
   // The global manifold is incomplete and only contains the
   // elementary manifolds of the cosntraints here.
@@ -159,7 +159,7 @@ ProblemOnManifold<U>* ProblemFactory<U>::getProblem()
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->objLambda_ = [&descWrap, &instanceManifold, this, restricted, restrictions](mnf::CartesianProduct& globMani)
     {
@@ -198,7 +198,7 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Ma
 
 template<class U>
 template<class V, class W>
-void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -210,7 +210,7 @@ void ProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Ma
 }
 
 template<class U>
-ProblemFactory<U>::ProblemFactory()
+ManifoldProblemFactory<U>::ManifoldProblemFactory()
 {
   // We only call this method here to set the objective funtion lambda,
   // thus avoiding to duplicate or isolate the the code needed
@@ -219,7 +219,7 @@ ProblemFactory<U>::ProblemFactory()
 }
 
 template<class U>
-void ProblemFactory<U>::reset()
+void ManifoldProblemFactory<U>::reset()
 {
   elementaryInstanceManifolds_.clear();
   boundsAndScaling_.clear();
@@ -271,4 +271,6 @@ BoundsAndScalingSetter<U>::BoundsAndScalingSetter(std::pair<typename U::function
   : bNSPair_(bNSPair)
 {}
 
-#endif //! ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HXX
+}
+
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HXX

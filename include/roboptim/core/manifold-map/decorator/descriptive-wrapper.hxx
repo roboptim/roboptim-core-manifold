@@ -18,8 +18,10 @@
 
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HXX
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HXX
+
 # include <boost/format.hpp>
 # include <manifolds/Manifold.h>
+# include <manifolds/RealSpace.h>
 # include <roboptim/core/manifold-map/decorator/manifold-desc.hh>
 
 namespace roboptim
@@ -64,6 +66,17 @@ namespace roboptim
 	      << ", actual one is " << fct_->inputSize();
 	throw std::runtime_error (error.str());
       }
+  }
+
+  template <typename U, typename V>
+  DescriptiveWrapper<U, V>* DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(const U* fct, const mnf::Manifold& manifold)
+  {
+    mnf::RealSpace realR(fct->inputSize());
+const mnf::Manifold* m = &realR;
+    DescriptiveWrapper<U, V>* descWrap = new DescriptiveWrapper<U, V>(fct, *m);
+    descWrap->manifold_ = &manifold;
+
+    return descWrap;
   }
 
 } // end of namespace roboptim.

@@ -15,8 +15,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
-#ifndef ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HH
-# define ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HH
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HH
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HH
 
 # include <boost/shared_ptr.hpp>
 
@@ -38,7 +38,7 @@ namespace roboptim
   /// @{
 
   template<class U>
-  class ProblemFactory;
+  class ManifoldProblemFactory;
 
   /// \brief allows to set the bounds and scaling of a constraint
   /// after defining the constraint
@@ -51,17 +51,17 @@ namespace roboptim
   private:
     std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair_;
     BoundsAndScalingSetter(std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair);
-    friend ProblemFactory<U>;
+    friend ManifoldProblemFactory<U>;
   };
 
   /// \brief Factory to help with the generation of the global manifold
   ///
   /// \tparam U roboptim problem type to be generated.
   template<class U>
-  class ProblemFactory {
+  class ManifoldProblemFactory {
   public:
 
-    ProblemFactory();
+    ManifoldProblemFactory();
 
     /// \brief add a constraint to the problem to be generated
     ///
@@ -105,10 +105,10 @@ namespace roboptim
     mnf::CartesianProduct* getGlobalManifold();
   };
 
-#include <roboptim/core/manifold-map/decorator/problem-factory.hxx>
-
   /// @}
 
 } // end of namespace roboptim
 
-#endif //! ROBOPTIM_CORE_PLUGIN_PGSOLVER_PROBLEM_FACTORY_HH
+#include <roboptim/core/manifold-map/decorator/manifold-problem-factory.hxx>
+
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HH

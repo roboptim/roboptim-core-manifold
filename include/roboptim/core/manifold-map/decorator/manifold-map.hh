@@ -30,35 +30,32 @@
 #include <manifolds/ExpMapQuaternion.h>
 #include <manifolds/S2.h>
 
-#define REAL_SPACE(num) roboptim::Real<num>::Space
+#define ROBOPTIM_REAL_SPACE(num) roboptim::Real<num>::Space
 
-#define DESC_MANIFOLD(name, ...) typedef roboptim::ManiDesc< __VA_ARGS__> name
+#define ROBOPTIM_DESC_MANIFOLD(name, ...) typedef roboptim::ManiDesc< __VA_ARGS__> name
 
-#define DEFINE_MANIFOLD_FROM_FUNCTION(name) template<class U>	\
+#define ROBOPTIM_DEFINE_MANIFOLD_FROM_FUNCTION(name) template<class U>	\
   struct Manifold_##name{					\
     static mnf::Manifold* getInstance(U* function);		\
   };								\
   template<class U>						\
   mnf::Manifold* Manifold_##name <U>::getInstance(U* function)
 
-#define DEFINE_MANIFOLD(name) template<class U>		\
+#define ROBOPTIM_DEFINE_MANIFOLD(name) template<class U>		\
   struct Manifold_##name{				\
     static mnf::Manifold* getInstance(U* function);	\
   };							\
   template<class U>					\
   mnf::Manifold* Manifold_##name <U>::getInstance(U*)
 
-#define BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold;
+#define ROBOPTIM_BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold;
 
-#define NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name;
+#define ROBOPTIM_NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name;
 
 // Library-defined elementary descriptive manifolds
 // I do not think we should put those in a namespace of their own,
 // because the user has to use the classes' names when (s)he defines
 // a manifold.
-//
-// FIXME: define all remaining manifolds
-
 
 /// \brief Library-defined elementary descriptive manifolds
 ///
