@@ -25,19 +25,19 @@ namespace roboptim
   template<typename ... Types>
   ProblemOnManifold<T>::ProblemOnManifold(mnf::Manifold& manifold, Types& ... args)
     : T(args...),
-      manifold_(manifold)
+      IsAProblemOnManifold(manifold)
   {
-  }
-
-  template<class T>
-  mnf::Manifold& ProblemOnManifold<T>::getManifold() const
-  {
-    return this->manifold_;
   }
 
   template<class T>
   ProblemOnManifold<T>::~ProblemOnManifold()
   {
+  }
+
+  template<typename Fake = void>
+  mnf::Manifold& IsAProblemOnManifold::getManifold() const
+  {
+    return this->manifold_;
   }
 }
 #endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX

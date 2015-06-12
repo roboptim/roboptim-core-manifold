@@ -29,8 +29,23 @@
 
 namespace roboptim
 {
+
+  class IsAProblemOnManifold
+  {
+  protected:
+    mnf::Manifold& manifold_;
+
+  public:
+    IsAProblemOnManifold(mnf::Manifold& manifold)
+      : manifold_(manifold)
+    {}
+
+    template<typename Fake>
+    mnf::Manifold& getManifold() const;
+  };
+
   template<class T>
-  class ProblemOnManifold : public T
+  class ProblemOnManifold : public T, public IsAProblemOnManifold
   {
   public:
     typedef T wrappedType_t;
@@ -38,12 +53,9 @@ namespace roboptim
     template<typename ... Types>
     ProblemOnManifold(mnf::Manifold& manifold, Types& ... args);
 
-    mnf::Manifold& getManifold() const;
-
     virtual ~ProblemOnManifold();
 
-  private:
-    mnf::Manifold& manifold_;
+
   };
 
 }
