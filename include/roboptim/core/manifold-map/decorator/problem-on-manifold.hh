@@ -40,7 +40,6 @@ namespace roboptim
       : manifold_(manifold)
     {}
 
-    template<typename Fake>
     mnf::Manifold& getManifold() const;
   };
 

@@ -34,7 +34,6 @@ namespace roboptim
   {
   }
 
-  template<typename Fake = void>
   mnf::Manifold& IsAProblemOnManifold::getManifold() const
   {
     return this->manifold_;
