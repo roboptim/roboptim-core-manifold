@@ -323,4 +323,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
   delete manifoldProblem;
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functionTypes_t)
+{
+  typedef roboptim::Problem< roboptim::GenericDifferentiableFunction<T>,
+			     boost::mpl::vector<roboptim::GenericLinearFunction<T>,
+						roboptim::GenericDifferentiableFunction<T> > > problem_t;
+
+  roboptim::ManifoldProblemFactory<problem_t> factory;
+
+  roboptim::ProblemOnManifold<problem_t>* manifoldProblem;
+  BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(), std::runtime_error);
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

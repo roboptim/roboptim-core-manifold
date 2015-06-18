@@ -133,6 +133,8 @@ mnf::CartesianProduct* ManifoldProblemFactory<U>::getGlobalManifold()
       globalManifold->multiply(*(ite->second));
     }
 
+  if (!globalManifold->representationDim())
+    throw std::runtime_error("The problem should not be empty.");
   return globalManifold;
 }
 
