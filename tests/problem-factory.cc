@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functi
   roboptim::ManifoldProblemFactory<problem_t> factory;
 
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem;
-  BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(), std::runtime_error);
+  BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(); delete manifoldProblem, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
