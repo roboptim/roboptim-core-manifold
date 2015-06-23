@@ -34,10 +34,5 @@ namespace roboptim
   {
   }
 
-  template <>
-  mnf::Manifold& IsAProblemOnManifold::getManifold<void>() const
-  {
-    return this->manifold_;
-  }
 }
 #endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX

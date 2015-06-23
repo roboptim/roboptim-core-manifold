@@ -154,6 +154,41 @@ ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
       lambda(*problem, *globalManifold);
     }
 
+  typename U::intervals_t argBounds;
+
+  std::function<void(const mnf::Manifold&)> setArgumentBounds =
+    [this, &setArgumentBounds, &argBounds]
+    (const mnf::Manifold& mani)
+    {
+      if (mani.isElementary())
+	{
+	  if (elementaryArgumentBounds_.find(mani.getInstanceId())
+	      != elementaryArgumentBounds_.end())
+	    {
+	      auto& maniBounds = elementaryArgumentBounds_[mani.getInstanceId()];
+	      argBounds.insert(argBounds.end(), maniBounds.begin(), maniBounds.end());
+	    }
+	  else
+	    {
+	      for (int i = 0; i < mani.representationDim(); ++i)
+		{
+		  argBounds.push_back(std::make_pair(-U::function_t::infinity(), U::function_t::infinity()));
+		}
+	    }
+	}
+      else
+	{
+	  for (size_t i = 0; i < mani.numberOfSubmanifolds(); ++i)
+	    {
+	      setArgumentBounds(mani(i));
+	    }
+	}
+    };
+
+  setArgumentBounds(*globalManifold);
+
+  problem->argumentBounds() = argBounds;
+
   return problem;
 }
 
@@ -209,6 +244,30 @@ void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 			    instanceManifold,
 			    restricted,
 			    restrictions);
+}
+
+template<class U>
+void ManifoldProblemFactory<U>::addArgumentBounds(const mnf::Manifold& manifold, const typename U::function_t::intervals_t& bounds)
+{
+  if (elementaryInstanceManifolds_.find(manifold.getInstanceId()) == elementaryInstanceManifolds_.end())
+    {
+      std::cerr << "WARNING: you are trying to add bounds on a manifold not yet present in the problem's global manifold. Those bounds were still added it for later use." << std::endl;
+    }
+
+  elementaryArgumentBounds_[manifold.getInstanceId()] = bounds;
+
+  typename U::function_t::intervals_t& storedBounds = elementaryArgumentBounds_[manifold.getInstanceId()];
+
+  if (storedBounds.size() < static_cast<size_t>(manifold.representationDim()))
+    {
+      std::cerr << "WARNING: less bounds than the manifold's representation dimension were given. Completing to the correct size with (-inf, inf)." << std::endl;
+
+      while (storedBounds.size() < static_cast<size_t>(manifold.representationDim()))
+	{
+	  storedBounds.push_back(std::make_pair(-U::function_t::infinity(), U::function_t::infinity()));
+	}
+    }
+
 }
 
 template<class U>

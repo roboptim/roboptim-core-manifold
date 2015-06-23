@@ -83,6 +83,12 @@ namespace roboptim
     template<class V, class W>
     void setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
+    /// \brief for a given elementary manifold, add bounds to its arguments
+    ///
+    /// \param manifold the elementary manifold to bound
+    /// \param bounds the list of bounds for each value of a point on this manifold
+    void addArgumentBounds(const mnf::Manifold& manifold, const typename U::function_t::intervals_t& bounds);
+
     /// \brief generate and return the described problem
     ProblemOnManifold<U>* getProblem();
 
@@ -92,6 +98,8 @@ namespace roboptim
   private:
     /// \brief elementary manifolds composing the global manifold of the problem
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
+    /// \brief argument bounds for each elementary manifold
+    std::map<long, typename U::function_t::intervals_t> elementaryArgumentBounds_;
     /// \brief bounds and scaling for each constraint
     std::vector<std::pair<typename U::function_t::intervals_t, typename U::scaling_t>> boundsAndScaling_;
     /// \brief each std::function instantiate and add a constraint to the problem
