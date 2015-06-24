@@ -75,8 +75,8 @@ BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWr
     {
       std::pair<typename U::function_t::intervals_t, typename U::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
 
-      ::boost::shared_ptr<FunctionOnManifold<typename V::parent_t>>
-      funcOnMani(new FunctionOnManifold<typename V::parent_t>
+      ::boost::shared_ptr<FunctionOnManifold<typename U::function_t::traits_t>>
+      funcOnMani(new FunctionOnManifold<typename U::function_t::traits_t>
 		 (descWrap, globMani, instanceManifold, restricted, restrictions)
 		 );
 
@@ -190,8 +190,8 @@ void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 
       addElementaries(instanceManifold);
 
-      FunctionOnManifold<typename V::parent_t>* objOnMani =
-      new FunctionOnManifold<typename V::parent_t>
+      FunctionOnManifold<typename U::function_t::traits_t>* objOnMani =
+      new FunctionOnManifold<typename U::function_t::traits_t>
       (descWrap, globMani, instanceManifold, restricted, restrictions);
 
       return new ProblemOnManifold<U>(globMani, *objOnMani);
@@ -231,7 +231,7 @@ void ManifoldProblemFactory<U>::reset()
     {
       typename GenericConstantFunction<typename U::function_t::traits_t>::vector_t offset (1);
       offset.setZero();
-      GenericConstantFunction<typename U::function_t::traits_t>* cst  = new GenericConstantFunction<typename U::function_t::traits_t>(static_cast<typename U::function_t::size_type>(globMani.representationDim()),offset);
+      GenericConstantFunction<typename U::function_t::traits_t>* cst  = new GenericConstantFunction<typename U::function_t::traits_t>(static_cast<typename GenericFunction<typename U::function_t::traits_t>::size_type>(globMani.representationDim()),offset);
 
       // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
@@ -240,8 +240,8 @@ void ManifoldProblemFactory<U>::reset()
       DescriptiveWrapper<GenericConstantFunction<typename U::function_t::traits_t>, ManiDesc<>>
       descWrap(cst, globberMani);
 
-      FunctionOnManifold<typename GenericConstantFunction<typename U::function_t::traits_t>::parent_t>*
-      objOnMani = new FunctionOnManifold<typename GenericConstantFunction<typename U::function_t::traits_t>::parent_t>
+      FunctionOnManifold<typename U::function_t::traits_t>*
+      objOnMani = new FunctionOnManifold<typename U::function_t::traits_t>
       (descWrap, globMani, globMani);
 
       return new ProblemOnManifold<U>(globMani, *objOnMani);

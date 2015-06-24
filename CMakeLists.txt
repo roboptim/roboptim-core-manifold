@@ -29,18 +29,8 @@ SET(PROJECT_URL "http://github.com/roboptim/roboptim-core-manifold")
 SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hxx
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/dispatcher.hh
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/dispatcher.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/function-on-manifold.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/function-on-manifold.hxx
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/base-function-on-manifold.hh
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/base-function-on-manifold.hxx
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/generic-differentiable-function-on-manifold.hh
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/generic-differentiable-function-on-manifold.hxx
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/differentiable-function-on-manifold.hh
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/differentiable-function-on-manifold.hxx
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/twice-differentiable-function-on-manifold.hh
-  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/helper/twice-differentiable-function-on-manifold.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-desc.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-map.hh
