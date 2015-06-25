@@ -41,7 +41,7 @@ namespace roboptim
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (const U* fct, const mnf::Manifold& manifold)
+  (U* fct, const mnf::Manifold& manifold)
     : fct_ (fct),
       manifold_ (&manifold)
   {
@@ -69,7 +69,7 @@ namespace roboptim
   }
 
   template <typename U, typename V>
-  DescriptiveWrapper<U, V>* DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(const U* fct, const mnf::Manifold& manifold)
+  DescriptiveWrapper<U, V>* DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold)
   {
     mnf::RealSpace realR(fct->inputSize());
 const mnf::Manifold* m = &realR;
