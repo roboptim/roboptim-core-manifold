@@ -37,27 +37,27 @@ namespace roboptim
   /// \addtogroup roboptim_manifolds
   /// @{
 
-  template<class U>
+  template<typename T>
   class ManifoldProblemFactory;
 
   /// \brief allows to set the bounds and scaling of a constraint
   /// after defining the constraint
-  template<class U>
+  template<typename T>
   struct BoundsAndScalingSetter
   {
-    BoundsAndScalingSetter<U>& setBounds(typename U::function_t::intervals_t& bounds);
-    BoundsAndScalingSetter<U>& setScaling(typename U::scaling_t& scaling);
+    BoundsAndScalingSetter<T>& setBounds(typename GenericFunction<T>::intervals_t& bounds);
+    BoundsAndScalingSetter<T>& setScaling(typename Problem<T>::scaling_t& scaling);
 
   private:
-    std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair_;
-    BoundsAndScalingSetter(std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair);
-    friend ManifoldProblemFactory<U>;
+    std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>& bNSPair_;
+    BoundsAndScalingSetter(std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>& bNSPair);
+    friend ManifoldProblemFactory<T>;
   };
 
   /// \brief Factory to help with the generation of the global manifold
   ///
-  /// \tparam U roboptim problem type to be generated.
-  template<class U>
+  /// \tparam T Matrix type
+  template<typename T>
   class ManifoldProblemFactory {
   public:
 
@@ -70,9 +70,9 @@ namespace roboptim
     /// \param bounds (optional) the constraint's bounds
     /// \param scaling (optional) scaling parameter for the constraint
     template<class V, class W>
-    BoundsAndScalingSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    BoundsAndScalingSetter<T> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    BoundsAndScalingSetter<U> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    BoundsAndScalingSetter<T> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
     /// \brief set the objective function of the problem
     ///
@@ -84,7 +84,7 @@ namespace roboptim
     void setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
     /// \brief generate and return the described problem
-    ProblemOnManifold<U>* getProblem();
+    ProblemOnManifold<T>* getProblem();
 
     /// \brief reset the factory to be able to create a completely new problem
     void reset();
@@ -93,11 +93,11 @@ namespace roboptim
     /// \brief elementary manifolds composing the global manifold of the problem
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
     /// \brief bounds and scaling for each constraint
-    std::vector<std::pair<typename U::function_t::intervals_t, typename U::scaling_t>> boundsAndScaling_;
+    std::vector<std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>> boundsAndScaling_;
     /// \brief each std::function instantiate and add a constraint to the problem
-    std::vector<std::function<void(ProblemOnManifold<U>&, const mnf::Manifold&)>> lambdas_;
+    std::vector<std::function<void(ProblemOnManifold<T>&, const mnf::Manifold&)>> lambdas_;
     /// \brief instantiate and add the objective function to the problem
-    std::function<ProblemOnManifold<U>*(mnf::CartesianProduct&)> objLambda_;
+    std::function<ProblemOnManifold<T>*(mnf::CartesianProduct&)> objLambda_;
 
     /// \brief break down a manifold in elementary manifolds and adds them to the map
     void addElementaryManifolds(const mnf::Manifold& instanceManifold);

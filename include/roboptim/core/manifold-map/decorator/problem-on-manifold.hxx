@@ -21,15 +21,15 @@
 
 namespace roboptim
 {
-  template<class T>
+  template<typename T>
   template<typename ... Types>
   ProblemOnManifold<T>::ProblemOnManifold(mnf::Manifold& manifold, Types& ... args)
-    : T(args...),
+    : Problem<T>(args...),
       IsAProblemOnManifold(manifold)
   {
   }
 
-  template<class T>
+  template<typename T>
   ProblemOnManifold<T>::~ProblemOnManifold()
   {
   }

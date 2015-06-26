@@ -44,12 +44,10 @@ namespace roboptim
     mnf::Manifold& getManifold() const;
   };
 
-  template<class T>
-  class ProblemOnManifold : public T, public IsAProblemOnManifold
+  template<typename T>
+  class ProblemOnManifold : public Problem<T>, public IsAProblemOnManifold
   {
   public:
-    typedef T wrappedType_t;
-
     template<typename ... Types>
     ProblemOnManifold(mnf::Manifold& manifold, Types& ... args);
 
