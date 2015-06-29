@@ -46,8 +46,8 @@ namespace roboptim
     private boost::noncopyable,
     public GenericTwiceDifferentiableFunction<T>
   {
-    ROBOPTIM_DEFINE_FLAG_TYPE()
-    public:
+    ROBOPTIM_DEFINE_FLAG_TYPE();
+  public:
     ROBOPTIM_TWICE_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (GenericTwiceDifferentiableFunction<T>);
 
     /// \brief Creates the mapping between the manifolds.
@@ -78,6 +78,8 @@ namespace roboptim
        (boost::format ("%1%")
 	% descWrap.fct().getName ()).str ()),
       fct_ (&descWrap.fct()),
+      fctDiff_ (0),
+      fctTwiceDiff_ (0),
       manifold_ (&functionManifold)
     {
       computeMapping(descWrap,
@@ -85,11 +87,15 @@ namespace roboptim
                      functionManifold,
                      restrictedManifolds,
                      restrictions);
+      if (fct_->template asType<GenericDifferentiableFunction<T>>())
+        fctDiff_ = fct_->template castInto<GenericDifferentiableFunction<T>>();
       this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
       this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
       this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
       this->mappedGradient_.setZero();
       this->mappedJacobian_.setZero();
+      if (fct_->template asType<GenericTwiceDifferentiableFunction<T>>())
+        fctTwiceDiff_ = fct_->template castInto<GenericTwiceDifferentiableFunction<T>>();
       this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunctionSize_));
       this->mappedHessian_.setZero();
     }
@@ -147,7 +153,13 @@ namespace roboptim
       const;
 
     /// \brief the function.
-    mutable GenericFunction<T>* fct_;
+    const GenericFunction<T>* fct_;
+
+    /// \brief the function, differentiable access.
+    const GenericDifferentiableFunction<T>* fctDiff_;
+
+    /// \brief the function, twice differentiable access.
+    const GenericTwiceDifferentiableFunction<T>* fctTwiceDiff_;
     /// \brief the problem manifold.
     const mnf::Manifold* manifold_;
 

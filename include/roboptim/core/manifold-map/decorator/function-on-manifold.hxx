@@ -489,7 +489,7 @@ namespace roboptim
     const
   {
     this->mapArgument(argument);
-    this->fct_->template castInto<GenericDifferentiableFunction<T>>()->gradient(this->mappedGradient_, this->mappedInput_, functionId);
+    this->fctDiff_->gradient(this->mappedGradient_, this->mappedInput_, functionId);
 
     gradient.setZero();
     unmapGradient(gradient);
@@ -504,7 +504,7 @@ namespace roboptim
     this->mapArgument(argument);
     jacobian.setZero();
 
-    this->fct_->template castInto<GenericDifferentiableFunction<T>>()->jacobian(this->mappedJacobian_, this->mappedInput_);
+    this->fctDiff_->jacobian(this->mappedJacobian_, this->mappedInput_);
     this->unmapJacobian(jacobian);
   }
 
@@ -519,7 +519,7 @@ namespace roboptim
     this->mappedJacobian_.setZero();
     this->tangentMappedJacobian.setZero();
 
-    this->fct_->template castInto<GenericDifferentiableFunction<T>>()->jacobian(this->mappedJacobian_, this->mappedInput_);
+    this->fctDiff_->jacobian(this->mappedJacobian_, this->mappedInput_);
 
     this->applyDiff();
 
@@ -547,7 +547,7 @@ namespace roboptim
     this->mapArgument(argument);
     hessian.setZero();
 
-    this->fct_->template castInto<GenericTwiceDifferentiableFunction<T>>()->hessian(this->mappedHessian_, this->mappedInput_, functionId);
+    this->fctTwiceDiff_->hessian(this->mappedHessian_, this->mappedInput_, functionId);
     unmapHessian(hessian);
   }
 

@@ -74,7 +74,7 @@ namespace roboptim
     }
 
     /// \brief const wrapped function getter
-    U& fct ()
+    const U& fct ()
     {
       return *fct_;
     }
@@ -86,7 +86,7 @@ namespace roboptim
     void checkDimension();
 
     ///\brief the function
-    U*                    fct_;
+    const U*              fct_;
     ///\brief the manifold
     const mnf::Manifold*  manifold_;
   };
