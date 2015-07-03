@@ -30,6 +30,8 @@
 #include <manifolds/ExpMapQuaternion.h>
 #include <manifolds/S2.h>
 
+#define ROBOPTIM_IS_ON_MANIFOLD 1UL << 16
+
 #define ROBOPTIM_REAL_SPACE(num) roboptim::Real<num>::Space
 
 #define ROBOPTIM_DESC_MANIFOLD(name, ...) typedef roboptim::ManiDesc< __VA_ARGS__> name
@@ -48,9 +50,9 @@
   template<class U>					\
   mnf::Manifold* Manifold_##name <U>::getInstance(U*)
 
-#define ROBOPTIM_BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold;
+#define ROBOPTIM_BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold
 
-#define ROBOPTIM_NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name;
+#define ROBOPTIM_NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name
 
 // Library-defined elementary descriptive manifolds
 // I do not think we should put those in a namespace of their own,

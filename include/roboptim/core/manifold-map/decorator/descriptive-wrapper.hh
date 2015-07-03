@@ -51,7 +51,7 @@ namespace roboptim
     ///
     /// \param f input function.
     /// \param m the manifold describing the function's input vector.
-    DescriptiveWrapper (const U* f, const mnf::Manifold& m);
+    DescriptiveWrapper (U* f, const mnf::Manifold& m);
 
     /// \brief binds the function to the manifold
     ///
@@ -79,7 +79,7 @@ namespace roboptim
       return *fct_;
     }
 
-    static DescriptiveWrapper<U, V>* makeUNCHECKEDDescriptiveWrapper(const U* fct, const mnf::Manifold& manifold);
+    static DescriptiveWrapper<U, V>* makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold);
 
   private:
     /// \brief dimension check between the function and the descriptive manifold

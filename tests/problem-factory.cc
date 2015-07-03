@@ -193,16 +193,12 @@ BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 {
-  typedef roboptim::Problem< roboptim::GenericDifferentiableFunction<T>,
-			     boost::mpl::vector<roboptim::GenericLinearFunction<T>,
-						roboptim::GenericDifferentiableFunction<T> > > problem_t;
-
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef H<T> Hunc;
   typedef I<T> Iunc;
 
-  roboptim::ManifoldProblemFactory<problem_t> factory;
+  roboptim::ManifoldProblemFactory<T> factory;
 
   ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
   ROBOPTIM_NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
@@ -266,7 +262,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   factory.setObjective(cnstr3, prod2, restricted, restrictions);
 
-  roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
+  roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42 + 39);
 
@@ -275,15 +271,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
 {
-  typedef roboptim::Problem< roboptim::GenericDifferentiableFunction<T>,
-			     boost::mpl::vector<roboptim::GenericLinearFunction<T>,
-						roboptim::GenericDifferentiableFunction<T> > > problem_t;
-
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef H<T> Hunc;
 
-  roboptim::ManifoldProblemFactory<problem_t> factory;
+  roboptim::ManifoldProblemFactory<T> factory;
 
   ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
   ROBOPTIM_NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
@@ -316,7 +308,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
     factory.addConstraint(cnstr2, joints).setScaling(scales);
   }
 
-  roboptim::ProblemOnManifold<problem_t>* manifoldProblem = factory.getProblem();
+  roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 19);
 
@@ -325,13 +317,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functionTypes_t)
 {
-  typedef roboptim::Problem< roboptim::GenericDifferentiableFunction<T>,
-			     boost::mpl::vector<roboptim::GenericLinearFunction<T>,
-						roboptim::GenericDifferentiableFunction<T> > > problem_t;
+  roboptim::ManifoldProblemFactory<T> factory;
 
-  roboptim::ManifoldProblemFactory<problem_t> factory;
-
-  roboptim::ProblemOnManifold<problem_t>* manifoldProblem;
+  roboptim::ProblemOnManifold<T>* manifoldProblem;
   BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(); delete manifoldProblem, std::runtime_error);
 }
 

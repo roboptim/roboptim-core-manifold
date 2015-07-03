@@ -22,8 +22,8 @@
 
 namespace roboptim {
 
-template<class U>
-void ManifoldProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
+template<typename T>
+void ManifoldProblemFactory<T>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
 {
   std::function<void(const mnf::Manifold&)> addElementaries =
     [this, &addElementaries]
@@ -52,14 +52,14 @@ void ManifoldProblemFactory<U>::addElementaryManifolds(const mnf::Manifold& inst
 
 // ---- //
 
-template<class U>
+template<typename T>
 template<class V, class W>
-BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
-  this->boundsAndScaling_.push_back(std::make_pair(typename V::intervals_t(), typename U::scaling_t()));
+  this->boundsAndScaling_.push_back(std::make_pair(typename V::intervals_t(), typename Problem<T>::scaling_t()));
 
-  std::pair<typename U::function_t::intervals_t, typename U::scaling_t>* bNSPair = &(this->boundsAndScaling_.back());
+  std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_.back());
 
   // We need the type of the function to instantiate the FunctionOnManifold
   // wrapper, hence why we capture the information we need here and wait
@@ -70,13 +70,13 @@ BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWr
   auto addConstraint =
     [&descWrap, this, &instanceManifold, restricted, restrictions](size_t i){
     return [&descWrap, this, &instanceManifold, restricted, restrictions, i]
-    (ProblemOnManifold<U>& problem,
+    (ProblemOnManifold<T>& problem,
      const mnf::Manifold& globMani)
     {
-      std::pair<typename U::function_t::intervals_t, typename U::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
+      std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
 
-      ::boost::shared_ptr<FunctionOnManifold<typename V::parent_t>>
-      funcOnMani(new FunctionOnManifold<typename V::parent_t>
+      ::boost::shared_ptr<FunctionOnManifold<T>>
+      funcOnMani(new FunctionOnManifold<T>
 		 (descWrap, globMani, instanceManifold, restricted, restrictions)
 		 );
 
@@ -86,7 +86,7 @@ BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWr
 		    << bNSPair->first.size() << " of constrained function "
 		    << funcOnMani->getName() << "." << std::endl
 		    << "Assuming no bounds..." << std::endl;
-	  bNSPair->first.push_back(U::function_t::makeInfiniteInterval());
+	  bNSPair->first.push_back(GenericFunction<T>::makeInfiniteInterval());
 	}
 
       while (bNSPair->second.size() < static_cast<size_t>(funcOnMani->outputSize()))
@@ -104,12 +104,12 @@ BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWr
 
   this->lambdas_.push_back(addConstraint);
 
-  return BoundsAndScalingSetter<U>(*bNSPair);
+  return BoundsAndScalingSetter<T>(*bNSPair);
 }
 
-template<class U>
+template<typename T>
 template<class V, class W>
-BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -121,8 +121,8 @@ BoundsAndScalingSetter<U> ManifoldProblemFactory<U>::addConstraint(DescriptiveWr
 
 // ---- //
 
-template<class U>
-mnf::CartesianProduct* ManifoldProblemFactory<U>::getGlobalManifold()
+template<typename T>
+mnf::CartesianProduct* ManifoldProblemFactory<T>::getGlobalManifold()
 {
   mnf::CartesianProduct* globalManifold = new mnf::CartesianProduct();
 
@@ -138,8 +138,8 @@ mnf::CartesianProduct* ManifoldProblemFactory<U>::getGlobalManifold()
   return globalManifold;
 }
 
-template<class U>
-ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
+template<typename T>
+ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 {
   // The global manifold is incomplete and only contains the
   // elementary manifolds of the cosntraints here.
@@ -147,7 +147,7 @@ ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
   // be added by the objLambda_ function below.
   mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
 
-  ProblemOnManifold<U>* problem = this->objLambda_(*globalManifold);
+  ProblemOnManifold<T>* problem = this->objLambda_(*globalManifold);
 
   for (auto lambda : this->lambdas_)
     {
@@ -159,9 +159,9 @@ ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
 
 // ---- //
 
-template<class U>
+template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->objLambda_ = [&descWrap, &instanceManifold, this, restricted, restrictions](mnf::CartesianProduct& globMani)
     {
@@ -190,17 +190,17 @@ void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 
       addElementaries(instanceManifold);
 
-      FunctionOnManifold<typename V::parent_t>* objOnMani =
-      new FunctionOnManifold<typename V::parent_t>
+      FunctionOnManifold<T>* objOnMani =
+      new FunctionOnManifold<T>
       (descWrap, globMani, instanceManifold, restricted, restrictions);
 
-      return new ProblemOnManifold<U>(globMani, *objOnMani);
+      return new ProblemOnManifold<T>(globMani, *objOnMani);
     };
 }
 
-template<class U>
+template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -211,8 +211,8 @@ void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 			    restrictions);
 }
 
-template<class U>
-ManifoldProblemFactory<U>::ManifoldProblemFactory()
+template<typename T>
+ManifoldProblemFactory<T>::ManifoldProblemFactory()
 {
   // We only call this method here to set the objective funtion lambda,
   // thus avoiding to duplicate or isolate the the code needed
@@ -220,8 +220,8 @@ ManifoldProblemFactory<U>::ManifoldProblemFactory()
   this->reset();
 }
 
-template<class U>
-void ManifoldProblemFactory<U>::reset()
+template<typename T>
+void ManifoldProblemFactory<T>::reset()
 {
   elementaryInstanceManifolds_.clear();
   boundsAndScaling_.clear();
@@ -229,29 +229,29 @@ void ManifoldProblemFactory<U>::reset()
 
   this->objLambda_ = [](mnf::CartesianProduct& globMani)
     {
-      typename GenericConstantFunction<typename U::function_t::traits_t>::vector_t offset (1);
+      typename GenericConstantFunction<T>::vector_t offset (1);
       offset.setZero();
-      GenericConstantFunction<typename U::function_t::traits_t>* cst  = new GenericConstantFunction<typename U::function_t::traits_t>(static_cast<typename U::function_t::size_type>(globMani.representationDim()),offset);
+      GenericConstantFunction<T>* cst  = new GenericConstantFunction<T>(static_cast<typename GenericFunction<T>::size_type>(globMani.representationDim()),offset);
 
       // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
       mnf::Manifold& globberMani = globMani;
 
-      DescriptiveWrapper<GenericConstantFunction<typename U::function_t::traits_t>, ManiDesc<>>
+      DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>
       descWrap(cst, globberMani);
 
-      FunctionOnManifold<typename GenericConstantFunction<typename U::function_t::traits_t>::parent_t>*
-      objOnMani = new FunctionOnManifold<typename GenericConstantFunction<typename U::function_t::traits_t>::parent_t>
+      FunctionOnManifold<T>*
+      objOnMani = new FunctionOnManifold<T>
       (descWrap, globMani, globMani);
 
-      return new ProblemOnManifold<U>(globMani, *objOnMani);
+      return new ProblemOnManifold<T>(globMani, *objOnMani);
     };
 }
 
 // ---- //
 
-template<class U>
-BoundsAndScalingSetter<U>& BoundsAndScalingSetter<U>::setBounds(typename U::function_t::intervals_t& bounds)
+template<typename T>
+BoundsAndScalingSetter<T>& BoundsAndScalingSetter<T>::setBounds(typename GenericFunction<T>::intervals_t& bounds)
 {
   this->bNSPair_.first.clear();
   this->bNSPair_.first.insert(this->bNSPair_.first.end(), bounds.begin(), bounds.end());
@@ -259,8 +259,8 @@ BoundsAndScalingSetter<U>& BoundsAndScalingSetter<U>::setBounds(typename U::func
   return *this;
 }
 
-template<class U>
-BoundsAndScalingSetter<U>& BoundsAndScalingSetter<U>::setScaling(typename U::scaling_t& scaling)
+template<typename T>
+BoundsAndScalingSetter<T>& BoundsAndScalingSetter<T>::setScaling(typename Problem<T>::scaling_t& scaling)
 {
   this->bNSPair_.second.clear();
   this->bNSPair_.second.insert(this->bNSPair_.second.end(), scaling.begin(), scaling.end());
@@ -268,8 +268,8 @@ BoundsAndScalingSetter<U>& BoundsAndScalingSetter<U>::setScaling(typename U::sca
   return *this;
 }
 
-template<class U>
-BoundsAndScalingSetter<U>::BoundsAndScalingSetter(std::pair<typename U::function_t::intervals_t, typename U::scaling_t>& bNSPair)
+template<typename T>
+BoundsAndScalingSetter<T>::BoundsAndScalingSetter(std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>& bNSPair)
   : bNSPair_(bNSPair)
 {}
 

@@ -25,10 +25,6 @@
 
 # include <roboptim/core/detail/autopromote.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
-# include <roboptim/core/manifold-map/decorator/helper/generic-differentiable-function-on-manifold.hh>
-# include <roboptim/core/manifold-map/decorator/helper/base-function-on-manifold.hh>
-# include <roboptim/core/manifold-map/decorator/helper/differentiable-function-on-manifold.hh>
-# include <roboptim/core/manifold-map/decorator/helper/twice-differentiable-function-on-manifold.hh>
 
 # include <manifolds/Manifold.h>
 
@@ -39,28 +35,20 @@ namespace roboptim
   /// \addtogroup roboptim_manifolds
   /// @{
 
-  // ---- //
+  /// \brief OnManifold type checking flag
+  const unsigned int roboptimIsOnManifold = 1 << 16;
 
-  // TODO: Move to a separate file
   /// \brief Maps a DescriptiveWrapper to a instance of a submanifold.
   ///
-  /// WARNING: A FunctionOnManifold must be templated on the underlying roboptim
-  /// function type
-  ///
-  /// \tparam U input roboptim function type.
-  template <typename U>
+  /// \tparam T Matrix type
+  template <typename T>
   class FunctionOnManifold :
     private boost::noncopyable,
-    public std::conditional<std::is_base_of<roboptim::GenericTwiceDifferentiableFunction<typename U::traits_t>,
-					    U>::value,
-			    TwiceDifferentiableFunctionOnManifold<U>,
-			    typename std::conditional<std::is_base_of<roboptim::GenericDifferentiableFunction<typename U::traits_t>,
-								      U>::value,
-						      DifferentiableFunctionOnManifold<U>,
-						      BaseFunctionOnManifold<U> >::type >::type
+    public GenericTwiceDifferentiableFunction<T>
   {
+    ROBOPTIM_DEFINE_FLAG_TYPE();
   public:
-    ROBOPTIM_FUNCTION_FWD_TYPEDEFS_ (U);
+    ROBOPTIM_TWICE_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (GenericTwiceDifferentiableFunction<T>);
 
     /// \brief Creates the mapping between the manifolds.
     ///
@@ -84,14 +72,32 @@ namespace roboptim
      std::vector<const mnf::Manifold*> restrictedManifolds,
      std::vector<std::pair<long, long>> restrictions)
       :
-      std::conditional<std::is_base_of<roboptim::GenericTwiceDifferentiableFunction<typename U::traits_t>,
-      U>::value,
-      TwiceDifferentiableFunctionOnManifold<U>,
-      typename std::conditional<std::is_base_of<roboptim::GenericDifferentiableFunction<typename U::traits_t>,
-						U>::value,
-				DifferentiableFunctionOnManifold<U>,
-				BaseFunctionOnManifold<U> >::type >::type(descWrap, problemManifold, functionManifold, restrictedManifolds, restrictions)
+      GenericTwiceDifferentiableFunction<T>
+      (static_cast<size_type>(problemManifold.representationDim()),
+       descWrap.fct().outputSize (),
+       (boost::format ("%1%")
+	% descWrap.fct().getName ()).str ()),
+      fct_ (&descWrap.fct()),
+      fctDiff_ (0),
+      fctTwiceDiff_ (0),
+      manifold_ (&functionManifold)
     {
+      computeMapping(descWrap,
+                     problemManifold,
+                     functionManifold,
+                     restrictedManifolds,
+                     restrictions);
+      if (fct_->template asType<GenericDifferentiableFunction<T>>())
+        fctDiff_ = fct_->template castInto<GenericDifferentiableFunction<T>>();
+      this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
+      this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+      this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
+      this->mappedGradient_.setZero();
+      this->mappedJacobian_.setZero();
+      if (fct_->template asType<GenericTwiceDifferentiableFunction<T>>())
+        fctTwiceDiff_ = fct_->template castInto<GenericTwiceDifferentiableFunction<T>>();
+      this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+      this->mappedHessian_.setZero();
     }
 
 
@@ -116,17 +122,121 @@ namespace roboptim
     {
     }
 
+    /// \brief FunctionOnManifold destructor
+    ~FunctionOnManifold();
+
     /// \brief Traits type.
     typedef typename parent_t::traits_t traits_t;
 
     std::ostream& print_(std::ostream& o);
-  private:
+
+    /// \brief apply the jacobian on the manifold's tangent space
+    void manifold_jacobian (mnf::RefMat jacobian,
+                            const_argument_ref arg)
+      const;
+
+  protected:
+    void impl_compute (result_ref result, const_argument_ref x)
+      const;
+
+    template <typename V, typename W>
+    void computeMapping(DescriptiveWrapper<V, W>& descWrap,
+			const mnf::Manifold& problemManifold,
+			const mnf::Manifold& functionManifold,
+			std::vector<const mnf::Manifold*> restrictedManifolds,
+			std::vector<std::pair<long, long>> restrictions);
+
+    /// \brief map the input to the restricted problem
+    ///
+    /// \param argument the argument to map
+    void mapArgument(const_argument_ref argument)
+      const;
+
+    /// \brief the function.
+    const GenericFunction<T>* fct_;
+
+    /// \brief the function, differentiable access.
+    const GenericDifferentiableFunction<T>* fctDiff_;
+
+    /// \brief the function, twice differentiable access.
+    const GenericTwiceDifferentiableFunction<T>* fctTwiceDiff_;
+    /// \brief the problem manifold.
+    const mnf::Manifold* manifold_;
+
+    /// \brief array representing the restricted mapping
+    size_t* mappingFromFunction_;
+    /// \brief size of the array
+    long mappingFromFunctionSize_;
+
+    /// \brief array representing the restricted mapping for the tangent problem
+    size_t* tangentMappingFromFunction_;
+    /// \brief size of the array
+    long tangentMappingFromFunctionSize_;
+
+    /// \brief new input mapped to the restricted problem
+    mutable vector_t mappedInput_;
+
+    void impl_gradient (gradient_ref gradient,
+                        const_argument_ref argument,
+                        size_type functionId = 0)
+      const;
+    void impl_jacobian (jacobian_ref jacobian,
+                        const_argument_ref arg)
+      const;
+
+    /// \brief gets the gradient from the restricted problem
+    ///
+    /// \param gradient the output gradient
+    void unmapGradient(gradient_ref) const;
+
+    /// \brief unmap the jacobian from the restricted problem
+    ///
+    /// \param jacobian the jacobian to unmap
+    void unmapTangentJacobian(mnf::RefMat jacobian)
+      const;
+
+    /// \brief new gradient mapped to the restricted problem
+    mutable gradient_t mappedGradient_;
+    /// \brief new jacobian mapped to the restricted problem
+    mutable jacobian_t mappedJacobian_;
+
+    // Dirty copy ONLY
+    mutable Eigen::MatrixXd tangentMappedJacobian;
+
+    void impl_hessian(hessian_ref, const_argument_ref, size_type) const;
+
+    /// \brief gets the hessian from the restricted problem
+    ///
+    /// \param hessian the output hessian
+    void unmapHessian(hessian_ref hessian) const;
+
+    /// \brief new hessian mapped to the restricted problem
+    mutable hessian_t mappedHessian_;
+
+    /// \brief gets the jacobian from the restricted problem
+    ///
+    /// \param instance the FunctionOnManifold
+    /// \param jacobian the output jacobian
+    void unmapJacobian(jacobian_ref jacobian) const;
+
+    /// \brief sets the jacobian on the manifold's tangent space with the
+    /// computed value
+    ///
+    /// \param instance the FunctionOnManifold
+    void applyDiff() const;
   public:
+    /// \brief Gets the manifold
+    const mnf::Manifold* getManifold() const;
+
+    static const flag_t flags = roboptimIsOnManifold;
+
+    virtual flag_t getFlags() const;
+
   };
 
-  template <typename U>
+  template <typename T>
   std::ostream&
-  operator<<(std::ostream& o, FunctionOnManifold<U>& instWrap)
+  operator<<(std::ostream& o, FunctionOnManifold<T>& instWrap)
   {
     return instWrap.print_(o);
   }
