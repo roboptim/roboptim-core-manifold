@@ -565,6 +565,7 @@ namespace roboptim
   }
 
   template<>
+  inline
   void
   FunctionOnManifold<EigenMatrixDense>::applyDiff() const
   {
@@ -572,6 +573,7 @@ namespace roboptim
   }
 
   template<>
+  inline
   void
   FunctionOnManifold<EigenMatrixSparse>::applyDiff() const
   {

@@ -52,6 +52,7 @@ namespace roboptim
     /// \param f input function.
     /// \param m the manifold describing the function's input vector.
     DescriptiveWrapper (U* f, const mnf::Manifold& m);
+    DescriptiveWrapper (const U* f, const mnf::Manifold& m);
 
     /// \brief binds the function to the manifold
     ///

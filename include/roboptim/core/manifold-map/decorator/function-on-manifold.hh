@@ -223,7 +223,7 @@ namespace roboptim
     /// computed value
     ///
     /// \param instance the FunctionOnManifold
-    void applyDiff() const;
+    inline void applyDiff() const;
   public:
     /// \brief Gets the manifold
     const mnf::Manifold* getManifold() const;

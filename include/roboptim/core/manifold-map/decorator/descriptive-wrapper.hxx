@@ -49,6 +49,15 @@ namespace roboptim
   }
 
   template <typename U, typename V>
+  DescriptiveWrapper<U, V>::DescriptiveWrapper
+  (const U* fct, const mnf::Manifold& manifold)
+    : fct_ (fct),
+      manifold_ (&manifold)
+  {
+    checkDimension();
+  }
+
+  template <typename U, typename V>
   DescriptiveWrapper<U, V>::~DescriptiveWrapper()
   {
   }
