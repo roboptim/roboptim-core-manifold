@@ -36,7 +36,7 @@ namespace roboptim
   /// @{
 
   /// \brief OnManifold type checking flag
-  const unsigned int roboptimIsOnManifold = 1 << 16;
+  const unsigned int ROBOPTIM_IS_ON_MANIFOLD = 1 << 16;
 
   /// \brief Maps a DescriptiveWrapper to a instance of a submanifold.
   ///
@@ -228,7 +228,7 @@ namespace roboptim
     /// \brief Gets the manifold
     const mnf::Manifold* getManifold() const;
 
-    static const flag_t flags = roboptimIsOnManifold;
+    static const flag_t flags = ROBOPTIM_IS_ON_MANIFOLD;
 
     virtual flag_t getFlags() const;
 
