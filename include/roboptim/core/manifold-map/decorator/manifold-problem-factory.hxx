@@ -154,6 +154,41 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
       lambda(*problem, *globalManifold);
     }
 
+  typename GenericFunction<T>::intervals_t argBounds;
+
+  std::function<void(const mnf::Manifold&)> setArgumentBounds =
+    [this, &setArgumentBounds, &argBounds]
+    (const mnf::Manifold& mani)
+    {
+      if (mani.isElementary())
+	{
+	  if (elementaryArgumentBounds_.find(mani.getInstanceId())
+	      != elementaryArgumentBounds_.end())
+	    {
+	      auto& maniBounds = elementaryArgumentBounds_[mani.getInstanceId()];
+	      argBounds.insert(argBounds.end(), maniBounds.begin(), maniBounds.end());
+	    }
+	  else
+	    {
+	      for (int i = 0; i < mani.representationDim(); ++i)
+		{
+		  argBounds.push_back(std::make_pair(-GenericFunction<T>::infinity(), GenericFunction<T>::infinity()));
+		}
+	    }
+	}
+      else
+	{
+	  for (size_t i = 0; i < mani.numberOfSubmanifolds(); ++i)
+	    {
+	      setArgumentBounds(mani(i));
+	    }
+	}
+    };
+
+  setArgumentBounds(*globalManifold);
+
+  problem->argumentBounds() = argBounds;
+
   return problem;
 }
 
@@ -211,7 +246,31 @@ void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 			    restrictions);
 }
 
-template<typename T>
+template<class T>
+void ManifoldProblemFactory<T>::addArgumentBounds(const mnf::Manifold& manifold, const typename GenericFunction<T>::intervals_t& bounds)
+{
+  if (elementaryInstanceManifolds_.find(manifold.getInstanceId()) == elementaryInstanceManifolds_.end())
+    {
+      std::cerr << "WARNING: you are trying to add bounds on a manifold not yet present in the problem's global manifold. Those bounds were still added it for later use." << std::endl;
+    }
+
+  elementaryArgumentBounds_[manifold.getInstanceId()] = bounds;
+
+  typename GenericFunction<T>::intervals_t& storedBounds = elementaryArgumentBounds_[manifold.getInstanceId()];
+
+  if (storedBounds.size() < static_cast<size_t>(manifold.representationDim()))
+    {
+      std::cerr << "WARNING: less bounds than the manifold's representation dimension were given. Completing to the correct size with (-inf, inf)." << std::endl;
+
+      while (storedBounds.size() < static_cast<size_t>(manifold.representationDim()))
+	{
+	  storedBounds.push_back(std::make_pair(-GenericFunction<T>::infinity(), GenericFunction<T>::infinity()));
+	}
+    }
+
+}
+
+template<class T>
 ManifoldProblemFactory<T>::ManifoldProblemFactory()
 {
   // We only call this method here to set the objective funtion lambda,

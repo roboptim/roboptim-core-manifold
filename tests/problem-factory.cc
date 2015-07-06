@@ -262,9 +262,62 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   factory.setObjective(cnstr3, prod2, restricted, restrictions);
 
+  std::vector<std::pair<double, double>> bounds;
+
+  {
+    bounds.clear();
+    for(int i = 0; i < 41; ++i)
+      {
+	bounds.push_back(std::make_pair(-2.0, 2.0));
+      }
+    factory.addArgumentBounds(r42, bounds);
+  }
+  {
+    bounds.clear();
+    for(int i = 0; i < 39; ++i)
+      {
+	bounds.push_back(std::make_pair(-3.0, 3.0));
+      }
+    factory.addArgumentBounds(r39, bounds);
+  }
+
   roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42 + 39);
+
+  size_t i = 0;
+
+  for(; i < manifoldProblem->argumentBounds().size(); ++i)
+    {
+      std::cout << "[" << i << "] "
+		<< manifoldProblem->argumentBounds()[i].first
+		<< " "
+		<< manifoldProblem->argumentBounds()[i].second
+		<< std::endl;
+    }
+
+  i = 0;
+
+  for (; i < 22; ++i)
+    {
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -Func::infinity());
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
+    }
+
+  for (; i < 22 + 39; ++i)
+    {
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -3);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 3);
+    }
+
+  for (; i < 22 + 39 + 41; ++i)
+    {
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -2);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 2);
+    }
+
+  BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -Func::infinity());
+  BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
 
   delete manifoldProblem;
 }
