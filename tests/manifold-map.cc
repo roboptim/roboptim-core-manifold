@@ -653,4 +653,27 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_split_fail_restriction_on_unknown_ma
   BOOST_CHECK_THROW (Instance_I_On_R5X3 funcI(descI, r15, splitR15, restricted, restrictions), std::runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_type_check, T, functionTypes_t)
+{
+  F<T> f;
+
+  BOOST_CHECK((f.getFlags()&ROBOPTIM_IS_ON_MANIFOLD) == 0);
+
+  typedef F<T> Func;
+
+  ROBOPTIM_DESC_MANIFOLD(R22, ROBOPTIM_REAL_SPACE(22));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_R22, Func, R22);
+  typedef roboptim::FunctionOnManifold<T> Instance_F_On_R22;
+
+  mnf::RealSpace* manifold10 = new mnf::RealSpace(10);
+  mnf::RealSpace* manifold22 = new mnf::RealSpace(22);
+
+  F_On_R22 descWrapPtr;
+
+  Instance_F_On_R22 instWrap(descWrapPtr, *manifold10, *manifold22);
+
+  BOOST_CHECK((instWrap.getFlags()&ROBOPTIM_IS_ON_MANIFOLD) == ROBOPTIM_IS_ON_MANIFOLD);
+  BOOST_CHECK(instWrap.template asType<roboptim::GenericDifferentiableFunction<T>>());
+}
+
 BOOST_AUTO_TEST_SUITE_END ()
