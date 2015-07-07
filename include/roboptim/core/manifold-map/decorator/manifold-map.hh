@@ -48,9 +48,9 @@
   template<class U>					\
   mnf::Manifold* Manifold_##name <U>::getInstance(U*)
 
-#define ROBOPTIM_BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold;
+#define ROBOPTIM_BIND_FUNCTION_ON_MANIFOLD(function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> function##_On_##manifold
 
-#define ROBOPTIM_NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name;
+#define ROBOPTIM_NAMED_FUNCTION_BINDING(name, function, manifold) typedef roboptim::DescriptiveWrapper<function, manifold> name
 
 // Library-defined elementary descriptive manifolds
 // I do not think we should put those in a namespace of their own,
