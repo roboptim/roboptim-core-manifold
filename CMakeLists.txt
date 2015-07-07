@@ -73,6 +73,8 @@ ADD_REQUIRED_DEPENDENCY("roboptim-core >= 2.0")
 
 ADD_REQUIRED_DEPENDENCY("manifolds")
 
+PKG_CONFIG_APPEND_LIBS(manifolds)
+
 HEADER_INSTALL("${HEADERS}")
 
 OPTION(DISABLE_TESTS "Disable test programs" OFF)
