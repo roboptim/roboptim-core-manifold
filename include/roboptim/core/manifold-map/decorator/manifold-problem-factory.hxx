@@ -146,7 +146,7 @@ ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
   // The elementary manifolds of the objective function will
   // be added by the objLambda_ function below.
   mnf::CartesianProduct* globalManifold;
-  if (this->elementaryInstanceManifolds_.size())
+  if (this->elementaryInstanceManifolds_.size() != 0)
     globalManifold = this->getGlobalManifold();
   else
     globalManifold = this->objManifold;
@@ -215,6 +215,7 @@ void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 		&& std::find(manifoldIds.begin(), manifoldIds.end(), manifold.getInstanceId()) == manifoldIds.end())
 	      {
 		manifoldIds.push_back(manifold.getInstanceId());
+    if (globMani.getInstanceId() != this->objManifold->getInstanceId())
 		globMani.multiply(manifold);
 	      }
 	  }
