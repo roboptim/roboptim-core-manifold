@@ -384,8 +384,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functi
 
   roboptim::ManifoldProblemFactory<problem_t> factory;
 
+  ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(G_On_R3, G<T>, R3);
+
+  mnf::RealSpace r3(3);
+  G_On_R3 obj;
+
+  factory.setObjective(obj, r3);
+
   roboptim::ProblemOnManifold<problem_t>* manifoldProblem;
-  BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(); delete manifoldProblem, std::runtime_error);
+
+  factory.reset();
+
+  BOOST_CHECK_NO_THROW(manifoldProblem = factory.getProblem(); delete manifoldProblem);
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
