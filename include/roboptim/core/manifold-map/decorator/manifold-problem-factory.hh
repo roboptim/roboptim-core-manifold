@@ -106,6 +106,8 @@ namespace roboptim
     std::vector<std::function<void(ProblemOnManifold<U>&, const mnf::Manifold&)>> lambdas_;
     /// \brief instantiate and add the objective function to the problem
     std::function<ProblemOnManifold<U>*(mnf::CartesianProduct&)> objLambda_;
+    /// \brief manifold we should use for empty constraints problem generation
+    mnf::CartesianProduct* objManifold;
 
     /// \brief break down a manifold in elementary manifolds and adds them to the map
     void addElementaryManifolds(const mnf::Manifold& instanceManifold);

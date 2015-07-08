@@ -145,7 +145,11 @@ ProblemOnManifold<U>* ManifoldProblemFactory<U>::getProblem()
   // elementary manifolds of the cosntraints here.
   // The elementary manifolds of the objective function will
   // be added by the objLambda_ function below.
-  mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
+  mnf::CartesianProduct* globalManifold;
+  if (this->elementaryInstanceManifolds_.size())
+    globalManifold = this->getGlobalManifold();
+  else
+    globalManifold = this->objManifold;
 
   ProblemOnManifold<U>* problem = this->objLambda_(*globalManifold);
 
@@ -231,6 +235,7 @@ void ManifoldProblemFactory<U>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 
       return new ProblemOnManifold<U>(globMani, *objOnMani);
     };
+  this->objManifold->multiply(instanceManifold);
 }
 
 template<class U>
@@ -276,6 +281,7 @@ ManifoldProblemFactory<U>::ManifoldProblemFactory()
   // We only call this method here to set the objective funtion lambda,
   // thus avoiding to duplicate or isolate the the code needed
   // to create it
+  this->objManifold = new mnf::CartesianProduct();
   this->reset();
 }
 
