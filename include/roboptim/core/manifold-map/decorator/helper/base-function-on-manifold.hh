@@ -54,8 +54,7 @@ namespace roboptim
       detail::AutopromoteTrait<U>::T_type
       (static_cast<size_type>(problemManifold.representationDim()),
        descWrap.fct().outputSize (),
-       (boost::format ("%1%")
-	% descWrap.fct().getName ()).str ()),
+       descWrap.fct().getName ()),
       fct_ (&descWrap.fct()),
       manifold_ (&descWrap.manifold())
     {
