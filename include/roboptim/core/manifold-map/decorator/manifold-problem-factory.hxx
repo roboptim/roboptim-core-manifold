@@ -25,29 +25,7 @@ namespace roboptim {
 template<typename T>
 void ManifoldProblemFactory<T>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
 {
-  std::function<void(const mnf::Manifold&)> addElementaries =
-    [this, &addElementaries]
-    (const mnf::Manifold& manifold)
-    {
-      if (manifold.isElementary())
-	{
-	  // Only add the manifold if there was not any other one
-	  // with the same instanceId in the map
-	  if (!this->elementaryInstanceManifolds_.count(manifold.getInstanceId()))
-	    {
-	      this->elementaryInstanceManifolds_[manifold.getInstanceId()] = &manifold;
-	    }
-	}
-      else
-	{
-	  for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
-	    {
-	      addElementaries(manifold(i));
-	    }
-	}
-    };
-
-  addElementaries(instanceManifold);
+  constraintsManifold_.addManifold(instanceManifold);
 }
 
 // ---- //
@@ -61,7 +39,7 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWr
 
   std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_.back());
 
-  // We need the type of the function to instantiate the FunctionOnManifold
+  // We need the type of the function to instantiate the WrapperOnManifold
   // wrapper, hence why we capture the information we need here and wait
   // for the global manifold to be defined to execute this lambda.
   //
@@ -76,7 +54,7 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWr
       std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
 
       ::boost::shared_ptr<FunctionOnManifold<T>>
-      funcOnMani(new FunctionOnManifold<T>
+      funcOnMani(new WrapperOnManifold<T>
 		 (descWrap, globMani, instanceManifold, restricted, restrictions)
 		 );
 
@@ -124,18 +102,7 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWr
 template<typename T>
 mnf::CartesianProduct* ManifoldProblemFactory<T>::getGlobalManifold()
 {
-  mnf::CartesianProduct* globalManifold = new mnf::CartesianProduct();
-
-  for (auto ite = this->elementaryInstanceManifolds_.begin();
-       ite != elementaryInstanceManifolds_.end();
-       ++ite)
-    {
-      globalManifold->multiply(*(ite->second));
-    }
-
-  if (!globalManifold->representationDim())
-    throw std::runtime_error("The problem should not be empty.");
-  return globalManifold;
+  return constraintsManifold_.getManifold();
 }
 
 template<typename T>
@@ -207,7 +174,7 @@ void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap,
       {
 	if (manifold.isElementary())
 	  {
-	    if (!this->elementaryInstanceManifolds_.count(manifold.getInstanceId())
+	    if (!constraintsManifold_.contains(manifold)
 		&& std::find(manifoldIds.begin(), manifoldIds.end(), manifold.getInstanceId()) == manifoldIds.end())
 	      {
 		manifoldIds.push_back(manifold.getInstanceId());
@@ -226,7 +193,7 @@ void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap,
       addElementaries(instanceManifold);
 
       FunctionOnManifold<T>* objOnMani =
-      new FunctionOnManifold<T>
+      new WrapperOnManifold<T>
       (descWrap, globMani, instanceManifold, restricted, restrictions);
 
       return new ProblemOnManifold<T>(globMani, *objOnMani);
@@ -249,9 +216,9 @@ void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap,
 template<class T>
 void ManifoldProblemFactory<T>::addArgumentBounds(const mnf::Manifold& manifold, const typename GenericFunction<T>::intervals_t& bounds)
 {
-  if (elementaryInstanceManifolds_.find(manifold.getInstanceId()) == elementaryInstanceManifolds_.end())
+  if (!constraintsManifold_.contains(manifold))
     {
-      std::cerr << "WARNING: you are trying to add bounds on a manifold not yet present in the problem's global manifold. Those bounds were still added it for later use." << std::endl;
+      std::cerr << "WARNING: you are trying to add bounds on " << manifold.name() << ", a manifold not yet present in the problem's global manifold. Those bounds were still added it for later use." << std::endl;
     }
 
   elementaryArgumentBounds_[manifold.getInstanceId()] = bounds;
@@ -282,7 +249,7 @@ ManifoldProblemFactory<T>::ManifoldProblemFactory()
 template<typename T>
 void ManifoldProblemFactory<T>::reset()
 {
-  elementaryInstanceManifolds_.clear();
+  constraintsManifold_.clear();
   boundsAndScaling_.clear();
   lambdas_.clear();
 
@@ -300,7 +267,7 @@ void ManifoldProblemFactory<T>::reset()
       descWrap(cst, globberMani);
 
       FunctionOnManifold<T>*
-      objOnMani = new FunctionOnManifold<T>
+      objOnMani = new WrapperOnManifold<T>
       (descWrap, globMani, globMani);
 
       return new ProblemOnManifold<T>(globMani, *objOnMani);

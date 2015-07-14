@@ -15,31 +15,38 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_MERGER_HH
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_MERGER_HH
 
-#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX
-# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX
+# include <map>
 # include <vector>
-# include <queue>
-# include <utility>
 # include <iostream>
-# include <typeinfo>
-# include <sstream>
-
-# include <boost/format.hpp>
-# include <boost/mpl/assert.hpp>
-
-# include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
-# include <manifolds/RealSpace.h>
-# include <manifolds/S2.h>
+# include <manifolds/CartesianProduct.h>
+
 namespace roboptim
 {
-  template <typename T>
-  FunctionOnManifold<T>::~FunctionOnManifold()
+  /// \addtogroup roboptim_manifolds
+  /// @{
 
-  {}
+  struct ManifoldMerger
+  {
+    std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
 
-} // end of namespace roboptim.
+    void addManifold(const mnf::Manifold& instanceManifold);
 
-#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX
+    bool contains(const mnf::Manifold& instanceManifold);
+
+    void addManifolds(const ManifoldMerger& other);
+
+    void clear();
+
+    mnf::CartesianProduct* getManifold();
+  };
+
+  /// @}
+
+} // end of namespace roboptim
+
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_MERGER_HH

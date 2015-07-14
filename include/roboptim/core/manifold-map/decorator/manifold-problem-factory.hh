@@ -24,6 +24,9 @@
 # include <roboptim/core/problem.hh>
 # include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 # include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
+# include <roboptim/core/manifold-map/decorator/manifold-merger.hh>
+# include <roboptim/core/manifold-map/decorator/function-on-manifold.hh>
+# include <roboptim/core/manifold-map/decorator/wrapper-on-manifold.hh>
 # include <roboptim/core/function/constant.hh>
 
 # include <manifolds/Manifold.h>
@@ -96,8 +99,10 @@ namespace roboptim
     void reset();
 
   private:
+    /// \brief contains the manifolds from the constraints
+    ManifoldMerger constraintsManifold_;
     /// \brief elementary manifolds composing the global manifold of the problem
-    std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
+    //std::set<const mnf::Manifold*> elementaryInstanceManifolds_;
     /// \brief argument bounds for each elementary manifold
     std::map<long, typename GenericFunction<T>::intervals_t> elementaryArgumentBounds_;
     /// \brief bounds and scaling for each constraint

@@ -38,6 +38,7 @@ SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/problem-on-manifold.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-problem-factory.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-problem-factory.hxx
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-merger.hh
   )
 
 SETUP_PROJECT()

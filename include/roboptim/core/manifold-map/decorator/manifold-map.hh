@@ -22,6 +22,7 @@
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 # include <roboptim/core/manifold-map/decorator/manifold-desc.hh>
 # include <roboptim/core/manifold-map/decorator/function-on-manifold.hh>
+# include <roboptim/core/manifold-map/decorator/wrapper-on-manifold.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>

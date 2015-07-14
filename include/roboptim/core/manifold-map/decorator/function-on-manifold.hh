@@ -64,63 +64,12 @@ namespace roboptim
     /// \param functionManifold the manifold describing the function's input vector.
     /// \param restrictedManifolds a list of elementary Manifolds to be restricted to a part of themselves
     /// \param restrictions the restrictions applying to the selected manifolds, represented as (startingIndex, size). If a single one is given, it will apply to all restricted manifolds.
-    template <typename V, typename W>
     explicit FunctionOnManifold
-    (DescriptiveWrapper<V, W>& descWrap,
-     const mnf::Manifold& problemManifold,
-     const mnf::Manifold& functionManifold,
-     std::vector<const mnf::Manifold*> restrictedManifolds,
-     std::vector<std::pair<long, long>> restrictions)
+    (size_type inputSize, size_type outputSize, std::string name)
       :
       GenericTwiceDifferentiableFunction<T>
-      (static_cast<size_type>(problemManifold.representationDim()),
-       descWrap.fct().outputSize (),
-       (boost::format ("%1%")
-	% descWrap.fct().getName ()).str ()),
-      fct_ (&descWrap.fct()),
-      fctDiff_ (0),
-      fctTwiceDiff_ (0),
-      manifold_ (&functionManifold)
-    {
-      computeMapping(descWrap,
-                     problemManifold,
-                     functionManifold,
-                     restrictedManifolds,
-                     restrictions);
-      if (fct_->template asType<GenericDifferentiableFunction<T>>())
-        fctDiff_ = fct_->template castInto<GenericDifferentiableFunction<T>>();
-      this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
-      this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
-      this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
-      this->mappedGradient_.setZero();
-      this->mappedJacobian_.setZero();
-      if (fct_->template asType<GenericTwiceDifferentiableFunction<T>>())
-        fctTwiceDiff_ = fct_->template castInto<GenericTwiceDifferentiableFunction<T>>();
-      this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunctionSize_));
-      this->mappedHessian_.setZero();
-    }
-
-
-    /// \brief Creates the mapping between the manifolds without restrictions.
-    ///
-    /// Programmers should ideally not directly use this constructor, amd
-    /// rely on the macros defined in the file manifold-map.hh to get the well
-    /// defined FunctionOnManifold type, ready to be instantiated.
-    ///
-    /// \tparam V input function type templating the DescriptiveWrapper.
-    /// \tparam W descriptive manifold type templating the DescriptiveWrapper.
-    ///
-    /// \param fct instance of the DescriptiveWrapper
-    /// \param problemManifold the manifold describing the whole variable vector.
-    /// \param functionManifold the manifold describing the function's input vector.
-    template<typename V, typename W>
-    explicit FunctionOnManifold (DescriptiveWrapper<V, W>& fct,
-                                 const mnf::Manifold& problemManifold,
-                                 const mnf::Manifold& functionManifold)
-      : FunctionOnManifold(fct, problemManifold, functionManifold,
-			   std::vector<const mnf::Manifold*>(), std::vector<std::pair<long, long>>())
-    {
-    }
+      (inputSize, outputSize, name)
+    {}
 
     /// \brief FunctionOnManifold destructor
     ~FunctionOnManifold();
@@ -128,110 +77,20 @@ namespace roboptim
     /// \brief Traits type.
     typedef typename parent_t::traits_t traits_t;
 
-    std::ostream& print_(std::ostream& o);
+    virtual std::ostream& print_(std::ostream& o) = 0;
 
     /// \brief apply the jacobian on the manifold's tangent space
-    void manifold_jacobian (mnf::RefMat jacobian,
-                            const_argument_ref arg)
-      const;
+    virtual void manifold_jacobian (mnf::RefMat jacobian,
+				    const_argument_ref arg)
+      const = 0;
 
-  protected:
-    void impl_compute (result_ref result, const_argument_ref x)
-      const;
-
-    template <typename V, typename W>
-    void computeMapping(DescriptiveWrapper<V, W>& descWrap,
-			const mnf::Manifold& problemManifold,
-			const mnf::Manifold& functionManifold,
-			std::vector<const mnf::Manifold*> restrictedManifolds,
-			std::vector<std::pair<long, long>> restrictions);
-
-    /// \brief map the input to the restricted problem
-    ///
-    /// \param argument the argument to map
-    void mapArgument(const_argument_ref argument)
-      const;
-
-    /// \brief the function.
-    const GenericFunction<T>* fct_;
-
-    /// \brief the function, differentiable access.
-    const GenericDifferentiableFunction<T>* fctDiff_;
-
-    /// \brief the function, twice differentiable access.
-    const GenericTwiceDifferentiableFunction<T>* fctTwiceDiff_;
-    /// \brief the problem manifold.
-    const mnf::Manifold* manifold_;
-
-    /// \brief array representing the restricted mapping
-    size_t* mappingFromFunction_;
-    /// \brief size of the array
-    long mappingFromFunctionSize_;
-
-    /// \brief array representing the restricted mapping for the tangent problem
-    size_t* tangentMappingFromFunction_;
-    /// \brief size of the array
-    long tangentMappingFromFunctionSize_;
-
-    /// \brief new input mapped to the restricted problem
-    mutable vector_t mappedInput_;
-
-    void impl_gradient (gradient_ref gradient,
-                        const_argument_ref argument,
-                        size_type functionId = 0)
-      const;
-    void impl_jacobian (jacobian_ref jacobian,
-                        const_argument_ref arg)
-      const;
-
-    /// \brief gets the gradient from the restricted problem
-    ///
-    /// \param gradient the output gradient
-    void unmapGradient(gradient_ref) const;
-
-    /// \brief unmap the jacobian from the restricted problem
-    ///
-    /// \param jacobian the jacobian to unmap
-    void unmapTangentJacobian(mnf::RefMat jacobian)
-      const;
-
-    /// \brief new gradient mapped to the restricted problem
-    mutable gradient_t mappedGradient_;
-    /// \brief new jacobian mapped to the restricted problem
-    mutable jacobian_t mappedJacobian_;
-
-    // Dirty copy ONLY
-    mutable Eigen::MatrixXd tangentMappedJacobian;
-
-    void impl_hessian(hessian_ref, const_argument_ref, size_type) const;
-
-    /// \brief gets the hessian from the restricted problem
-    ///
-    /// \param hessian the output hessian
-    void unmapHessian(hessian_ref hessian) const;
-
-    /// \brief new hessian mapped to the restricted problem
-    mutable hessian_t mappedHessian_;
-
-    /// \brief gets the jacobian from the restricted problem
-    ///
-    /// \param instance the FunctionOnManifold
-    /// \param jacobian the output jacobian
-    void unmapJacobian(jacobian_ref jacobian) const;
-
-    /// \brief sets the jacobian on the manifold's tangent space with the
-    /// computed value
-    ///
-    /// \param instance the FunctionOnManifold
-    inline void applyDiff() const;
   public:
     /// \brief Gets the manifold
-    const mnf::Manifold* getManifold() const;
+    virtual const mnf::Manifold* getManifold() const = 0;
 
     static const flag_t flags = ROBOPTIM_IS_ON_MANIFOLD;
 
-    virtual flag_t getFlags() const;
-
+    virtual flag_t getFlags() const = 0;
   };
 
   template <typename T>

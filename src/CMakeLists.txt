@@ -14,3 +14,16 @@
 # along with roboptim-core.  If not, see <http://www.gnu.org/licenses/>.
 
 # Note: header-only, so no library to compile here.
+
+ADD_LIBRARY(roboptim-core-manifold SHARED
+  ${HEADERS}
+  manifold-merger.cc)
+
+IF(MSVC)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_ROBOPTIM")
+  PKG_CONFIG_APPEND_CFLAGS (-DBUILDING_ROBOPTIM)
+ENDIF()
+
+PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold eigen3)
+
+INSTALL(TARGETS roboptim-core-manifold DESTINATION ${CMAKE_INSTALL_LIBDIR})
