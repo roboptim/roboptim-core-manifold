@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
   {
     for (int j = 0; j < 5; ++j)
     {
-      BOOST_CHECK(A.coeffRef(i,j) == computedhessian.coeffRef(i,j));
+      BOOST_CHECK(2*A.coeffRef(i,j) == computedhessian.coeffRef(i,j));
     }
     B[i] = i;
   }
