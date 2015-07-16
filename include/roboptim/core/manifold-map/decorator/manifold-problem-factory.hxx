@@ -257,7 +257,7 @@ void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
-  return this->setObjective(weight,
+  return this->addObjective(weight,
 			    descWrap,
 			    instanceManifold,
 			    restricted,
