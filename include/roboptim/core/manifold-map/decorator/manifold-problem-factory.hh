@@ -27,6 +27,7 @@
 # include <roboptim/core/manifold-map/decorator/manifold-merger.hh>
 # include <roboptim/core/manifold-map/decorator/function-on-manifold.hh>
 # include <roboptim/core/manifold-map/decorator/wrapper-on-manifold.hh>
+# include <roboptim/core/manifold-map/decorator/sum-on-manifold.hh>
 # include <roboptim/core/function/constant.hh>
 
 # include <manifolds/Manifold.h>
@@ -77,14 +78,23 @@ namespace roboptim
     template<class V, class W>
     BoundsAndScalingSetter<T> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
 
+    /// \brief This function adds a SumOnManifold function
+    /// from the AdderOnManifold factory used to build it.
+    BoundsAndScalingSetter<T> addSum(AdderOnManifold<T>& adder);
+
     /// \brief set the objective function of the problem
     ///
     /// \param descWrap DescriptiveWrapper of the objective function
     /// \param instanceManifold manifold on which the objective function will be evaluated
     template<class V, class W>
-    void setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    void setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    void addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    template<class V, class W>
+    void addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    template<class V, class W>
+    void addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+
 
     /// \brief for a given elementary manifold, add bounds to its arguments
     ///
@@ -109,8 +119,8 @@ namespace roboptim
     std::vector<std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>> boundsAndScaling_;
     /// \brief each std::function instantiate and add a constraint to the problem
     std::vector<std::function<void(ProblemOnManifold<T>&, const mnf::Manifold&)>> lambdas_;
-    /// \brief instantiate and add the objective function to the problem
-    std::function<ProblemOnManifold<T>*(mnf::CartesianProduct&)> objLambda_;
+    /// \brief construct an objective function by adding functions together
+    AdderOnManifold<T> objFunc_;
 
     /// \brief break down a manifold in elementary manifolds and adds them to the map
     void addElementaryManifolds(const mnf::Manifold& instanceManifold);

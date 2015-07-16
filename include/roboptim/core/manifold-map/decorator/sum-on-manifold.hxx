@@ -16,28 +16,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX
-#define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX
+#ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX
+# define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX
 
 namespace roboptim
 {
-  template<typename T>
-  template<typename ... Types>
-  ProblemOnManifold<T>::ProblemOnManifold(mnf::Manifold& manifold, Types&& ... args)
-    : Problem<T>(args...),
-      manifold_(manifold)
-  {
-  }
 
-  template<typename T>
-  ProblemOnManifold<T>::~ProblemOnManifold()
-  {
-  }
-
-  template<typename T>
-  mnf::Manifold& ProblemOnManifold<T>::getManifold() const
-  {
-    return this->manifold_;
-  }
 }
-#endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX
+
+#endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX

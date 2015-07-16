@@ -19,6 +19,9 @@
 
 namespace roboptim
 {
+  ManifoldMerger::ManifoldMerger()
+    : mergedManifold_(new mnf::CartesianProduct())
+  {}
 
   void ManifoldMerger::addManifold(const mnf::Manifold& instanceManifold)
   {
@@ -68,26 +71,25 @@ namespace roboptim
 
   void ManifoldMerger::clear()
   {
+    mergedManifold_.reset(new mnf::CartesianProduct());
     elementaryInstanceManifolds_.clear();
   }
 
   mnf::CartesianProduct* ManifoldMerger::getManifold()
   {
-    mnf::CartesianProduct* globalManifold = new mnf::CartesianProduct();
-
     for (auto ite = this->elementaryInstanceManifolds_.begin();
 	 ite != elementaryInstanceManifolds_.end();
 	 ++ite)
       {
-	globalManifold->multiply(*(ite->second));
+	mergedManifold_->multiply(*(ite->second));
       }
 
-    if (globalManifold->representationDim() <= 0)
+    if (mergedManifold_->representationDim() <= 0)
       {
 	throw std::runtime_error("The problem should not be empty.");
       }
 
-    return globalManifold;
+    return &(*mergedManifold_);
   }
 
 }

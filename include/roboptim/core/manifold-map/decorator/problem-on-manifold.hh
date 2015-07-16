@@ -38,7 +38,7 @@ namespace roboptim
 
   public:
     template<typename ... Types>
-    ProblemOnManifold(mnf::Manifold& manifold, Types& ... args);
+    ProblemOnManifold(mnf::Manifold& manifold, Types&& ... args);
 
     virtual ~ProblemOnManifold();
 

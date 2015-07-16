@@ -39,6 +39,8 @@ SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-problem-factory.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-problem-factory.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/manifold-merger.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/sum-on-manifold.hh
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/sum-on-manifold.hxx
   )
 
 SETUP_PROJECT()
@@ -47,7 +49,7 @@ SETUP_PROJECT()
 INCLUDE(CheckCCompilerFlag)
 CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAS_VISIBILITY)
 IF(HAS_VISIBILITY)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -std=c++0x")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -std=c++0x -ferror-limit=1")
 ENDIF()
 
 # TODO: Add main library to pkg-config file.

@@ -97,6 +97,64 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWr
 			     restrictions);
 }
 
+template<typename T>
+BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addSum(AdderOnManifold<T>& adder)
+{
+  this->addElementaryManifolds(*adder.getManifold());
+  this->boundsAndScaling_.push_back(std::make_pair(typename GenericFunction<T>::intervals_t(), typename Problem<T>::scaling_t()));
+
+  std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_.back());
+
+  // We need the type of the function to instantiate the WrapperOnManifold
+  // wrapper, hence why we capture the information we need here and wait
+  // for the global manifold to be defined to execute this lambda.
+  //
+  // ... in a sense, we are somewhat capturing the type information within
+  // this lambda, which is awesome.
+  auto addConstraint =
+    [&adder, this](size_t i){
+    return [&adder, this, i]
+    (ProblemOnManifold<T>& problem,
+     const mnf::Manifold& globMani)
+    {
+      std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
+
+      std::shared_ptr<FunctionOnManifold<T>> stdFuncOnMani = adder.getFunction(globMani);
+
+      globMani.display();
+      std::cout << "problem.function().inputSize(): " << problem.function().inputSize() << std::endl;
+      std::cout << "stdFuncOnMani->inputSize(): " << stdFuncOnMani->inputSize() << std::endl;
+
+      ::boost::shared_ptr<FunctionOnManifold<T>>
+      funcOnMani(stdFuncOnMani.get(), [stdFuncOnMani](FunctionOnManifold<T>*){});
+
+      while (bNSPair->first.size() < static_cast<size_t>(funcOnMani->outputSize()))
+	{
+	  std::cerr << "Warning: bounds not specified for output "
+		    << bNSPair->first.size() << " of constrained function "
+		    << funcOnMani->getName() << "." << std::endl
+		    << "Assuming no bounds..." << std::endl;
+	  bNSPair->first.push_back(GenericFunction<T>::makeInfiniteInterval());
+	}
+
+      while (bNSPair->second.size() < static_cast<size_t>(funcOnMani->outputSize()))
+	{
+	  std::cerr << "Warning: scale not specified for output "
+	  << bNSPair->second.size() << " of constrained function "
+	  << funcOnMani->getName() << "." << std::endl
+	  << "Assuming a scale of 1..." << std::endl;
+	  bNSPair->second.push_back(1.);
+	}
+
+      problem.addConstraint(funcOnMani, bNSPair->first, bNSPair->second);
+    };
+  }(this->boundsAndScaling_.size() - 1);
+
+  this->lambdas_.push_back(addConstraint);
+
+  return BoundsAndScalingSetter<T>(*bNSPair);
+}
+
 // ---- //
 
 template<typename T>
@@ -114,7 +172,30 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
   // be added by the objLambda_ function below.
   mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
 
-  ProblemOnManifold<T>* problem = this->objLambda_(*globalManifold);
+  // If no objective function was added to the problem, we add a constant
+  // function to serve as as dummy one.
+  if (objFunc_.numberOfFunctions() <= 0)
+    {
+      std::cout << "ADDING A DUMMY OBJECTIVE FUNCTION" << std::endl;
+      typename GenericConstantFunction<T>::vector_t offset (1);
+      offset.setZero();
+      GenericConstantFunction<T>* cst  = new GenericConstantFunction<T>(static_cast<typename GenericFunction<T>::size_type>(globalManifold->representationDim()), offset);
+
+      // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
+      // the overloaded constructor instead of the variadic one
+      mnf::Manifold& globberMani = *globalManifold;
+
+      DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>* descWrap = new
+      DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>(cst, globberMani);
+
+      objFunc_.add(*descWrap, globberMani);
+    }
+
+  std::shared_ptr<FunctionOnManifold<T>> objFunc = objFunc_.getFunction(*globalManifold);
+
+  std::cout << "objFunc->inputSize(): " << objFunc->inputSize() << std::endl;
+
+  ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, *objFunc);
 
   for (auto lambda : this->lambdas_)
     {
@@ -163,55 +244,50 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 
 template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
-  this->objLambda_ = [&descWrap, &instanceManifold, this, restricted, restrictions](mnf::CartesianProduct& globMani)
-    {
-      std::vector<long> manifoldIds;
-      std::function<void(const mnf::Manifold&)> addElementaries =
-      [this, &addElementaries, &globMani, &manifoldIds]
-      (const mnf::Manifold& manifold)
-      {
-	if (manifold.isElementary())
-	  {
-	    if (!constraintsManifold_.contains(manifold)
-		&& std::find(manifoldIds.begin(), manifoldIds.end(), manifold.getInstanceId()) == manifoldIds.end())
-	      {
-		manifoldIds.push_back(manifold.getInstanceId());
-		globMani.multiply(manifold);
-	      }
-	  }
-	else
-	  {
-	    for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
-	      {
-		addElementaries(manifold(i));
-	      }
-	  }
-      };
-
-      addElementaries(instanceManifold);
-
-      FunctionOnManifold<T>* objOnMani =
-      new WrapperOnManifold<T>
-      (descWrap, globMani, instanceManifold, restricted, restrictions);
-
-      return new ProblemOnManifold<T>(globMani, *objOnMani);
-    };
+  this->addElementaryManifolds(instanceManifold);
+  objFunc_.add(weight, descWrap, instanceManifold, restricted, restrictions);
 }
 
 template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<T>::setObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
 
-  return this->setObjective(descWrap,
+  return this->setObjective(weight,
+			    descWrap,
 			    instanceManifold,
 			    restricted,
 			    restrictions);
 }
+
+template<typename T>
+template<class V, class W>
+void ManifoldProblemFactory<T>::addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+{
+  return this->addObjective(1.0,
+			    descWrap,
+			    instanceManifold,
+			    restricted,
+			    restrictions);
+}
+
+template<typename T>
+template<class V, class W>
+void ManifoldProblemFactory<T>::addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+{
+  std::vector<const mnf::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  return this->addObjective(descWrap,
+			    instanceManifold,
+			    restricted,
+			    restrictions);
+}
+
 
 template<class T>
 void ManifoldProblemFactory<T>::addArgumentBounds(const mnf::Manifold& manifold, const typename GenericFunction<T>::intervals_t& bounds)
@@ -252,26 +328,7 @@ void ManifoldProblemFactory<T>::reset()
   constraintsManifold_.clear();
   boundsAndScaling_.clear();
   lambdas_.clear();
-
-  this->objLambda_ = [](mnf::CartesianProduct& globMani)
-    {
-      typename GenericConstantFunction<T>::vector_t offset (1);
-      offset.setZero();
-      GenericConstantFunction<T>* cst  = new GenericConstantFunction<T>(static_cast<typename GenericFunction<T>::size_type>(globMani.representationDim()),offset);
-
-      // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
-      // the overloaded constructor instead of the variadic one
-      mnf::Manifold& globberMani = globMani;
-
-      DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>
-      descWrap(cst, globberMani);
-
-      FunctionOnManifold<T>*
-      objOnMani = new WrapperOnManifold<T>
-      (descWrap, globMani, globMani);
-
-      return new ProblemOnManifold<T>(globMani, *objOnMani);
-    };
+  objFunc_.clear();
 }
 
 // ---- //

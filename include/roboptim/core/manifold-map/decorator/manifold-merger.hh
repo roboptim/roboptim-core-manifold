@@ -32,6 +32,8 @@ namespace roboptim
 
   struct ManifoldMerger
   {
+    ManifoldMerger();
+
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
 
     void addManifold(const mnf::Manifold& instanceManifold);
@@ -43,6 +45,8 @@ namespace roboptim
     void clear();
 
     mnf::CartesianProduct* getManifold();
+
+    std::shared_ptr<mnf::CartesianProduct> mergedManifold_;
   };
 
   /// @}

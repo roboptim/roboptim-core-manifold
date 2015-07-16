@@ -25,6 +25,7 @@
 #include <roboptim/core/manifold-map/decorator/manifold-map.hh>
 #include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
 #include <roboptim/core/manifold-map/decorator/manifold-problem-factory.hh>
+#include <roboptim/core/manifold-map/decorator/sum-on-manifold.hh>
 
 #include <manifolds/SO3.h>
 #include <manifolds/RealSpace.h>
@@ -260,7 +261,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   restricted.push_back(&r42);
   restricted.push_back(&r42);
 
-  factory.setObjective(cnstr3, prod2, restricted, restrictions);
+  factory.addObjective(cnstr3, prod2, restricted, restrictions);
 
   std::vector<std::pair<double, double>> bounds;
 
@@ -304,13 +305,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
       BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
     }
 
-  for (; i < 22 + 39; ++i)
-    {
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -3);
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 3);
-    }
-
-  for (; i < 22 + 39 + 41; ++i)
+  for (; i < 22 + 41; ++i)
     {
       BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -2);
       BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 2);
@@ -318,6 +313,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -Func::infinity());
   BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
+
+  ++i;
+
+  for (; i < 22 + 39 + 42; ++i)
+    {
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -3);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 3);
+    }
 
   delete manifoldProblem;
 }
@@ -375,5 +378,85 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functi
   roboptim::ProblemOnManifold<T>* manifoldProblem;
   BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(); delete manifoldProblem, std::runtime_error);
 }
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
+{
+  typedef F<T> Func;
+  typedef G<T> Gunc;
+  typedef I<T> Iunc;
+
+  roboptim::AdderOnManifold<T> adder;
+
+  ROBOPTIM_DESC_MANIFOLD(R3, ROBOPTIM_REAL_SPACE(3));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(G_On_R3, Gunc, R3);
+
+  ROBOPTIM_DESC_MANIFOLD(SO3, roboptim::SO3);
+  ROBOPTIM_NAMED_FUNCTION_BINDING(F_On_SO3, Func, SO3);
+
+  ROBOPTIM_DESC_MANIFOLD(R3XSO3XR10, ROBOPTIM_REAL_SPACE(3), roboptim::SO3, ROBOPTIM_REAL_SPACE(10));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(I_On_R3XSO3XR10, Iunc, R3XSO3XR10);
+
+  mnf::RealSpace pos(3);
+  mnf::SO3<mnf::ExpMapMatrix> ori;
+  mnf::RealSpace joints(10);
+  mnf::CartesianProduct prod;
+  prod.multiply(pos).multiply(ori).multiply(joints);
+  mnf::RealSpace r42(42);
+  mnf::RealSpace r39(39);
+
+  mnf::CartesianProduct prod2;
+  prod2.multiply(r42).multiply(ori).multiply(r42);
+  mnf::CartesianProduct prod3;
+  prod3.multiply(r39).multiply(ori).multiply(r39);
+
+  F_On_SO3 cnstr1;
+  G_On_R3 objDesc;
+  I_On_R3XSO3XR10 cnstr3;
+
+  double weights[] = {6, -3, 2};
+
+  std::vector<const mnf::Manifold*> restricted;
+  std::vector<std::pair<long, long>> restrictions;
+
+  restricted.push_back(&r39);
+  restrictions.push_back(std::make_pair(14, 3));
+  restricted.push_back(&r39);
+  restrictions.push_back(std::make_pair(0, 10));
+
+  adder.add(weights[2], cnstr1, ori);
+  adder.add(weights[0], objDesc, pos);
+  adder.add(weights[1], cnstr3, prod3, restricted, restrictions);
+
+  adder.clear();
+
+  adder.add(weights[0], cnstr1, ori);
+  adder.add(weights[1], objDesc, pos);
+  adder.add(weights[2], cnstr3, prod3, restricted, restrictions);
+
+  roboptim::ManifoldProblemFactory<T> factory;
+
+  adder.getManifold()->display();
+
+  factory.addSum(adder);
+
+  roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
+
+  manifoldProblem->getManifold().display();
+
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 12 + 39);
+
+  Func fF;
+  Gunc gF;
+  Iunc iF;
+
+  std::shared_ptr<roboptim::FunctionOnManifold<T>> sum = adder.getFunction(manifoldProblem->getManifold());
+
+  Eigen::VectorXd input(manifoldProblem->getManifold().representationDim());
+
+  input = 42 * Eigen::VectorXd::Ones(input.size());
+
+  BOOST_CHECK(weights[0] * fF(input.segment<9>(3)) + weights[1] * gF(input.head<3>()) + weights[2] * iF(input.head<22>()) == (*sum)(input));
+}
+
 
 BOOST_AUTO_TEST_SUITE_END ()
