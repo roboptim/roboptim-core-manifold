@@ -51,11 +51,13 @@ SETUP_PROJECT()
 INCLUDE(CheckCCompilerFlag)
 CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAS_VISIBILITY)
 IF(HAS_VISIBILITY)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -std=c++0x -ferror-limit=1")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 ENDIF()
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ferror-limit=1")
+
 # TODO: Add main library to pkg-config file.
-#PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
+PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
 
 # Search for dependencies.
 SET(BOOST_COMPONENTS

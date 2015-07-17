@@ -16,14 +16,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with roboptim.  If not, see <http://www.gnu.org/licenses/>.
 #include <roboptim/core/manifold-map/decorator/manifold-merger.hh>
+#include <roboptim/core/portability.hh>
+
 
 namespace roboptim
 {
-  ManifoldMerger::ManifoldMerger()
+  ROBOPTIM_DLLEXPORT ManifoldMerger::ManifoldMerger()
     : mergedManifold_(new mnf::CartesianProduct())
   {}
 
-  void ManifoldMerger::addManifold(const mnf::Manifold& instanceManifold)
+  ROBOPTIM_DLLEXPORT void ManifoldMerger::addManifold(const mnf::Manifold& instanceManifold)
   {
     std::function<void(const mnf::Manifold&)> addElementaries =
       [this, &addElementaries]
@@ -51,12 +53,12 @@ namespace roboptim
     addElementaries(instanceManifold);
   }
 
-  bool ManifoldMerger::contains(const mnf::Manifold& instanceManifold)
+  ROBOPTIM_DLLEXPORT bool ManifoldMerger::contains(const mnf::Manifold& instanceManifold)
   {
     return elementaryInstanceManifolds_.find(instanceManifold.getInstanceId()) != elementaryInstanceManifolds_.end();
   }
 
-  void ManifoldMerger::addManifolds(const ManifoldMerger& other)
+  ROBOPTIM_DLLEXPORT void ManifoldMerger::addManifolds(const ManifoldMerger& other)
   {
     for (auto& ite : other.elementaryInstanceManifolds_)
       {
@@ -69,13 +71,13 @@ namespace roboptim
       }
   }
 
-  void ManifoldMerger::clear()
+  ROBOPTIM_DLLEXPORT void ManifoldMerger::clear()
   {
     mergedManifold_.reset(new mnf::CartesianProduct());
     elementaryInstanceManifolds_.clear();
   }
 
-  mnf::CartesianProduct* ManifoldMerger::getManifold()
+  ROBOPTIM_DLLEXPORT mnf::CartesianProduct* ManifoldMerger::getManifold()
   {
     for (auto ite = this->elementaryInstanceManifolds_.begin();
 	 ite != elementaryInstanceManifolds_.end();
