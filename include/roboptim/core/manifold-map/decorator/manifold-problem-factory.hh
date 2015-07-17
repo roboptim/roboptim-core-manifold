@@ -126,6 +126,13 @@ namespace roboptim
     void addElementaryManifolds(const mnf::Manifold& instanceManifold);
     /// \brief assemble all elementary manifolds into the global manifold of the problem
     mnf::CartesianProduct* getGlobalManifold();
+
+    /// \brief shared_ptr to the last objective function created
+    /// This is needed since RobOptim needs a reference to the
+    /// objective function, when we want to manage it with a
+    /// shared_ptr.
+    std::shared_ptr<FunctionOnManifold<T>> lastObjFunc_;
+
   };
 
   /// @}

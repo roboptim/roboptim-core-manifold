@@ -191,11 +191,9 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
       objFunc_.add(*descWrap, globberMani);
     }
 
-  std::shared_ptr<FunctionOnManifold<T>> objFunc = objFunc_.getFunction(*globalManifold);
+  lastObjFunc_ = objFunc_.getFunction(*globalManifold);
 
-  std::cout << "objFunc->inputSize(): " << objFunc->inputSize() << std::endl;
-
-  ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, *objFunc);
+  ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, *lastObjFunc_);
 
   for (auto lambda : this->lambdas_)
     {

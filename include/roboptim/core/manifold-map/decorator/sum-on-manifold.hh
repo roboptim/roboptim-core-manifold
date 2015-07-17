@@ -43,6 +43,16 @@ namespace roboptim
   template<typename T>
   class AdderOnManifold;
 
+  /// \brief This RobOptim function computes a weighted sum of
+  /// FunctionOnManifold. It is defined on a manifold which
+  /// merges all elementary manifolds of the functions it sums
+  /// as merged by a ManifoldMerger.
+  ///
+  /// Since messing up the arguments and wrapping around it is
+  /// easy, it can only be constructed through an appropriate
+  /// factory, AdderOnManifold.
+  ///
+  /// \tparam T RobOptim Eigen matrix type
   template<typename T>
   class SumOnManifold
     : public GenericTwiceDifferentiableFunction<T>
@@ -51,189 +61,114 @@ namespace roboptim
   public:
     ROBOPTIM_TWICE_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (GenericTwiceDifferentiableFunction<T>);
 
+    /// This function can only be created through a factory
     friend class AdderOnManifold<T>;
 
   private:
+    /// \brief shared pointers to the functions to sum
     std::vector<std::shared_ptr<FunctionOnManifold<T> > > functions_;
+    /// \brief weight of each function in the sum
     std::vector<double> weights_;
 
+    /// \brief the type flags of this function sum
     flag_t flags_;
 
+    /// \brief a buffer for the result of computing this sum
     mutable result_t resultBuffer;
+    /// \brief a buffer for the result of computing the jacobian of this sum
     mutable jacobian_t jacobianBuffer;
+    /// \brief a buffer for the result of computing the hessian of this sum
     mutable hessian_t hessianBuffer;
 
+    /// \brief constructs a SumOnManifold
+    ///
+    /// \param functions a vector of functions to be summed
+    /// \param weights a vector of weights, one for each function
+    /// \param inputSize the inputSize of this sum (representationDim of the merged manifold)
+    /// \param outputSize the outputSize of all summed functions
+    /// \param name the name of this sum
     SumOnManifold(std::vector<std::shared_ptr<FunctionOnManifold<T> > >& functions,
 		  std::vector<double> weights,
-		  size_type inputSize, size_type outputSize, std::string name)
-      : GenericTwiceDifferentiableFunction<T>(inputSize, outputSize, name),
-	functions_(functions),
-	weights_(weights),
-	resultBuffer(outputSize),
-	jacobianBuffer(inputSize, outputSize)
-    {
-      flags_ = functions_[0]->getFlags();
-
-      for (auto func : functions_)
-	{
-	  flags_ &= func->getFlags();
-	}
-    }
+		  size_type inputSize, size_type outputSize, std::string name);
 
   public:
     void impl_compute (result_ref result, const_argument_ref x)
-      const
-    {
-      size_t i = 0;
-      for (auto function : functions_)
-	{
-	  resultBuffer.setZero();
-	  (*function)(resultBuffer, x);
-	  result += weights_[i++] * resultBuffer;
-	}
-    }
+      const;
 
     void impl_gradient (gradient_ref,
                         const_argument_ref,
                         size_type)
-      const
-    {
-      std::cerr << "UNIMPLEMENTED GRADIENT IN SUM ON MANIFOLD" << std::endl;
-    }
+      const;
 
     void impl_jacobian (jacobian_ref jacobian,
                         const_argument_ref arg)
-      const
-    {
-      size_t i = 0;
-      for (auto function : functions_)
-	{
-	  jacobianBuffer.setZero();
-	  function->jacobian(jacobianBuffer, arg);
-	  jacobian += weights_[i++] * jacobianBuffer;
-	}
-    }
+      const;
 
     void impl_hessian(hessian_ref hessian,
 		      const_argument_ref arg,
 		      size_type functionId = 0)
-      const
-    {
-      size_t i = 0;
-      for (auto function : functions_)
-	{
-	  hessianBuffer.setZero();
-	  function->hessian(hessianBuffer, arg, functionId);
-	  hessian += weights_[i++] * hessianBuffer;
-	}
-    }
+      const;
 
-    virtual flag_t getFlags() const
-    {
-      return flags_;
-    }
+    virtual flag_t getFlags() const;
   };
 
+  /// \brief This class is a factory used to create a weighted
+  /// sum of FunctionOnManifold functions.
+  ///
+  /// \tparam T RobOptim Eigen matrix type
   template<typename T>
   class AdderOnManifold
   {
     typedef typename std::function<std::shared_ptr<FunctionOnManifold<T>>(const mnf::Manifold&)> descWrap_storage_t;
 
+    /// \brief DescriptiveWrappers of functions to be summed.
+    /// Stored as lambda functions to instantiate the FunctionOnManifold
+    /// upon receiving the merged manifold.
     std::vector<descWrap_storage_t> functionsToSum_;
+    /// \brief weights of each function
     std::vector<double> weights_;
+    /// \brief utility member to compute the merged manifold of all summed functions
     ManifoldMerger merger_;
 
   public:
+    /// \brief Default constructor
     AdderOnManifold(){}
 
+    /// \brief Adds a function to the sum
+    ///
+    /// \tparam U type of the function being added
+    /// \tparam V ManiDesc of the DescriptiveWrapper being added. Irrelevant here.
+    ///
+    /// \param weight weight fo the function in the weighted sum
+    /// \param descWrap a DescriptiveWrapper<U, V> representing the function to be added to the sum
+    /// \param instanceManifold the manifold on which the function will be instantiated
+    /// \param restricted list of restricted manifolds
+    /// \param restrictions list of restrictions for the restricted manifolds
     template<typename U, typename V>
-    void add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
-    {
-      add(1.0, descWrap, instanceManifold, restricted, restrictions);
-    }
-
+    void add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<typename U, typename V>
-    void add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold)
-    {
-      std::vector<const mnf::Manifold*> restricted;
-      std::vector<std::pair<long, long>> restrictions;
-
-      add(descWrap, instanceManifold, restricted, restrictions);
-    }
-
-    template<typename U, typename V>
-    void add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold)
-    {
-      std::vector<const mnf::Manifold*> restricted;
-      std::vector<std::pair<long, long>> restrictions;
-
-      add(weight, descWrap, instanceManifold, restricted, restrictions);
-    }
+    void add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
 
     template<typename U, typename V>
-    void add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
-    {
-      descWrap_storage_t lambda =
-	[&descWrap, this, &instanceManifold, restricted, restrictions]
-	(const mnf::Manifold& globMani)
-	{
-	  return std::shared_ptr<FunctionOnManifold<T>>
-	  (new WrapperOnManifold<T>
-	   (descWrap, globMani, instanceManifold, restricted, restrictions)
-	   );
-	};
+    void add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold);
 
-      functionsToSum_.push_back(lambda);
-      weights_.push_back(weight);
-      merger_.addManifold(instanceManifold);
-    }
+    template<typename U, typename V>
+    void add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold);
 
-    std::shared_ptr<FunctionOnManifold<T>> getFunction(const mnf::Manifold& globMani)
-    {
-      mnf::Manifold* sumManifold = merger_.getManifold();
+    /// \brief Instantiate and return a shared pointer to a function computing the
+    /// weighted sum of all functions added through the add(...) methods.
+    ///
+    /// \param globMani the manifold of the problem on which the function will be evaluated
+    std::shared_ptr<FunctionOnManifold<T>> getFunction(const mnf::Manifold& globMani);
 
-      std::vector<std::shared_ptr<FunctionOnManifold<T> > > functions;
-      std::string name;
+    /// \brief clears out all fields of this instance
+    void clear();
 
-      for (descWrap_storage_t& lambda : functionsToSum_)
-	{
-	  functions.push_back(lambda(*sumManifold));
-	  name += (name.size() > 0 ? " ":"") + functions.back()->getName();
-	}
+    /// \brief returns the merged manifold of all added functions
+    mnf::Manifold* getManifold();
 
-      typedef DescriptiveWrapper<SumOnManifold<T>, ManiDesc<>> descWrap_t;
-
-      SumOnManifold<T>* sumFunction = new SumOnManifold<T>(functions,
-							   weights_,
-							   functions[0]->inputSize(),
-							   functions[0]->outputSize(),
-							   name);
-
-      descWrap_t* descWrap = descWrap_t::makeUNCHECKEDDescriptiveWrapper(sumFunction, *sumManifold);
-
-      return std::shared_ptr<FunctionOnManifold<T>>(new WrapperOnManifold<T>
-						    (*descWrap, globMani, *sumManifold)
-						    );
-
-      delete descWrap;
-    }
-
-    void clear()
-    {
-      functionsToSum_.clear();
-      weights_.clear();
-      merger_.clear();
-    }
-
-    mnf::Manifold* getManifold()
-    {
-      return merger_.getManifold();
-    }
-
-    size_t numberOfFunctions()
-    {
-      return functionsToSum_.size();
-    }
+    /// \brief return the number of functions added to the sum
+    size_t numberOfFunctions();
   };
 
   /// @}
