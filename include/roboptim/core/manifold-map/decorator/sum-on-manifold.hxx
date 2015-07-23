@@ -45,6 +45,7 @@ namespace roboptim
   void SumOnManifold<T>::impl_compute (result_ref result, const_argument_ref x)
     const
   {
+    result.setZero();
     size_t i = 0;
     for (auto function : functions_)
       {
@@ -68,6 +69,7 @@ namespace roboptim
 		      const_argument_ref arg)
     const
   {
+    jacobian.setZero();
     size_t i = 0;
     for (auto function : functions_)
       {
@@ -83,6 +85,7 @@ namespace roboptim
 		    size_type functionId)
     const
   {
+    hessian.setZero();
     size_t i = 0;
     for (auto function : functions_)
       {
