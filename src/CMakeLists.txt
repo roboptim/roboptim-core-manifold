@@ -25,5 +25,6 @@ IF(MSVC)
 ENDIF()
 
 PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold eigen3)
+PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold manifolds)
 
 INSTALL(TARGETS roboptim-core-manifold DESTINATION ${CMAKE_INSTALL_LIBDIR})
