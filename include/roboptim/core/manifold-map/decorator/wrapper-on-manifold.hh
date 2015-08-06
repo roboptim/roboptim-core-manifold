@@ -41,7 +41,6 @@ namespace roboptim
   /// \tparam T Matrix type
   template <typename T>
   class WrapperOnManifold :
-    private boost::noncopyable,
     public FunctionOnManifold<T>
   {
     ROBOPTIM_DEFINE_FLAG_TYPE();

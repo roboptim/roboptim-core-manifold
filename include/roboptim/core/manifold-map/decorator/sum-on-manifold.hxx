@@ -188,8 +188,6 @@ namespace roboptim
     return std::shared_ptr<FunctionOnManifold<T>>(new WrapperOnManifold<T>
 						  (*descWrap, globMani, *sumManifold)
 						  );
-
-    delete descWrap;
   }
 
   template<typename T>
