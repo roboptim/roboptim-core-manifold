@@ -25,6 +25,7 @@ INCLUDE(cmake/eigen.cmake)
 SET(PROJECT_NAME roboptim-core-manifold)
 SET(PROJECT_DESCRIPTION "RobOptim Core - manifold support")
 SET(PROJECT_URL "http://github.com/roboptim/roboptim-core-manifold")
+SET(PROJECT_DEBUG_POSTFIX "_d")
 
 SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/descriptive-wrapper.hh
@@ -53,8 +54,12 @@ CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAS_VISIBILITY)
 IF(HAS_VISIBILITY)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 ENDIF()
+CHECK_C_COMPILER_FLAG(-ferror-limit=1 HAS_ERROR_LIMIT)
+IF(HAS_ERROR_LIMIT)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ferror-limit=1")
+ENDIF()
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -ferror-limit=1")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 # TODO: Add main library to pkg-config file.
 PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
@@ -68,7 +73,7 @@ ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.2.0")
 ADD_REQUIRED_DEPENDENCY("liblog4cxx >= 0.10.0")
 ADD_REQUIRED_DEPENDENCY("roboptim-core >= 3.1")
 
-ADD_REQUIRED_DEPENDENCY("manifolds")
+ADD_REQUIRED_DEPENDENCY("manifolds" "manifolds_d")
 
 HEADER_INSTALL("${HEADERS}")
 
