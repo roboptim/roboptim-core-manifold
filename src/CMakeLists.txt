@@ -24,6 +24,8 @@ IF(MSVC)
   PKG_CONFIG_APPEND_CFLAGS (-DBUILDING_ROBOPTIM)
 ENDIF()
 
+PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
+
 PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold eigen3)
 PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold manifolds)
 
