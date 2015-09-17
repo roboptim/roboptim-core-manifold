@@ -167,7 +167,7 @@ template<typename T>
 ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 {
   // The global manifold is incomplete and only contains the
-  // elementary manifolds of the cosntraints here.
+  // elementary manifolds of the constraints here.
   // The elementary manifolds of the objective function will
   // be added by the objLambda_ function below.
   mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
@@ -179,7 +179,11 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
       std::cout << "ADDING A DUMMY OBJECTIVE FUNCTION" << std::endl;
       typename GenericConstantFunction<T>::vector_t offset (1);
       offset.setZero();
-      GenericConstantFunction<T>* cst  = new GenericConstantFunction<T>(static_cast<typename GenericFunction<T>::size_type>(globalManifold->representationDim()), offset);
+
+      typedef typename GenericFunction<T>::size_type size_type;
+      size_type n = static_cast<size_type> (globalManifold->representationDim ());
+      assert (n > 0);
+      GenericConstantFunction<T>* cst = new GenericConstantFunction<T> (n, offset);
 
       // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
@@ -315,7 +319,7 @@ template<class T>
 ManifoldProblemFactory<T>::ManifoldProblemFactory()
 {
   // We only call this method here to set the objective funtion lambda,
-  // thus avoiding to duplicate or isolate the the code needed
+  // thus avoiding to duplicate or isolate the code needed
   // to create it
   this->reset();
 }

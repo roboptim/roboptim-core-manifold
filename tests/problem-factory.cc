@@ -458,5 +458,4 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
   BOOST_CHECK(weights[0] * fF(input.segment<9>(3)) + weights[1] * gF(input.head<3>()) + weights[2] * iF(input.head<22>()) == (*sum)(input));
 }
 
-
 BOOST_AUTO_TEST_SUITE_END ()
