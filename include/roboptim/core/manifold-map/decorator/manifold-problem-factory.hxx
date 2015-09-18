@@ -23,6 +23,12 @@
 namespace roboptim {
 
 template<typename T>
+::boost::shared_ptr<T> make_shared_ptr(std::shared_ptr<T>& ptr)
+{
+  return ::boost::shared_ptr<T>(ptr.get(), [ptr](T*) mutable {ptr.reset();});
+}
+
+template<typename T>
 void ManifoldProblemFactory<T>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
 {
   constraintsManifold_.addManifold(instanceManifold);
@@ -193,7 +199,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 
   lastObjFunc_ = objFunc_.getFunction(*globalManifold);
 
-  ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, *lastObjFunc_);
+  ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, make_shared_ptr(lastObjFunc_));
 
   for (auto lambda : this->lambdas_)
     {
