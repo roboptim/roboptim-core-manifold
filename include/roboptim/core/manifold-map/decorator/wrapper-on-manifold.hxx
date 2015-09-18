@@ -28,6 +28,7 @@
 # include <boost/format.hpp>
 # include <boost/mpl/assert.hpp>
 
+# include <roboptim/core/debug.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>

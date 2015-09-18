@@ -20,6 +20,8 @@
 
 # include <boost/pointer_cast.hpp>
 
+# include <roboptim/core/debug.hh>
+
 namespace roboptim {
 
 template<typename T>
@@ -121,9 +123,9 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addSum(AdderOnManifold<T>& 
 
       std::shared_ptr<FunctionOnManifold<T>> stdFuncOnMani = adder.getFunction(globMani);
 
-      globMani.display();
+      ROBOPTIM_DEBUG_ONLY(globMani.display();
       std::cout << "problem.function().inputSize(): " << problem.function().inputSize() << std::endl;
-      std::cout << "stdFuncOnMani->inputSize(): " << stdFuncOnMani->inputSize() << std::endl;
+      std::cout << "stdFuncOnMani->inputSize(): " << stdFuncOnMani->inputSize() << std::endl;)
 
       ::boost::shared_ptr<FunctionOnManifold<T>>
       funcOnMani(stdFuncOnMani.get(), [stdFuncOnMani](FunctionOnManifold<T>*){});
@@ -176,7 +178,8 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
   // function to serve as as dummy one.
   if (objFunc_.numberOfFunctions() <= 0)
     {
-      std::cout << "ADDING A DUMMY OBJECTIVE FUNCTION" << std::endl;
+      ROBOPTIM_DEBUG_ONLY(std::cout << "ADDING A DUMMY OBJECTIVE FUNCTION" << std::endl;)
+
       typename GenericConstantFunction<T>::vector_t offset (1);
       offset.setZero();
 
