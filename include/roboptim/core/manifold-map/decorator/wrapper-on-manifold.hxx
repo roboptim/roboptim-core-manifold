@@ -335,8 +335,7 @@ namespace roboptim
     // the getCurrentOccurenceCount and incrementOccurenceCount
     // helper lambda functions.
     traversalOccurences.clear();
-    this->mappingFromFunctionSize_ = computeRestrictedDimension(functionManifold);
-    this->mappingFromFunction_ = new size_t[this->mappingFromFunctionSize_];
+    this->mappingFromFunction_.resize (computeRestrictedDimension(functionManifold), 0);
 
     // Clear the traversalOccurences map to ensure a clean use of
     // the getCurrentOccurenceCount and incrementOccurenceCount
@@ -344,10 +343,11 @@ namespace roboptim
     traversalOccurences.clear();
     onTangentSpace = true;
     this->tangentMappingFromFunctionSize_ = computeRestrictedDimension(functionManifold);
+    // FIXME: use a std::vector or equivalent, and initialize it
     this->tangentMappingFromFunction_ = new size_t[this->tangentMappingFromFunctionSize_];
     onTangentSpace = false;
 
-    this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunctionSize_);
+    this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunction_.size());
 
     // This lambda computes the actual mapping between a manifold and the one
     // in its place in the global manifold of the problem.
@@ -435,7 +435,7 @@ namespace roboptim
   WrapperOnManifold<T>::mapArgument (const_argument_ref argument)
     const
   {
-    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
+    for (size_t i = 0; i < this->mappingFromFunction_.size (); ++i)
       {
 	this->mappedInput_(i) = argument(static_cast<long>(this->mappingFromFunction_[i]));
       }
@@ -455,7 +455,6 @@ namespace roboptim
   WrapperOnManifold<T>::~WrapperOnManifold()
 
   {
-    delete [] this->mappingFromFunction_;
     delete [] this->tangentMappingFromFunction_;
   }
 
@@ -476,7 +475,7 @@ namespace roboptim
   {
     assert(gradient.cols() == this->inputSize());
 
-    for (int i = 0; i < this->mappingFromFunctionSize_; ++i)
+    for (int i = 0; i < static_cast<int> (this->mappingFromFunction_.size()); ++i)
       {
 	gradient.coeffRef(static_cast<size_type>(this->mappingFromFunction_[i])) = this->mappedGradient_.coeffRef(i);
       }
@@ -534,7 +533,7 @@ namespace roboptim
     assert (hessian.rows() == this->inputSize());
     assert (hessian.cols() == this->inputSize());
 
-    for (int i = 0; i < this->mappingFromFunctionSize_; ++i)
+    for (int i = 0; i < static_cast<int> (this->mappingFromFunction_.size()); ++i)
       {
 	for (int j = 0; j < this->inputSize(); ++j)
 	  hessian.coeffRef(i,j) = this->mappedHessian_.coeffRef(i,j);
@@ -559,7 +558,7 @@ namespace roboptim
     assert(jacobian.cols() == this->inputSize());
     assert(jacobian.rows() == this->outputSize());
 
-    for (int i = 0; i < this->mappingFromFunctionSize_; ++i)
+    for (int i = 0; i < static_cast<int> (this->mappingFromFunction_.size()); ++i)
       {
 	jacobian.col(static_cast<int>(this->mappingFromFunction_[i])) = this->mappedJacobian_.col(i);
       }

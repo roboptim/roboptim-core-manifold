@@ -18,6 +18,7 @@
 
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_WRAPPER_ON_MANIFOLD_HH
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_WRAPPER_ON_MANIFOLD_HH
+
 # include <vector>
 # include <iostream>
 # include <utility>
@@ -77,7 +78,8 @@ namespace roboptim
       fct_ (&descWrap.fct()),
       fctDiff_ (0),
       fctTwiceDiff_ (0),
-      manifold_ (&functionManifold)
+      manifold_ (&functionManifold),
+      mappingFromFunction_ ()
     {
       computeMapping(descWrap,
                      problemManifold,
@@ -86,14 +88,14 @@ namespace roboptim
                      restrictions);
       if (fct_->template asType<GenericDifferentiableFunction<T>>())
         fctDiff_ = fct_->template castInto<GenericDifferentiableFunction<T>>();
-      this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunctionSize_));
-      this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+      this->mappedGradient_ = gradient_t(static_cast<int> (this->mappingFromFunction_.size()));
+      this->mappedJacobian_ = jacobian_t(descWrap.fct().outputSize(), static_cast<int> (this->mappingFromFunction_.size()));
       this->tangentMappedJacobian = Eigen::MatrixXd::Zero(descWrap.fct().outputSize(), this->tangentMappingFromFunctionSize_);
       this->mappedGradient_.setZero();
       this->mappedJacobian_.setZero();
       if (fct_->template asType<GenericTwiceDifferentiableFunction<T>>())
         fctTwiceDiff_ = fct_->template castInto<GenericTwiceDifferentiableFunction<T>>();
-      this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunctionSize_));
+      this->mappedHessian_ = hessian_t(descWrap.fct().inputSize(), static_cast<int> (this->mappingFromFunction_.size()));
       this->mappedHessian_.setZero();
     }
 
@@ -160,10 +162,8 @@ namespace roboptim
     /// \brief the problem manifold.
     const mnf::Manifold* manifold_;
 
-    /// \brief array representing the restricted mapping
-    size_t* mappingFromFunction_;
-    /// \brief size of the array
-    long mappingFromFunctionSize_;
+    /// \brief vector representing the restricted mapping
+    std::vector<size_t> mappingFromFunction_;
 
     /// \brief array representing the restricted mapping for the tangent problem
     size_t* tangentMappingFromFunction_;
