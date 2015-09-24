@@ -1,0 +1,21 @@
+f (x) = k Σ(x_i) (differentiable function)
+f (x) = k Σ(x_i) (differentiable function)
+DescriptiveWrapper's function:
+  Name: f (x) = k Σ(x_i)
+  Input size: 5
+  Output size: 1
+DescriptiveWrapper's manifold:
+  Name: R5
+  Elementary: yes
+  Dimension: 5
+DescriptiveWrapper's function:
+  Name: f (x) = k Σ(x_i)
+  Input size: 5
+  Output size: 1
+DescriptiveWrapper's manifold:
+  Name: R5
+  Elementary: yes
+  Dimension: 5
+Wrapper on manifold:
+  Function name: Sum("f (x) = k Σ(x_i)", "f (x) = k Σ(x_i)")
+  Restricted mapping: 0, 0, 0, 0, 0
