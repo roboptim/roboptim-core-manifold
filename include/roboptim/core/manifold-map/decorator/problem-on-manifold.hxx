@@ -23,7 +23,7 @@ namespace roboptim
 {
   template<typename T>
   template<typename ... Types>
-  ProblemOnManifold<T>::ProblemOnManifold(mnf::Manifold& manifold, Types&& ... args)
+  ProblemOnManifold<T>::ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args)
     : Problem<T>(args...),
       manifold_(manifold)
   {
@@ -35,7 +35,7 @@ namespace roboptim
   }
 
   template<typename T>
-  mnf::Manifold& ProblemOnManifold<T>::getManifold() const
+  const mnf::Manifold& ProblemOnManifold<T>::getManifold() const
   {
     return this->manifold_;
   }

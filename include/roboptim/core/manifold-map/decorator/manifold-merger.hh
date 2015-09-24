@@ -39,13 +39,13 @@ namespace roboptim
 
     ROBOPTIM_DLLAPI void addManifold(const mnf::Manifold& instanceManifold);
 
-    ROBOPTIM_DLLAPI bool contains(const mnf::Manifold& instanceManifold);
+    ROBOPTIM_DLLAPI bool contains(const mnf::Manifold& instanceManifold) const;
 
     ROBOPTIM_DLLAPI void addManifolds(const ManifoldMerger& other);
 
     ROBOPTIM_DLLAPI void clear();
 
-    ROBOPTIM_DLLAPI mnf::CartesianProduct* getManifold();
+    ROBOPTIM_DLLAPI const mnf::CartesianProduct* getManifold() const;
 
   private:
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;

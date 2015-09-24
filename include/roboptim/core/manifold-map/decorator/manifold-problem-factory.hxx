@@ -166,7 +166,7 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addSum(AdderOnManifold<T>& 
 // ---- //
 
 template<typename T>
-mnf::CartesianProduct* ManifoldProblemFactory<T>::getGlobalManifold()
+const mnf::CartesianProduct* ManifoldProblemFactory<T>::getGlobalManifold() const
 {
   return constraintsManifold_.getManifold();
 }
@@ -178,7 +178,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
   // elementary manifolds of the constraints here.
   // The elementary manifolds of the objective function will
   // be added by the objLambda_ function below.
-  mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
+  const mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
 
   // If no objective function was added to the problem, we add a constant
   // function to serve as as dummy one.
@@ -196,7 +196,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 
       // We make a mnf::Manifold& out of the CartesianProduct& to explicitly call
       // the overloaded constructor instead of the variadic one
-      mnf::Manifold& globberMani = *globalManifold;
+      const mnf::Manifold& globberMani = *globalManifold;
 
       DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>* descWrap = new
       DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>(cst, globberMani);

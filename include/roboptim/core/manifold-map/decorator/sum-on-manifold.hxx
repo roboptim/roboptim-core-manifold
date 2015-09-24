@@ -116,7 +116,7 @@ namespace roboptim
 
   template<typename T>
   template<typename U, typename V>
-  void AdderOnManifold<T>::add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+  void AdderOnManifold<T>::add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
   {
     descWrap_storage_t lambda =
       [&descWrap, this, &instanceManifold, restricted, restrictions]
@@ -135,14 +135,14 @@ namespace roboptim
 
   template<typename T>
   template<typename U, typename V>
-  void AdderOnManifold<T>::add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+  void AdderOnManifold<T>::add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
   {
     add(1.0, descWrap, instanceManifold, restricted, restrictions);
   }
 
   template<typename T>
   template<typename U, typename V>
-  void AdderOnManifold<T>::add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold)
+  void AdderOnManifold<T>::add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold)
   {
     std::vector<const mnf::Manifold*> restricted;
     std::vector<std::pair<long, long>> restrictions;
@@ -152,7 +152,7 @@ namespace roboptim
 
   template<typename T>
   template<typename U, typename V>
-  void AdderOnManifold<T>::add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold)
+  void AdderOnManifold<T>::add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold)
   {
     std::vector<const mnf::Manifold*> restricted;
     std::vector<std::pair<long, long>> restrictions;
@@ -162,14 +162,14 @@ namespace roboptim
 
   template<typename T>
   typename AdderOnManifold<T>::functionPtr_t
-  AdderOnManifold<T>::getFunction(const mnf::Manifold& globMani)
+  AdderOnManifold<T>::getFunction(const mnf::Manifold& globMani) const
   {
-    mnf::Manifold* sumManifold = merger_.getManifold();
+    const mnf::Manifold* sumManifold = merger_.getManifold();
 
     std::vector<functionPtr_t> functions;
     std::string name;
 
-    for (descWrap_storage_t& lambda : functionsToSum_)
+    for (const descWrap_storage_t& lambda : functionsToSum_)
       {
 	functions.push_back(lambda(*sumManifold));
 
@@ -211,7 +211,7 @@ namespace roboptim
   }
 
   template<typename T>
-  mnf::Manifold* AdderOnManifold<T>::getManifold()
+  const mnf::Manifold* AdderOnManifold<T>::getManifold() const
   {
     return merger_.getManifold();
   }

@@ -52,7 +52,7 @@ namespace roboptim
     addElementaries(instanceManifold);
   }
 
-  bool ManifoldMerger::contains(const mnf::Manifold& instanceManifold)
+  bool ManifoldMerger::contains(const mnf::Manifold& instanceManifold) const
   {
     return elementaryInstanceManifolds_.find(instanceManifold.getInstanceId()) != elementaryInstanceManifolds_.end();
   }
@@ -76,7 +76,7 @@ namespace roboptim
     elementaryInstanceManifolds_.clear();
   }
 
-  mnf::CartesianProduct* ManifoldMerger::getManifold()
+  const mnf::CartesianProduct* ManifoldMerger::getManifold() const
   {
     for (auto ite = this->elementaryInstanceManifolds_.begin();
 	 ite != elementaryInstanceManifolds_.end();

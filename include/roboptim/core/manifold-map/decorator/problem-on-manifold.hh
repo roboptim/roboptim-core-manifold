@@ -34,15 +34,15 @@ namespace roboptim
   class ProblemOnManifold : public Problem<T>
   {
   protected:
-    mnf::Manifold& manifold_;
+    const mnf::Manifold& manifold_;
 
   public:
     template<typename ... Types>
-    ProblemOnManifold(mnf::Manifold& manifold, Types&& ... args);
+    ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args);
 
     virtual ~ProblemOnManifold();
 
-    mnf::Manifold& getManifold() const;
+    const mnf::Manifold& getManifold() const;
   };
 
 }

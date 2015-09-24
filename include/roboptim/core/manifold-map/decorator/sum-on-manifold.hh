@@ -156,27 +156,27 @@ namespace roboptim
     /// \param restricted list of restricted manifolds
     /// \param restrictions list of restrictions for the restricted manifolds
     template<typename U, typename V>
-    void add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<typename U, typename V>
-    void add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
 
     template<typename U, typename V>
-    void add(DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold);
+    void add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold);
 
     template<typename U, typename V>
-    void add(double weight, DescriptiveWrapper<U, V>& descWrap, mnf::Manifold& instanceManifold);
+    void add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold);
 
     /// \brief Instantiate and return a shared pointer to a function computing the
     /// weighted sum of all functions added through the add(...) methods.
     ///
     /// \param globMani the manifold of the problem on which the function will be evaluated
-    functionPtr_t getFunction(const mnf::Manifold& globMani);
+    functionPtr_t getFunction(const mnf::Manifold& globMani) const;
 
     /// \brief clears out all fields of this instance
     void clear();
 
     /// \brief returns the merged manifold of all added functions
-    mnf::Manifold* getManifold();
+    const mnf::Manifold* getManifold() const;
 
     /// \brief return the number of functions added to the sum
     size_t numberOfFunctions();
