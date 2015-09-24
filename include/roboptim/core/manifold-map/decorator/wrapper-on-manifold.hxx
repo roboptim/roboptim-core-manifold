@@ -29,22 +29,24 @@
 # include <boost/mpl/assert.hpp>
 
 # include <roboptim/core/debug.hh>
+# include <roboptim/core/indent.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
 # include <manifolds/S2.h>
+
 namespace roboptim
 {
 
   template <typename T>
   std::ostream&
-  WrapperOnManifold<T>::print_ (std::ostream& o)
+  WrapperOnManifold<T>::print (std::ostream& o) const
   {
-    for (long i = 0; i < this->mappingFromFunctionSize_; ++i)
-      {
-	o << (i>0?", ":"") << this->mappingFromFunction_[i];
-      }
+    o << "Wrapper on manifold:" << incindent
+      << iendl << "Function name: " << this->fct_->getName ()
+      << iendl << "Restricted mapping: " << this->mappingFromFunction_
+      << decindent;
 
     return o;
   }

@@ -127,7 +127,9 @@ namespace roboptim
     /// \brief Traits type.
     typedef typename parent_t::traits_t traits_t;
 
-    std::ostream& print_(std::ostream& o);
+    /// \brief Print method.
+    /// \param o output stream.
+    std::ostream& print(std::ostream& o) const;
 
     /// \brief apply the jacobian on the manifold's tangent space
     virtual void manifold_jacobian (mnf::RefMat jacobian,
@@ -232,9 +234,9 @@ namespace roboptim
 
   template <typename T>
   std::ostream&
-  operator<<(std::ostream& o, WrapperOnManifold<T>& instWrap)
+  operator<<(std::ostream& o, const WrapperOnManifold<T>& instWrap)
   {
-    return instWrap.print_(o);
+    return instWrap.print(o);
   }
 
   /// @}
