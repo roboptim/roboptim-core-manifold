@@ -29,9 +29,9 @@ namespace roboptim
     : GenericTwiceDifferentiableFunction<T>(inputSize, outputSize, name),
       functions_(functions),
       weights_(weights),
-      resultBuffer(outputSize),
-      jacobianBuffer(outputSize, inputSize),
-      hessianBuffer(inputSize, inputSize)
+      resultBuffer_(outputSize),
+      jacobianBuffer_(outputSize, inputSize),
+      hessianBuffer_(inputSize, inputSize)
   {
     flags_ = functions_[0]->getFlags();
 
@@ -49,9 +49,9 @@ namespace roboptim
     size_t i = 0;
     for (auto function : functions_)
       {
-	resultBuffer.setZero();
-	(*function)(resultBuffer, x);
-	result += weights_[i++] * resultBuffer;
+	resultBuffer_.setZero();
+	(*function)(resultBuffer_, x);
+	result += weights_[i++] * resultBuffer_;
       }
   }
 
@@ -66,22 +66,22 @@ namespace roboptim
 
   template<typename T>
   void SumOnManifold<T>::impl_jacobian (jacobian_ref jacobian,
-		      const_argument_ref arg)
+		      const_argument_ref x)
     const
   {
     jacobian.setZero();
     size_t i = 0;
     for (auto function : functions_)
       {
-	jacobianBuffer.setZero();
-	function->jacobian(jacobianBuffer, arg);
-	jacobian += weights_[i++] * jacobianBuffer;
+	jacobianBuffer_.setZero();
+	function->jacobian(jacobianBuffer_, x);
+	jacobian += weights_[i++] * jacobianBuffer_;
       }
   }
 
   template<typename T>
   void SumOnManifold<T>::impl_hessian(hessian_ref hessian,
-		    const_argument_ref arg,
+		    const_argument_ref x,
 		    size_type functionId)
     const
   {
@@ -89,9 +89,9 @@ namespace roboptim
     size_t i = 0;
     for (auto function : functions_)
       {
-	hessianBuffer.setZero();
-	function->hessian(hessianBuffer, arg, functionId);
-	hessian += weights_[i++] * hessianBuffer;
+	hessianBuffer_.setZero();
+	function->hessian(hessianBuffer_, x, functionId);
+	hessian += weights_[i++] * hessianBuffer_;
       }
   }
 

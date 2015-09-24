@@ -74,11 +74,11 @@ namespace roboptim
     flag_t flags_;
 
     /// \brief a buffer for the result of computing this sum
-    mutable result_t resultBuffer;
+    mutable result_t resultBuffer_;
     /// \brief a buffer for the result of computing the jacobian of this sum
-    mutable jacobian_t jacobianBuffer;
+    mutable jacobian_t jacobianBuffer_;
     /// \brief a buffer for the result of computing the hessian of this sum
-    mutable hessian_t hessianBuffer;
+    mutable hessian_t hessianBuffer_;
 
     /// \brief constructs a SumOnManifold
     ///
@@ -101,11 +101,11 @@ namespace roboptim
       const;
 
     void impl_jacobian (jacobian_ref jacobian,
-                        const_argument_ref arg)
+                        const_argument_ref x)
       const;
 
     void impl_hessian(hessian_ref hessian,
-		      const_argument_ref arg,
+		      const_argument_ref x,
 		      size_type functionId = 0)
       const;
 
