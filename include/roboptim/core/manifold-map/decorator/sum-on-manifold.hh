@@ -61,12 +61,15 @@ namespace roboptim
   public:
     ROBOPTIM_TWICE_DIFFERENTIABLE_FUNCTION_FWD_TYPEDEFS_ (GenericTwiceDifferentiableFunction<T>);
 
+    typedef FunctionOnManifold<T> function_t;
+    typedef std::shared_ptr<function_t> functionPtr_t;
+
     /// This function can only be created through a factory
     friend class AdderOnManifold<T>;
 
   private:
     /// \brief shared pointers to the functions to sum
-    std::vector<std::shared_ptr<FunctionOnManifold<T> > > functions_;
+    std::vector<functionPtr_t> functions_;
     /// \brief weight of each function in the sum
     std::vector<double> weights_;
 
@@ -89,7 +92,7 @@ namespace roboptim
     /// \param inputSize the inputSize of this sum (representationDim of the merged manifold)
     /// \param outputSize the outputSize of all summed functions
     /// \param name the name of this sum
-    SumOnManifold(std::vector<std::shared_ptr<FunctionOnManifold<T> > >& functions,
+    SumOnManifold(std::vector<functionPtr_t>& functions,
 		  std::vector<double> weights,
 		  size_type inputSize, size_type outputSize, std::string name);
 
@@ -121,7 +124,13 @@ namespace roboptim
   template<typename T>
   class AdderOnManifold
   {
-    typedef typename std::function<std::shared_ptr<FunctionOnManifold<T>>(const mnf::Manifold&)> descWrap_storage_t;
+  public:
+    typedef FunctionOnManifold<T> function_t;
+    typedef std::shared_ptr<function_t> functionPtr_t;
+
+  private:
+    typedef typename std::function<functionPtr_t (const mnf::Manifold&)>
+      descWrap_storage_t;
 
     /// \brief DescriptiveWrappers of functions to be summed.
     /// Stored as lambda functions to instantiate the FunctionOnManifold
@@ -161,7 +170,7 @@ namespace roboptim
     /// weighted sum of all functions added through the add(...) methods.
     ///
     /// \param globMani the manifold of the problem on which the function will be evaluated
-    std::shared_ptr<FunctionOnManifold<T>> getFunction(const mnf::Manifold& globMani);
+    functionPtr_t getFunction(const mnf::Manifold& globMani);
 
     /// \brief clears out all fields of this instance
     void clear();

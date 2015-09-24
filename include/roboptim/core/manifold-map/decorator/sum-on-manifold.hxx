@@ -19,11 +19,13 @@
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX
 
+# include <roboptim/core/manifold-map/decorator/wrapper-on-manifold.hh>
+
 namespace roboptim
 {
 
   template<typename T>
-  SumOnManifold<T>::SumOnManifold(std::vector<std::shared_ptr<FunctionOnManifold<T> > >& functions,
+  SumOnManifold<T>::SumOnManifold(std::vector<functionPtr_t>& functions,
 		std::vector<double> weights,
 		size_type inputSize, size_type outputSize, std::string name)
     : GenericTwiceDifferentiableFunction<T>(inputSize, outputSize, name),
@@ -120,7 +122,7 @@ namespace roboptim
       [&descWrap, this, &instanceManifold, restricted, restrictions]
       (const mnf::Manifold& globMani)
       {
-	return std::shared_ptr<FunctionOnManifold<T>>
+	return functionPtr_t
 	(new WrapperOnManifold<T>
 	 (descWrap, globMani, instanceManifold, restricted, restrictions)
 	 );
@@ -159,18 +161,20 @@ namespace roboptim
   }
 
   template<typename T>
-  std::shared_ptr<FunctionOnManifold<T>> AdderOnManifold<T>::getFunction(const mnf::Manifold& globMani)
+  typename AdderOnManifold<T>::functionPtr_t
+  AdderOnManifold<T>::getFunction(const mnf::Manifold& globMani)
   {
     mnf::Manifold* sumManifold = merger_.getManifold();
 
-    std::vector<std::shared_ptr<FunctionOnManifold<T> > > functions;
+    std::vector<functionPtr_t> functions;
     std::string name;
 
     for (descWrap_storage_t& lambda : functionsToSum_)
       {
 	functions.push_back(lambda(*sumManifold));
 
-	if (functions.size() > 1 && functions.back()->outputSize() != functions[functions.size() - 2]->outputSize())
+	if (functions.size() > 1 &&
+	    functions.back()->outputSize() != functions[functions.size() - 2]->outputSize())
 	  {
 	    std::cerr << "ERROR: function "<< functions.back()->getName()
 		      << " of outputSize " << functions.back()->outputSize()
@@ -180,11 +184,13 @@ namespace roboptim
 	    throw std::runtime_error("Invalid size when summing FunctionOnManifold");
 	  }
 
-	name += (name.size() > 0 ? " ":"") + functions.back()->getName();
+	name += (name.empty() ? "\"":", \"") + functions.back()->getName() + "\"";
       }
+    name = "Sum(" + name + ")";
 
     typedef DescriptiveWrapper<SumOnManifold<T>, ManiDesc<>> descWrap_t;
 
+    // FIXME: plug the leak
     SumOnManifold<T>* sumFunction = new SumOnManifold<T>(functions,
 							 weights_,
 							 functions[0]->inputSize(),
@@ -193,9 +199,7 @@ namespace roboptim
 
     descWrap_t* descWrap = descWrap_t::makeUNCHECKEDDescriptiveWrapper(sumFunction, *sumManifold);
 
-    return std::shared_ptr<FunctionOnManifold<T>>(new WrapperOnManifold<T>
-						  (*descWrap, globMani, *sumManifold)
-						  );
+    return functionPtr_t (new WrapperOnManifold<T> (*descWrap, globMani, *sumManifold));
   }
 
   template<typename T>
