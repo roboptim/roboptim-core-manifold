@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   {
     bounds.clear();
-    for(int i = 0; i < 41; ++i)
+    for(int i = 0; i < 42; ++i)
       {
 	bounds.push_back(std::make_pair(-2.0, 2.0));
       }
@@ -275,16 +275,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   }
   {
     bounds.clear();
-    for(int i = 0; i < 39; ++i)
+    for(int i = 0; i < 39 - 1; ++i)
       {
 	bounds.push_back(std::make_pair(-3.0, 3.0));
       }
+    bounds.push_back(roboptim::Function::makeInfiniteInterval ());
     factory.addArgumentBounds(r39, bounds);
   }
 
   roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42 + 39);
+  std::cout << manifoldProblem->getManifold().name() << std::endl;
+  BOOST_CHECK(manifoldProblem->getManifold().name() == "SO3xR10xR3xR39xR42");
 
   size_t i = 0;
 
@@ -305,10 +308,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
       BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
     }
 
-  for (; i < 22 + 41; ++i)
+  for (; i < 22 + 39 - 1; ++i)
     {
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -2);
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 2);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -3);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 3);
     }
 
   BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -Func::infinity());
@@ -318,8 +321,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   for (; i < 22 + 39 + 42; ++i)
     {
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -3);
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 3);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -2);
+      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 2);
     }
 
   delete manifoldProblem;
