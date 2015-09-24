@@ -1,4 +1,6 @@
-12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2
+Wrapper on manifold:
+  Function name: f_n (x) = n * x
+  Restricted mapping: 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2
 DescriptiveWrapper's function:
   Name: f_n (x) = n * x
   Input size: 22
