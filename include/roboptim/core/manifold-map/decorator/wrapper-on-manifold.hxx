@@ -490,6 +490,8 @@ namespace roboptim
 					size_type functionId)
     const
   {
+    assert(!!fctDiff_);
+
     this->mapArgument(argument);
     this->fctDiff_->gradient(this->mappedGradient_, this->mappedInput_, functionId);
 
@@ -503,6 +505,8 @@ namespace roboptim
 					const_argument_ref argument)
     const
   {
+    assert(!!fctDiff_);
+
     this->mapArgument(argument);
     jacobian.setZero();
 
@@ -546,6 +550,8 @@ namespace roboptim
   void
   WrapperOnManifold<T>::impl_hessian(hessian_ref hessian, const_argument_ref argument, size_type functionId) const
   {
+    assert(!!fctTwiceDiff_);
+
     this->mapArgument(argument);
     hessian.setZero();
 
