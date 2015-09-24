@@ -19,7 +19,11 @@
 
 #include <iostream>
 #include <memory>
+#include <sstream>
 
+#include <boost/format.hpp>
+
+#include <roboptim/core/util.hh>
 #include <roboptim/core/differentiable-function.hh>
 
 #include <roboptim/core/manifold-map/decorator/manifold-map.hh>
@@ -38,7 +42,8 @@ struct F : public roboptim::GenericDifferentiableFunction<T>
   (roboptim::GenericDifferentiableFunction<T>);
 
   F (size_type n, value_type k)
-    : roboptim::GenericDifferentiableFunction<T> (n, 1, "f (x) = k Σ(x_i)"),
+    : roboptim::GenericDifferentiableFunction<T>
+      (n, 1, (boost::format ("f(x) = %1% * sum(x)") % k).str ()),
       k_ (k)
   {}
 
@@ -77,6 +82,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test_0, T, functionTypes_t)
 {
   output = retrievePattern("sum-on-manifold");
 
+  using roboptim::operator<<;
+
   typedef F<T> testF_t;
   typedef typename testF_t::value_type value_type;
 
@@ -91,34 +98,92 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test_0, T, functionTypes_t)
   (*output) << *f1 << std::endl;
 
   // Define manifolds
-  mnf::RealSpace fManif (n);
-  fManif.name () = "F manifold";
-  mnf::RealSpace pbManif (1);
-  pbManif.name () = "Problem manifold";
+  // TODO: use different sizes
+  mnf::RealSpace f0Manif (n);
+  mnf::RealSpace f1Manif (n);
+  mnf::CartesianProduct pbManif;
+  pbManif.multiply(f0Manif).multiply(f1Manif);
 
-  ROBOPTIM_DESC_MANIFOLD(fManif_t, ROBOPTIM_REAL_SPACE(n));
-  ROBOPTIM_NAMED_FUNCTION_BINDING(Desc_F_Manif, testF_t, fManif_t);
+  std::stringstream ss;
+  ss << "F0_R" << n;
+  f0Manif.name () = ss.str ();
+  ss.str ("");
+  ss << "F1_R" << n;
+  f1Manif.name () = ss.str ();
+  ss.str ("");
 
-  Desc_F_Manif descWrapF0 (n, k0);
-  Desc_F_Manif descWrapF1 (n, k1);
+  (*output) << "F0 manifold: " << f0Manif.name () << std::endl;
+  (*output) << "F1 manifold: " << f1Manif.name () << std::endl;
+  (*output) << "Problem manifold: " << pbManif.name () << std::endl;
 
-  mnf::RealSpace dummy (n);
+  ROBOPTIM_DESC_MANIFOLD(f0Manif_t, ROBOPTIM_REAL_SPACE(n));
+  ROBOPTIM_DESC_MANIFOLD(f1Manif_t, ROBOPTIM_REAL_SPACE(n));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(Desc_F0_Manif, testF_t, f0Manif_t);
+  ROBOPTIM_NAMED_FUNCTION_BINDING(Desc_F1_Manif, testF_t, f1Manif_t);
+
+  Desc_F0_Manif descWrapF0 (n, k0);
+  Desc_F1_Manif descWrapF1 (n, k1);
 
   (*output) << descWrapF0 << std::endl;
   (*output) << descWrapF1 << std::endl;
 
   // Create Adder helper and add the functions
   typedef roboptim::AdderOnManifold<T> adder_t;
-  typedef F<T> testF_t;
   adder_t adder;
   typename adder_t::functionPtr_t fSum;
-  BOOST_CHECK_THROW (fSum = adder.getFunction (pbManif), std::runtime_error);
-  adder.add (0.2, descWrapF0, dummy);
-  adder.add (0.8, descWrapF1, dummy);
+  const value_type w0 = 0.2;
+  const value_type w1 = 0.8;
+  adder.add (w0, descWrapF0, f0Manif);
+  adder.add (w1, descWrapF1, f1Manif);
+  BOOST_CHECK (adder.numberOfFunctions () == 2);
+  (*output) << "Adder manifold: "
+            << adder.getManifold ()->name () << std::endl;
+  (*output) << "Adder manifold dimension: "
+            << adder.getManifold ()->representationDim () << std::endl;
 
   // Get the sum of these functions on manifolds
   fSum = adder.getFunction (pbManif);
   (*output) << *fSum << std::endl;
+
+  // Yes, that used to fail...
+  BOOST_CHECK (adder.getManifold ()->representationDim () == adder.getManifold ()->representationDim ());
+  BOOST_CHECK (adder.getManifold ()->name () == adder.getManifold ()->name ());
+
+  adder.clear();
+  BOOST_CHECK (adder.numberOfFunctions () == 0);
+  BOOST_CHECK_THROW (fSum = adder.getFunction (pbManif), std::runtime_error);
+
+  // Test evaluations
+  typedef roboptim::Function::matrix_t denseMatrix_t;
+  typename testF_t::argument_t x0 (n);
+  typename testF_t::argument_t x1 (n);
+  typename testF_t::argument_t x (x0.size () + x1.size ());
+  x0.setConstant (1.);
+  x1.setConstant (1.);
+  x << x0, x1;
+
+  (*output) << "x0 = " << x0 << '\n';
+  (*output) << "x1 = " << x1 << '\n';
+  (*output) << "x = " << x << '\n';
+
+  (*output) << "### SumOnManifold ###\n";
+  (*output) << "Sum(x) = " << (*fSum) (x) << '\n';
+  (*output) << "Sum.G(x) = " << denseMatrix_t (fSum->gradient (x, 0)) << '\n';
+  (*output) << "Sum.J(x) = " << denseMatrix_t (fSum->jacobian (x)) << '\n';
+
+  (*output) << "### Expected ###\n";
+  (*output) << "f0(x0) = " << (*f0) (x0) << '\n';
+  (*output) << "f1(x1) = " << (*f1) (x1) << '\n';
+  (*output) << "(" << w0 << " f0 + " << w1 << " f1)(x) = "
+            << w0 * (*f0) (x0) + w1 * (*f1) (x1) << '\n';
+  (*output) << "(" << w0 << " f0).G(x0) = "
+            << denseMatrix_t (w0 * f0->gradient (x0, 0)) << '\n';
+  (*output) << "(" << w1 << " f1).G(x1) = "
+            << denseMatrix_t (w1 * f1->gradient (x1, 0)) << '\n';
+  (*output) << "(" << w0 << " f0).J(x0) = "
+            << denseMatrix_t (w0 * f0->jacobian (x0)) << '\n';
+  (*output) << "(" << w1 << " f1).J(x1) = "
+            << denseMatrix_t (w1 * f1->jacobian (x1)) << '\n';
 
   std::cout << output->str() << std::endl;
   BOOST_CHECK (output->match_pattern());

@@ -34,11 +34,12 @@ namespace roboptim
 	  {
 	    if(!contains(manifold))
 	      {
+		// FIXME: do not spam the poor innocent users
 		std::cout << "ADDED " << manifold.name() << std::endl;
+		mergedManifold_->multiply(manifold);
 	      }
 
 	    this->elementaryInstanceManifolds_[manifold.getInstanceId()] = &manifold;
-
 	  }
 	else
 	  {
@@ -78,19 +79,12 @@ namespace roboptim
 
   const mnf::CartesianProduct* ManifoldMerger::getManifold() const
   {
-    for (auto ite = this->elementaryInstanceManifolds_.begin();
-	 ite != elementaryInstanceManifolds_.end();
-	 ++ite)
-      {
-	mergedManifold_->multiply(*(ite->second));
-      }
-
     if (mergedManifold_->representationDim() <= 0)
       {
 	throw std::runtime_error("The problem should not be empty.");
       }
 
-    return &(*mergedManifold_);
+    return mergedManifold_.get();
   }
 
 }

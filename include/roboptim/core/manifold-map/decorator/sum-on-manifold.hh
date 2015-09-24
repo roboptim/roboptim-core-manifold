@@ -126,6 +126,7 @@ namespace roboptim
   {
   public:
     typedef FunctionOnManifold<T> function_t;
+    typedef typename function_t::size_type size_type;
     typedef std::shared_ptr<function_t> functionPtr_t;
 
   private:

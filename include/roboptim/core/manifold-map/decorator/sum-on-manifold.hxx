@@ -188,16 +188,18 @@ namespace roboptim
       }
     name = "Sum(" + name + ")";
 
-    typedef DescriptiveWrapper<SumOnManifold<T>, ManiDesc<>> descWrap_t;
-
     // FIXME: plug the leak
     SumOnManifold<T>* sumFunction = new SumOnManifold<T>(functions,
 							 weights_,
-							 functions[0]->inputSize(),
+							 static_cast<size_type> (sumManifold->representationDim()),
 							 functions[0]->outputSize(),
 							 name);
 
-    descWrap_t* descWrap = descWrap_t::makeUNCHECKEDDescriptiveWrapper(sumFunction, *sumManifold);
+    typedef DescriptiveWrapper<SumOnManifold<T>, ManiDesc<>> descWrap_t;
+    // FIXME: yet another leak to plug (this already existed in
+    // makeUNCHECKEDDescriptiveWrapper, which also added an extra layer of
+    // garbage...)
+    descWrap_t* descWrap = new descWrap_t (sumFunction, *sumManifold);
 
     return functionPtr_t (new WrapperOnManifold<T> (*descWrap, globMani, *sumManifold));
   }

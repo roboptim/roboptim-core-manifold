@@ -1,7 +1,10 @@
-f (x) = k Σ(x_i) (differentiable function)
-f (x) = k Σ(x_i) (differentiable function)
+f(x) = 2 * sum(x) (differentiable function)
+f(x) = 3 * sum(x) (differentiable function)
+F0 manifold: F0_R5
+F1 manifold: F1_R5
+Problem manifold: R5xR5
 DescriptiveWrapper's function:
-  Name: f (x) = k Σ(x_i)
+  Name: f(x) = 2 * sum(x)
   Input size: 5
   Output size: 1
 DescriptiveWrapper's manifold:
@@ -9,13 +12,30 @@ DescriptiveWrapper's manifold:
   Elementary: yes
   Dimension: 5
 DescriptiveWrapper's function:
-  Name: f (x) = k Σ(x_i)
+  Name: f(x) = 3 * sum(x)
   Input size: 5
   Output size: 1
 DescriptiveWrapper's manifold:
   Name: R5
   Elementary: yes
   Dimension: 5
+Adder manifold: F0_R5xF1_R5
+Adder manifold dimension: 10
 Wrapper on manifold:
-  Function name: Sum("f (x) = k Σ(x_i)", "f (x) = k Σ(x_i)")
-  Restricted mapping: 0, 0, 0, 0, 0
+  Function name: Sum("f(x) = 2 * sum(x)", "f(x) = 3 * sum(x)")
+  Restricted mapping: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+x0 = [5](1,1,1,1,1)
+x1 = [5](1,1,1,1,1)
+x = [10](1,1,1,1,1,1,1,1,1,1)
+### SumOnManifold ###
+Sum(x) = [1](14)
+Sum.G(x) = [10](0.4,0.4,0.4,0.4,0.4,2.4,2.4,2.4,2.4,2.4)
+Sum.J(x) = [10](0.4,0.4,0.4,0.4,0.4,2.4,2.4,2.4,2.4,2.4)
+### Expected ###
+f0(x0) = [1](10)
+f1(x1) = [1](15)
+(0.2 f0 + 0.8 f1)(x) = [1](14)
+(0.2 f0).G(x0) = [5](0.4,0.4,0.4,0.4,0.4)
+(0.8 f1).G(x1) = [5](2.4,2.4,2.4,2.4,2.4)
+(0.2 f0).J(x0) = [5](0.4,0.4,0.4,0.4,0.4)
+(0.8 f1).J(x1) = [5](2.4,2.4,2.4,2.4,2.4)
