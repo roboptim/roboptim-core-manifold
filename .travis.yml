@@ -22,7 +22,6 @@ env:
     - LCOV_IGNORE_RULES="*tests*"
     - LCOV_UPDATE="yes"
     - GCOV_TOOL="gcov-4.8"
-    - CMAKE_PPA="kalakris/cmake"
 notifications:
   hipchat:
     rooms:
@@ -53,9 +52,6 @@ before_install:
         sudo apt-get update -qq;
         sudo apt-get install -qq ${CC}-${CLANG_NEEDED_VERSION};
       fi;
-      sudo add-apt-repository -y ppa:${CMAKE_PPA};
-      sudo apt-get update -qq;
-      sudo apt-get install --reinstall cmake;
     fi;
   - ./.travis/dependencies/eigen-3.2
   - ./.travis/run  before_install
