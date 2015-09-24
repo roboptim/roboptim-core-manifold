@@ -20,6 +20,7 @@
 
 #include <iostream>
 
+#include <roboptim/core/portability.hh>
 #include <roboptim/core/differentiable-function.hh>
 #include <roboptim/core/numeric-quadratic-function.hh>
 
@@ -437,12 +438,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
 
   BOOST_CHECK (output->match_pattern());
 
+  ROBOPTIM_ALLOW_DEPRECATED_ON;
   BOOST_CHECK_NO_THROW(
 		       {
 			 mnf::RealSpace r(45);
 			 delete F_On_Manifold2::makeUNCHECKEDDescriptiveWrapper(new F<T>(), r);
 		       }
 		      );
+  ROBOPTIM_ALLOW_DEPRECATED_OFF;
 }
 
 const size_t posNumber = 15;
