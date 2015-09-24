@@ -71,8 +71,11 @@ namespace roboptim
     ///
     /// \param descWrap DescriptiveWrapper of the constraint function
     /// \param instanceManifold manifold on which the constraint will be evaluated
-    /// \param bounds (optional) the constraint's bounds
-    /// \param scaling (optional) scaling parameter for the constraint
+    /// \param restricted a list of elementary Manifolds to be restricted to a
+    /// part of themselves
+    /// \param restrictions the restrictions applying to the selected
+    /// manifolds, represented as (startingIndex, size). If a single one is
+    /// given, it will apply to all restricted manifolds.
     template<class V, class W>
     BoundsAndScalingSetter<T> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
@@ -86,6 +89,11 @@ namespace roboptim
     ///
     /// \param descWrap DescriptiveWrapper of the objective function
     /// \param instanceManifold manifold on which the objective function will be evaluated
+    /// \param restricted a list of elementary Manifolds to be restricted to a
+    /// part of themselves
+    /// \param restrictions the restrictions applying to the selected
+    /// manifolds, represented as (startingIndex, size). If a single one is
+    /// given, it will apply to all restricted manifolds.
     template<class V, class W>
     void addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
@@ -111,8 +119,6 @@ namespace roboptim
   private:
     /// \brief contains the manifolds from the constraints
     ManifoldMerger constraintsManifold_;
-    /// \brief elementary manifolds composing the global manifold of the problem
-    //std::set<const mnf::Manifold*> elementaryInstanceManifolds_;
     /// \brief argument bounds for each elementary manifold
     std::map<long, typename GenericFunction<T>::intervals_t> elementaryArgumentBounds_;
     /// \brief bounds and scaling for each constraint
