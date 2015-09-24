@@ -80,6 +80,8 @@ namespace roboptim
   template <typename U, typename V>
   DescriptiveWrapper<U, V>* DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold)
   {
+    // FIXME: remove this garbage. Anyone currently relying on this method
+    // should really, really, **REALLY** take a look at this...
     mnf::RealSpace realR(fct->inputSize());
 const mnf::Manifold* m = &realR;
     DescriptiveWrapper<U, V>* descWrap = new DescriptiveWrapper<U, V>(fct, *m);

@@ -24,6 +24,7 @@
 # include <boost/make_shared.hpp>
 
 # include <roboptim/core/differentiable-function.hh>
+# include <roboptim/core/manifold/deprecated.hh>
 
 # include <manifolds/Manifold.h>
 
@@ -80,7 +81,7 @@ namespace roboptim
       return *fct_;
     }
 
-    static DescriptiveWrapper<U, V>* makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold);
+    static DescriptiveWrapper<U, V>* makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold) ROBOPTIM_CORE_MANIFOLD_DEPRECATED;
 
   private:
     /// \brief dimension check between the function and the descriptive manifold
