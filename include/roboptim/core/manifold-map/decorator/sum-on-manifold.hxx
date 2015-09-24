@@ -30,6 +30,7 @@ namespace roboptim
       functions_(functions),
       weights_(weights),
       resultBuffer_(outputSize),
+      gradientBuffer_(inputSize),
       jacobianBuffer_(outputSize, inputSize),
       hessianBuffer_(inputSize, inputSize)
   {
@@ -56,12 +57,19 @@ namespace roboptim
   }
 
   template<typename T>
-  void SumOnManifold<T>::impl_gradient (gradient_ref,
-		      const_argument_ref,
-		      size_type)
+  void SumOnManifold<T>::impl_gradient (gradient_ref gradient,
+		      const_argument_ref x,
+		      size_type functionId)
     const
   {
-    std::cerr << "UNIMPLEMENTED GRADIENT IN SUM ON MANIFOLD" << std::endl;
+    gradient.setZero();
+    size_t i = 0;
+    for (auto function : functions_)
+      {
+	gradientBuffer_.setZero();
+	function->gradient(gradientBuffer_, x, functionId);
+	gradient += weights_[i++] * gradientBuffer_;
+      }
   }
 
   template<typename T>

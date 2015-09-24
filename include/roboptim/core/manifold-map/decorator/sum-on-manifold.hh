@@ -75,6 +75,8 @@ namespace roboptim
 
     /// \brief a buffer for the result of computing this sum
     mutable result_t resultBuffer_;
+    /// \brief a buffer for the result of computing the gradient of this sum
+    mutable gradient_t gradientBuffer_;
     /// \brief a buffer for the result of computing the jacobian of this sum
     mutable jacobian_t jacobianBuffer_;
     /// \brief a buffer for the result of computing the hessian of this sum
