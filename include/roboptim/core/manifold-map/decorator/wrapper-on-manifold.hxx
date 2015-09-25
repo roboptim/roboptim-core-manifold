@@ -337,7 +337,8 @@ namespace roboptim
     // the getCurrentOccurenceCount and incrementOccurenceCount
     // helper lambda functions.
     traversalOccurences.clear();
-    this->mappingFromFunction_.resize (computeRestrictedDimension(functionManifold), 0);
+    mappingFromFunction_.resize
+      (static_cast<size_t>(computeRestrictedDimension(functionManifold)), 0);
 
     // Clear the traversalOccurences map to ensure a clean use of
     // the getCurrentOccurenceCount and incrementOccurenceCount
@@ -349,7 +350,7 @@ namespace roboptim
     this->tangentMappingFromFunction_ = new size_t[this->tangentMappingFromFunctionSize_];
     onTangentSpace = false;
 
-    this->mappedInput_ = Eigen::VectorXd::Zero(this->mappingFromFunction_.size());
+    mappedInput_ = Eigen::VectorXd::Zero(static_cast<size_type>(mappingFromFunction_.size()));
 
     // This lambda computes the actual mapping between a manifold and the one
     // in its place in the global manifold of the problem.
@@ -439,7 +440,8 @@ namespace roboptim
   {
     for (size_t i = 0; i < this->mappingFromFunction_.size (); ++i)
       {
-	this->mappedInput_(i) = argument(static_cast<long>(this->mappingFromFunction_[i]));
+        mappedInput_(static_cast<size_type>(i))
+          = argument(static_cast<size_type>(mappingFromFunction_[i]));
       }
   }
 
@@ -477,9 +479,10 @@ namespace roboptim
   {
     assert(gradient.cols() == this->inputSize());
 
-    for (int i = 0; i < static_cast<int> (this->mappingFromFunction_.size()); ++i)
+    for (size_t i = 0; i < mappingFromFunction_.size(); ++i)
       {
-	gradient.coeffRef(static_cast<size_type>(this->mappingFromFunction_[i])) = this->mappedGradient_.coeffRef(i);
+        gradient.coeffRef(static_cast<size_type>(mappingFromFunction_[i]))
+          = mappedGradient_.coeffRef(static_cast<size_type>(i));
       }
   }
 
@@ -566,9 +569,10 @@ namespace roboptim
     assert(jacobian.cols() == this->inputSize());
     assert(jacobian.rows() == this->outputSize());
 
-    for (int i = 0; i < static_cast<int> (this->mappingFromFunction_.size()); ++i)
+    for (size_t i = 0; i < mappingFromFunction_.size(); ++i)
       {
-	jacobian.col(static_cast<int>(this->mappingFromFunction_[i])) = this->mappedJacobian_.col(i);
+        jacobian.col(static_cast<size_type>(this->mappingFromFunction_[i]))
+          = this->mappedJacobian_.col(static_cast<size_type> (i));
       }
   }
 
