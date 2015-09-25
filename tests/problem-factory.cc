@@ -214,15 +214,24 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   ROBOPTIM_NAMED_FUNCTION_BINDING(I_On_R3XSO3XR10, Iunc, R3XSO3XR10);
 
   mnf::RealSpace pos(3);
+  BOOST_CHECK(pos.representationDim() == 3);
   mnf::SO3<mnf::ExpMapMatrix> ori;
+  BOOST_CHECK(ori.representationDim() == 9);
   mnf::RealSpace joints(10);
+  BOOST_CHECK(joints.representationDim() == 10);
   mnf::CartesianProduct prod;
   prod.multiply(pos).multiply(ori).multiply(joints);
+  BOOST_CHECK(prod.representationDim() == 22);
+  BOOST_CHECK(prod.name() == "R3xSO3xR10");
+
   mnf::RealSpace r42(42);
   mnf::RealSpace r39(39);
+  BOOST_CHECK(r42.representationDim() == 42);
+  BOOST_CHECK(r39.representationDim() == 39);
 
   mnf::CartesianProduct prod2;
   prod2.multiply(r42).multiply(ori).multiply(r42);
+
   mnf::CartesianProduct prod3;
   prod3.multiply(r39).multiply(ori).multiply(r39);
 
@@ -263,25 +272,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   factory.addObjective(cnstr3, prod2, restricted, restrictions);
 
-  std::vector<std::pair<double, double>> bounds;
+  typedef roboptim::Function::intervals_t intervals_t;
+  intervals_t bounds;
 
-  {
-    bounds.clear();
-    for(int i = 0; i < 42; ++i)
-      {
-	bounds.push_back(std::make_pair(-2.0, 2.0));
-      }
-    factory.addArgumentBounds(r42, bounds);
-  }
-  {
-    bounds.clear();
-    for(int i = 0; i < 39 - 1; ++i)
-      {
-	bounds.push_back(std::make_pair(-3.0, 3.0));
-      }
-    bounds.push_back(roboptim::Function::makeInfiniteInterval ());
-    factory.addArgumentBounds(r39, bounds);
-  }
+  std::map<long, intervals_t> boundsMap;
+  boundsMap[pos.getInstanceId()] = intervals_t (3, roboptim::Function::makeInfiniteInterval ());
+  boundsMap[ori.getInstanceId()] = intervals_t (9, roboptim::Function::makeInfiniteInterval ());
+  boundsMap[joints.getInstanceId()] = intervals_t (10, roboptim::Function::makeInfiniteInterval ());
+  boundsMap[r42.getInstanceId()] = intervals_t (42, std::make_pair (-2., 2.));
+  boundsMap[r39.getInstanceId()] = intervals_t (39, std::make_pair (-3., 3.));
+  boundsMap[r39.getInstanceId()].back() = roboptim::Function::makeInfiniteInterval ();
+
+  factory.addArgumentBounds(pos, boundsMap[pos.getInstanceId()]);
+  factory.addArgumentBounds(ori, boundsMap[ori.getInstanceId()]);
+  factory.addArgumentBounds(joints, boundsMap[joints.getInstanceId()]);
+  factory.addArgumentBounds(r42, boundsMap[r42.getInstanceId()]);
+  factory.addArgumentBounds(r39, boundsMap[r39.getInstanceId()]);
 
   roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
 
@@ -300,30 +306,32 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 		<< std::endl;
     }
 
-  i = 0;
+  const mnf::CartesianProduct* globalMnf
+    = dynamic_cast<const mnf::CartesianProduct*>(&manifoldProblem->getManifold());
+  BOOST_CHECK(!!globalMnf);
 
-  for (; i < 22; ++i)
+  size_t globalIdx = 0;
+  for (size_t submanifoldIdx = 0;
+       submanifoldIdx < globalMnf->numberOfSubmanifolds();
+       ++submanifoldIdx)
+  {
+    const mnf::Manifold& m = (*globalMnf) (submanifoldIdx);
+    std::cout << m.name() << std::endl;
+    const intervals_t& expectedBounds = boundsMap.at(m.getInstanceId());
+    const intervals_t& factoryBounds = factory.getArgumentBounds(m);
+
+    size_t localIdx = 0;
+    for (auto b : factoryBounds)
     {
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -Func::infinity());
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
+      // Check that getArgumentBounds returns the proper bounds
+      BOOST_CHECK(b == expectedBounds[localIdx]);
+      // Check that the RobOptim problem was assigned the proper bounds
+      BOOST_CHECK(manifoldProblem->argumentBounds()[globalIdx] == expectedBounds[localIdx]);
+
+      localIdx++;
+      globalIdx++;
     }
-
-  for (; i < 22 + 39 - 1; ++i)
-    {
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -3);
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 3);
-    }
-
-  BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -Func::infinity());
-  BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == Func::infinity());
-
-  ++i;
-
-  for (; i < 22 + 39 + 42; ++i)
-    {
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].first == -2);
-      BOOST_CHECK(manifoldProblem->argumentBounds()[i].second == 2);
-    }
+  }
 
   delete manifoldProblem;
 }
