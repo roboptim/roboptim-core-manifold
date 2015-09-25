@@ -37,9 +37,8 @@ namespace roboptim
 		// FIXME: do not spam the poor innocent users
 		std::cout << "ADDED " << manifold.name() << std::endl;
 		mergedManifold_->multiply(manifold);
+		this->elementaryInstanceManifolds_[manifold.getInstanceId()] = &manifold;
 	      }
-
-	    this->elementaryInstanceManifolds_[manifold.getInstanceId()] = &manifold;
 	  }
 	else
 	  {
