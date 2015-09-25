@@ -110,6 +110,10 @@ namespace roboptim
     /// \param bounds the list of bounds for each value of a point on this manifold
     void addArgumentBounds(const mnf::Manifold& manifold, const typename GenericFunction<T>::intervals_t& bounds);
 
+    /// \brief For a given elementary manifold, retrieve the bounds of its arguments.
+    /// \param manifold the elementary manifold considered.
+    const typename GenericFunction<T>::intervals_t& getArgumentBounds(const mnf::Manifold& manifold) const;
+
     /// \brief generate and return the described problem
     ProblemOnManifold<T>* getProblem();
 

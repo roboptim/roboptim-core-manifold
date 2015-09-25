@@ -325,6 +325,14 @@ void ManifoldProblemFactory<T>::addArgumentBounds(const mnf::Manifold& manifold,
 }
 
 template<class T>
+const typename GenericFunction<T>::intervals_t&
+ManifoldProblemFactory<T>::getArgumentBounds(const mnf::Manifold& manifold) const
+{
+  // Throws if the bounds for this manifold are not found
+  return elementaryArgumentBounds_.at(manifold.getInstanceId());
+}
+
+template<class T>
 ManifoldProblemFactory<T>::ManifoldProblemFactory()
 {
   // We only call this method here to set the objective funtion lambda,
