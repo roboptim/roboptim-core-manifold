@@ -129,7 +129,7 @@ namespace roboptim
 	  }
 	else
 	  {
-	    for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
+	    for (size_t i = 0; i < manifold.numberOfSubManifolds(); ++i)
 	      {
 		checkOccurences(manifold(i));
 	      }
@@ -249,7 +249,7 @@ namespace roboptim
 	    return;
 	  }
 
-	for(size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
+	for(size_t i = 0; i < manifold.numberOfSubManifolds(); ++i)
 	  {
 	    manifoldTreeToVector(manifold(i));
 	  }
@@ -285,7 +285,7 @@ namespace roboptim
 	    return -1l;
 	  }
 
-	for (long i = 0; i < static_cast<long>(manifold.numberOfSubmanifolds()); ++i)
+	for (long i = 0; i < static_cast<long>(manifold.numberOfSubManifolds()); ++i)
 	  {
 	    index = checkManifold(manifold(static_cast<size_t>(i)), index);
 	    if (index < 0)
@@ -324,7 +324,7 @@ namespace roboptim
 	  }
 	else
 	  {
-	    for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
+	    for (size_t i = 0; i < manifold.numberOfSubManifolds(); ++i)
 	      {
 		mySize += computeRestrictedDimension(manifold(i));
 	      }
@@ -386,7 +386,7 @@ namespace roboptim
 	      }
 	    else
 	      {
-		for (size_t i = 0; i < manifold.numberOfSubmanifolds() && startIndex >= 0; ++i)
+		for (size_t i = 0; i < manifold.numberOfSubManifolds() && startIndex >= 0; ++i)
 		  {
 		    startIndex = getStartingIndexOfManifold(manifold(i), targetId, targetIndex, functionStartIndex, startIndex);
 		  }
@@ -410,7 +410,7 @@ namespace roboptim
 	    return retValue;
 	  }
 
-	for (size_t i = 0; i < manifold.numberOfSubmanifolds() && startIndex >= 0; ++i)
+	for (size_t i = 0; i < manifold.numberOfSubManifolds() && startIndex >= 0; ++i)
 	  {
 	    startIndex = traverseFunctionManifold(manifold(i), startIndex);
 	  }

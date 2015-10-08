@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   size_t globalIdx = 0;
   for (size_t submanifoldIdx = 0;
-       submanifoldIdx < globalMnf->numberOfSubmanifolds();
+       submanifoldIdx < globalMnf->numberOfSubManifolds();
        ++submanifoldIdx)
   {
     const mnf::Manifold& m = (*globalMnf) (submanifoldIdx);

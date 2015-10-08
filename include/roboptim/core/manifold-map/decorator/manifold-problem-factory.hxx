@@ -237,7 +237,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 	}
       else
 	{
-	  for (size_t i = 0; i < mani.numberOfSubmanifolds(); ++i)
+	  for (size_t i = 0; i < mani.numberOfSubManifolds(); ++i)
 	    {
 	      setArgumentBounds(mani(i));
 	    }

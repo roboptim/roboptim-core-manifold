@@ -42,7 +42,7 @@ namespace roboptim
 	  }
 	else
 	  {
-	    for (size_t i = 0; i < manifold.numberOfSubmanifolds(); ++i)
+	    for (size_t i = 0; i < manifold.numberOfSubManifolds(); ++i)
 	      {
 		addElementaries(manifold(i));
 	      }
