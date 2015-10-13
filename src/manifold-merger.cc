@@ -26,6 +26,7 @@ namespace roboptim
 
   void ManifoldMerger::addManifold(const mnf::Manifold& instanceManifold)
   {
+    // This lambda concatenates all the unique elementary manifolds composing its input into a merged manifold.
     std::function<void(const mnf::Manifold&)> addElementaries =
       [this, &addElementaries]
       (const mnf::Manifold& manifold)

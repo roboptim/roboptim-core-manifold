@@ -83,7 +83,7 @@ namespace roboptim
     // FIXME: remove this garbage. Anyone currently relying on this method
     // should really, really, **REALLY** take a look at this...
     mnf::RealSpace realR(fct->inputSize());
-const mnf::Manifold* m = &realR;
+    const mnf::Manifold* m = &realR;
     DescriptiveWrapper<U, V>* descWrap = new DescriptiveWrapper<U, V>(fct, *m);
     descWrap->manifold_ = &manifold;
 
