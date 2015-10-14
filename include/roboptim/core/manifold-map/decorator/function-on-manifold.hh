@@ -24,6 +24,7 @@
 # include <type_traits>
 
 # include <roboptim/core/detail/autopromote.hh>
+# include <roboptim/core/twice-differentiable-function.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
