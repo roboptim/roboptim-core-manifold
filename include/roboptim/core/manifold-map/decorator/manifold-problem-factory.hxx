@@ -198,6 +198,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
       // the overloaded constructor instead of the variadic one
       const mnf::Manifold& globberMani = *globalManifold;
 
+      // FIXME: yet another leak to plug
       DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>* descWrap = new
       DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>(cst, globberMani);
 
@@ -206,6 +207,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 
   lastObjFunc_ = objFunc_.getFunction(*globalManifold);
 
+  // FIXME: yet another leak to plug
   ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, make_shared_ptr(lastObjFunc_));
 
   for (auto lambda : this->lambdas_)

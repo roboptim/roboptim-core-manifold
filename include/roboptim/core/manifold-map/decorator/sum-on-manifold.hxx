@@ -196,6 +196,7 @@ namespace roboptim
 							 name);
 
     typedef DescriptiveWrapper<SumOnManifold<T>, ManiDesc<>> descWrap_t;
+
     // FIXME: yet another leak to plug (this already existed in
     // makeUNCHECKEDDescriptiveWrapper, which also added an extra layer of
     // garbage...)
