@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   factory.addArgumentBounds(r42, boundsMap[r42.getInstanceId()]);
   factory.addArgumentBounds(r39, boundsMap[r39.getInstanceId()]);
 
-  roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
+  std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(factory.getProblem());
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42 + 39);
   std::cout << manifoldProblem->getManifold().name() << std::endl;
@@ -332,8 +332,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
       globalIdx++;
     }
   }
-
-  delete manifoldProblem;
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
@@ -375,11 +373,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
     factory.addConstraint(cnstr2, joints).setScaling(scales);
   }
 
-  roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
+  std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(factory.getProblem());
 
   BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 19);
-
-  delete manifoldProblem;
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functionTypes_t)
@@ -387,7 +383,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functi
   roboptim::ManifoldProblemFactory<T> factory;
 
   roboptim::ProblemOnManifold<T>* manifoldProblem;
-  BOOST_CHECK_THROW(manifoldProblem = factory.getProblem(); delete manifoldProblem, std::runtime_error);
+  BOOST_CHECK_THROW(manifoldProblem = factory.getProblem().get(); delete manifoldProblem, std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
@@ -450,7 +446,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
 
   factory.addSum(adder);
 
-  roboptim::ProblemOnManifold<T>* manifoldProblem = factory.getProblem();
+  std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(factory.getProblem());
 
   manifoldProblem->getManifold().display();
 

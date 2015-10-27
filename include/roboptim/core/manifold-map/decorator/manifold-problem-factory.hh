@@ -18,8 +18,12 @@
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HH
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HH
 
-# include <boost/shared_ptr.hpp>
+# include <map>
+# include <memory>
+# include <vector>
+# include <functional>
 
+# include <boost/shared_ptr.hpp>
 
 # include <roboptim/core/problem.hh>
 # include <roboptim/core/manifold-map/decorator/manifold-map.hh>
@@ -31,10 +35,6 @@
 # include <roboptim/core/function/constant.hh>
 
 # include <manifolds/Manifold.h>
-
-# include <map>
-# include <vector>
-# include <functional>
 
 namespace roboptim
 {
@@ -115,7 +115,7 @@ namespace roboptim
     const typename GenericFunction<T>::intervals_t& getArgumentBounds(const mnf::Manifold& manifold) const;
 
     /// \brief generate and return the described problem
-    ProblemOnManifold<T>* getProblem();
+    std::unique_ptr<ProblemOnManifold<T>> getProblem();
 
     /// \brief reset the factory to be able to create a completely new problem
     void reset();

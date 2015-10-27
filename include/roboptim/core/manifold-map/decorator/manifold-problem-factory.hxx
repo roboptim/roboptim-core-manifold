@@ -18,6 +18,8 @@
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HXX
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_MANIFOLD_PROBLEM_FACTORY_HXX
 
+# include <memory>
+
 # include <boost/pointer_cast.hpp>
 
 # include <roboptim/core/debug.hh>
@@ -172,7 +174,7 @@ const mnf::CartesianProduct* ManifoldProblemFactory<T>::getGlobalManifold() cons
 }
 
 template<typename T>
-ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
+std::unique_ptr<ProblemOnManifold<T>> ManifoldProblemFactory<T>::getProblem()
 {
   // The global manifold is incomplete and only contains the
   // elementary manifolds of the constraints here.
@@ -207,8 +209,7 @@ ProblemOnManifold<T>* ManifoldProblemFactory<T>::getProblem()
 
   lastObjFunc_ = objFunc_.getFunction(*globalManifold);
 
-  // FIXME: yet another leak to plug
-  ProblemOnManifold<T>* problem = new ProblemOnManifold<T>(*globalManifold, make_shared_ptr(lastObjFunc_));
+  std::unique_ptr<ProblemOnManifold<T>> problem(new ProblemOnManifold<T>(*globalManifold, make_shared_ptr(lastObjFunc_)));
 
   for (auto lambda : this->lambdas_)
     {
