@@ -42,7 +42,7 @@ void ManifoldProblemFactory<T>::addElementaryManifolds(const mnf::Manifold& inst
 
 template<typename T>
 template<class V, class W>
-BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
   this->boundsAndScaling_.push_back(std::make_pair(typename V::intervals_t(), typename Problem<T>::scaling_t()));
@@ -56,17 +56,16 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWr
   // ... in a sense, we are somewhat capturing the type information within
   // this lambda, which is awesome.
   auto addConstraint =
-    [&descWrap, this, &instanceManifold, restricted, restrictions](size_t i){
-    return [&descWrap, this, &instanceManifold, restricted, restrictions, i]
+    [descWrap, this, &instanceManifold, restricted, restrictions](size_t i){
+    return [descWrap, this, &instanceManifold, restricted, restrictions, i]
     (ProblemOnManifold<T>& problem,
      const mnf::Manifold& globMani)
     {
       std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>* bNSPair = &(this->boundsAndScaling_[i]);
 
       ::boost::shared_ptr<FunctionOnManifold<T>>
-      funcOnMani(new WrapperOnManifold<T>
-		 (descWrap, globMani, instanceManifold, restricted, restrictions)
-		 );
+      funcOnMani = ::boost::make_shared<WrapperOnManifold<T>>
+		 (*descWrap, globMani, instanceManifold, restricted, restrictions);
 
       while (bNSPair->first.size() < static_cast<size_t>(funcOnMani->outputSize()))
 	{
@@ -97,7 +96,7 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWr
 
 template<typename T>
 template<class V, class W>
-BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addConstraint(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -201,10 +200,10 @@ std::unique_ptr<ProblemOnManifold<T>> ManifoldProblemFactory<T>::getProblem()
       const mnf::Manifold& globberMani = *globalManifold;
 
       // FIXME: yet another leak to plug
-      DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>* descWrap = new
-      DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>>(cst, globberMani);
+      typedef DescriptiveWrapper<GenericConstantFunction<T>, ManiDesc<>> DescWrap_t;
+      std::shared_ptr<DescWrap_t> descWrap = std::make_shared<DescWrap_t>(cst, globberMani);
 
-      objFunc_.add(*descWrap, globberMani);
+      objFunc_.add(descWrap, globberMani);
     }
 
   lastObjFunc_ = objFunc_.getFunction(*globalManifold);
@@ -258,7 +257,7 @@ std::unique_ptr<ProblemOnManifold<T>> ManifoldProblemFactory<T>::getProblem()
 
 template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+void ManifoldProblemFactory<T>::addObjective(double weight, std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   this->addElementaryManifolds(instanceManifold);
   objFunc_.add(weight, descWrap, instanceManifold, restricted, restrictions);
@@ -266,7 +265,7 @@ void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V
 
 template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+void ManifoldProblemFactory<T>::addObjective(double weight, std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -280,7 +279,7 @@ void ManifoldProblemFactory<T>::addObjective(double weight, DescriptiveWrapper<V
 
 template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<T>::addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+void ManifoldProblemFactory<T>::addObjective(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
 {
   return this->addObjective(1.0,
 			    descWrap,
@@ -291,7 +290,7 @@ void ManifoldProblemFactory<T>::addObjective(DescriptiveWrapper<V, W>& descWrap,
 
 template<typename T>
 template<class V, class W>
-void ManifoldProblemFactory<T>::addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold)
+void ManifoldProblemFactory<T>::addObjective(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold)
 {
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;

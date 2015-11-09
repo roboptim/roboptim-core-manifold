@@ -121,11 +121,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test_0, T, functionTypes_t)
   ROBOPTIM_NAMED_FUNCTION_BINDING(Desc_F0_Manif, testF_t, f0Manif_t);
   ROBOPTIM_NAMED_FUNCTION_BINDING(Desc_F1_Manif, testF_t, f1Manif_t);
 
-  Desc_F0_Manif descWrapF0 (n, k0);
-  Desc_F1_Manif descWrapF1 (n, k1);
+  std::shared_ptr<Desc_F0_Manif> descWrapF0 = std::make_shared<Desc_F0_Manif>(n, k0);
+  std::shared_ptr<Desc_F1_Manif> descWrapF1 = std::make_shared<Desc_F1_Manif>(n, k1);
 
-  (*output) << descWrapF0 << std::endl;
-  (*output) << descWrapF1 << std::endl;
+  (*output) << *descWrapF0 << std::endl;
+  (*output) << *descWrapF1 << std::endl;
 
   // Create Adder helper and add the functions
   typedef roboptim::AdderOnManifold<T> adder_t;

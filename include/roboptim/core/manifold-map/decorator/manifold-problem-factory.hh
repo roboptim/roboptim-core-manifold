@@ -77,9 +77,9 @@ namespace roboptim
     /// manifolds, represented as (startingIndex, size). If a single one is
     /// given, it will apply to all restricted manifolds.
     template<class V, class W>
-    BoundsAndScalingSetter<T> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    BoundsAndScalingSetter<T> addConstraint(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    BoundsAndScalingSetter<T> addConstraint(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    BoundsAndScalingSetter<T> addConstraint(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold);
 
     /// \brief This function adds a SumOnManifold function
     /// from the AdderOnManifold factory used to build it.
@@ -95,13 +95,13 @@ namespace roboptim
     /// manifolds, represented as (startingIndex, size). If a single one is
     /// given, it will apply to all restricted manifolds.
     template<class V, class W>
-    void addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void addObjective(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    void addObjective(DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    void addObjective(std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold);
     template<class V, class W>
-    void addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void addObjective(double weight, std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<class V, class W>
-    void addObjective(double weight, DescriptiveWrapper<V, W>& descWrap, mnf::Manifold& instanceManifold);
+    void addObjective(double weight, std::shared_ptr<DescriptiveWrapper<V, W>> descWrap, mnf::Manifold& instanceManifold);
 
 
     /// \brief for a given elementary manifold, add bounds to its arguments

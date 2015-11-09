@@ -114,35 +114,41 @@ namespace roboptim
 
   // ---- //
 
-  template<typename T>
-  template<typename U, typename V>
-  void AdderOnManifold<T>::add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+  template <typename T>
+  template <typename U, typename V>
+  void AdderOnManifold<T>::add(double weight,
+                               std::shared_ptr<DescriptiveWrapper<U, V>> descWrap,
+                               const mnf::Manifold& instanceManifold,
+                               std::vector<const mnf::Manifold*>& restricted,
+                               std::vector<std::pair<long, long>>& restrictions)
   {
     descWrap_storage_t lambda =
-      [&descWrap, this, &instanceManifold, restricted, restrictions]
-      (const mnf::Manifold& globMani)
-      {
-	return functionPtr_t
-	(new WrapperOnManifold<T>
-	 (descWrap, globMani, instanceManifold, restricted, restrictions)
-	 );
-      };
+        [descWrap, this, &instanceManifold, restricted, restrictions](
+            const mnf::Manifold& globMani)
+    {
+      return functionPtr_t(new WrapperOnManifold<T>(
+          *descWrap, globMani, instanceManifold, restricted, restrictions));
+    };
 
     functionsToSum_.push_back(lambda);
     weights_.push_back(weight);
     merger_.addManifold(instanceManifold);
   }
 
-  template<typename T>
-  template<typename U, typename V>
-  void AdderOnManifold<T>::add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions)
+  template <typename T>
+  template <typename U, typename V>
+  void AdderOnManifold<T>::add(std::shared_ptr<DescriptiveWrapper<U, V>> descWrap,
+                               const mnf::Manifold& instanceManifold,
+                               std::vector<const mnf::Manifold*>& restricted,
+                               std::vector<std::pair<long, long>>& restrictions)
   {
     add(1.0, descWrap, instanceManifold, restricted, restrictions);
   }
 
-  template<typename T>
-  template<typename U, typename V>
-  void AdderOnManifold<T>::add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold)
+  template <typename T>
+  template <typename U, typename V>
+  void AdderOnManifold<T>::add(std::shared_ptr<DescriptiveWrapper<U, V>> descWrap,
+                               const mnf::Manifold& instanceManifold)
   {
     std::vector<const mnf::Manifold*> restricted;
     std::vector<std::pair<long, long>> restrictions;
@@ -152,7 +158,7 @@ namespace roboptim
 
   template<typename T>
   template<typename U, typename V>
-  void AdderOnManifold<T>::add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold)
+  void AdderOnManifold<T>::add(double weight, std::shared_ptr<DescriptiveWrapper<U, V>> descWrap, const mnf::Manifold& instanceManifold)
   {
     std::vector<const mnf::Manifold*> restricted;
     std::vector<std::pair<long, long>> restrictions;

@@ -157,15 +157,15 @@ namespace roboptim
     /// \param restricted list of restricted manifolds
     /// \param restrictions list of restrictions for the restricted manifolds
     template<typename U, typename V>
-    void add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void add(double weight, std::shared_ptr<DescriptiveWrapper<U, V>> descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
     template<typename U, typename V>
-    void add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
+    void add(std::shared_ptr<DescriptiveWrapper<U, V>> descWrap, const mnf::Manifold& instanceManifold, std::vector<const mnf::Manifold*>& restricted, std::vector<std::pair<long, long>>& restrictions);
 
     template<typename U, typename V>
-    void add(DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold);
+    void add(std::shared_ptr<DescriptiveWrapper<U, V>> descWrap, const mnf::Manifold& instanceManifold);
 
     template<typename U, typename V>
-    void add(double weight, DescriptiveWrapper<U, V>& descWrap, const mnf::Manifold& instanceManifold);
+    void add(double weight, std::shared_ptr<DescriptiveWrapper<U, V>> descWrap, const mnf::Manifold& instanceManifold);
 
     /// \brief Instantiate and return a shared pointer to a function computing the
     /// weighted sum of all functions added through the add(...) methods.

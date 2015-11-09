@@ -192,8 +192,40 @@ boost::shared_ptr<boost::test_tools::output_test_stream> output;
 
 BOOST_FIXTURE_TEST_SUITE (core, TestSuiteConfiguration)
 
+BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test_single_cstr, T, functionTypes_t)
+{
+  std::cout << "Test: manifold_factory_test_single_cstr" << std::endl;
+  typedef H<T> Hunc;
+
+  roboptim::ManifoldProblemFactory<T> factory;
+
+  ROBOPTIM_DESC_MANIFOLD(R10, ROBOPTIM_REAL_SPACE(10));
+  ROBOPTIM_NAMED_FUNCTION_BINDING(H_On_R10, Hunc, R10);
+
+  mnf::RealSpace joints(10);
+  BOOST_CHECK(joints.representationDim() == 10);
+
+  std::shared_ptr<H_On_R10> cnstr2 = std::make_shared<H_On_R10>();
+
+  typename Hunc::intervals_t boundsCstr2;
+  for (int i = 0; i < Hunc().outputSize(); ++i)
+    boundsCstr2.push_back(roboptim::Function::makeLowerInterval(25));
+
+  factory.addConstraint(cnstr2, joints).setBounds(boundsCstr2);
+
+  std::cout << "Will fail now:" << std::endl;
+  std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(
+      factory.getProblem());
+  std::cout << "Problem created!!!" << std::endl;
+
+  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 10);
+  std::cout << manifoldProblem->getManifold().name() << std::endl;
+  BOOST_CHECK(manifoldProblem->getManifold().name() == "R10");
+}
+
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 {
+  std::cout << "Test: manifold_factory_test" << std::endl;
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef H<T> Hunc;
@@ -236,10 +268,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   prod3.multiply(r39).multiply(ori).multiply(r39);
 
 
-  F_On_SO3 cnstr1;
-  G_On_R3 objDesc;
-  H_On_R10 cnstr2;
-  I_On_R3XSO3XR10 cnstr3;
+  std::shared_ptr<F_On_SO3> cnstr1 = std::make_shared<F_On_SO3>();
+  std::shared_ptr<G_On_R3> objDesc = std::make_shared<G_On_R3>();
+  std::shared_ptr<H_On_R10> cnstr2 = std::make_shared<H_On_R10>();
+  std::shared_ptr<I_On_R3XSO3XR10> cnstr3 = std::make_shared<I_On_R3XSO3XR10>();
 
   std::vector<const mnf::Manifold*> restricted;
   std::vector<std::pair<long, long>> restrictions;
@@ -336,6 +368,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTypes_t)
 {
+  std::cout << "Test: manifold_factory_no_objective_test" << std::endl;
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef H<T> Hunc;
@@ -355,9 +388,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
   mnf::SO3<mnf::ExpMapMatrix> ori;
   mnf::RealSpace joints(10);
 
-  F_On_SO3 cnstr1;
-  G_On_R3 objDesc;
-  H_On_R10 cnstr2;
+  std::shared_ptr<F_On_SO3> cnstr1 = std::make_shared<F_On_SO3>();
+  std::shared_ptr<G_On_R3> objDesc = std::make_shared<G_On_R3>();
+  std::shared_ptr<H_On_R10> cnstr2 = std::make_shared<H_On_R10>();
 
   factory.addConstraint(cnstr1, ori);
   factory.addConstraint(cnstr2, joints);
@@ -380,6 +413,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functionTypes_t)
 {
+  std::cout << "Test: manifold_problem_factory_no_constraints" << std::endl;
   roboptim::ManifoldProblemFactory<T> factory;
 
   roboptim::ProblemOnManifold<T>* manifoldProblem;
@@ -388,6 +422,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functi
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
 {
+  std::cout << "Test: sum_on_manifold_test" << std::endl;
   typedef F<T> Func;
   typedef G<T> Gunc;
   typedef I<T> Iunc;
@@ -416,9 +451,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
   mnf::CartesianProduct prod3;
   prod3.multiply(r39).multiply(ori).multiply(r39);
 
-  F_On_SO3 cnstr1;
-  G_On_R3 objDesc;
-  I_On_R3XSO3XR10 cnstr3;
+  std::shared_ptr<F_On_SO3> cnstr1 = std::make_shared<F_On_SO3>();
+  std::shared_ptr<G_On_R3> objDesc = std::make_shared<G_On_R3>();
+  std::shared_ptr<I_On_R3XSO3XR10> cnstr3 = std::make_shared<I_On_R3XSO3XR10>();
 
   double weights[] = {6, -3, 2};
 
