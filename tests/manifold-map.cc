@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_2, T, functionTypes_t)
   BOOST_CHECK_NO_THROW(
 		       {
 			 mnf::RealSpace r(45);
-			 delete F_On_Manifold2::makeUNCHECKEDDescriptiveWrapper(new F<T>(), r);
+       auto a = F_On_Manifold2::makeUNCHECKEDDescriptiveWrapper(new F<T>(), r);
 		       }
 		      );
   ROBOPTIM_ALLOW_DEPRECATED_OFF;

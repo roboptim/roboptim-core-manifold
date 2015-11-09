@@ -20,6 +20,7 @@
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HH
 # include <vector>
 # include <ostream>
+# include <memory>
 # include <boost/shared_ptr.hpp>
 # include <boost/make_shared.hpp>
 
@@ -81,7 +82,7 @@ namespace roboptim
       return *fct_;
     }
 
-    static DescriptiveWrapper<U, V>* makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold) /*ROBOPTIM_CORE_MANIFOLD_DEPRECATED*/;
+    static std::shared_ptr<DescriptiveWrapper<U, V>> makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold) /*ROBOPTIM_CORE_MANIFOLD_DEPRECATED*/;
 
   private:
     /// \brief dimension check between the function and the descriptive manifold
@@ -93,13 +94,13 @@ namespace roboptim
     const mnf::Manifold*  manifold_;
   };
 
-  template <typename U, typename V>
-  boost::shared_ptr<DescriptiveWrapper<U, V> >
-  descriptivewrapper (U* fct,
-		      const mnf::Manifold& manifold)
-  {
-    return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
-  }
+  //template <typename U, typename V>
+  //boost::shared_ptr<DescriptiveWrapper<U, V> >
+  //descriptivewrapper (U* fct,
+					//const mnf::Manifold& manifold)
+  //{
+    //return boost::make_shared<DescriptiveWrapper<U, V> > (fct, manifold);
+  //}
 
   template <typename U, typename V>
   std::ostream&
