@@ -208,7 +208,8 @@ namespace roboptim
     // garbage...)
     descWrap_t* descWrap = new descWrap_t (sumFunction, *sumManifold);
 
-    return functionPtr_t (new WrapperOnManifold<T> (*descWrap, globMani, *sumManifold));
+    functionPtr_t res(new WrapperOnManifold<T> (*descWrap, globMani, *sumManifold));
+    return res;
   }
 
   template<typename T>

@@ -60,6 +60,7 @@ IF(HAS_ERROR_LIMIT)
 ENDIF()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O1 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 
 
 # Search for dependencies.
