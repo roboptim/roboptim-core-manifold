@@ -61,6 +61,8 @@ ENDIF()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
+# Add main library to pkg-config file.
+PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
 
 # Search for dependencies.
 SET(BOOST_COMPONENTS
