@@ -208,7 +208,7 @@ namespace roboptim
     // garbage...)
     descWrap_t* descWrap = new descWrap_t (sumFunction, *sumManifold);
 
-    functionPtr_t res(new WrapperOnManifold<T> (*descWrap, globMani, *sumManifold));
+    functionPtr_t res = std::make_shared<WrapperOnManifold<T>> (*descWrap, globMani, *sumManifold);
     return res;
   }
 
