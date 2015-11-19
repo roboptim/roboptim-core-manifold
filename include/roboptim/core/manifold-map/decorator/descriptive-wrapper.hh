@@ -55,6 +55,8 @@ namespace roboptim
     /// \param m the manifold describing the function's input vector.
     DescriptiveWrapper (U* f, const mnf::Manifold& m);
     DescriptiveWrapper (const U* f, const mnf::Manifold& m);
+    DescriptiveWrapper (std::shared_ptr<const U> f, std::shared_ptr<const mnf::Manifold> m);
+    DescriptiveWrapper (boost::shared_ptr<const U> f, boost::shared_ptr<const mnf::Manifold> m);
 
     /// \brief binds the function to the manifold
     ///
@@ -89,9 +91,9 @@ namespace roboptim
     void checkDimension();
 
     ///\brief the function
-    const U*              fct_;
+    std::shared_ptr<const U> fct_;
     ///\brief the manifold
-    const mnf::Manifold*  manifold_;
+    std::shared_ptr<const mnf::Manifold> manifold_;
   };
 
   //template <typename U, typename V>

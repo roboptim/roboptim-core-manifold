@@ -29,21 +29,36 @@ namespace roboptim
   /// \addtogroup roboptim_manifolds
   /// @{
 
-  template <typename U, typename V>
-  template<class ... Types>
-  DescriptiveWrapper<U, V>::DescriptiveWrapper
-  (Types ... args)
+  template<typename U>
+  struct NoopDeleter
   {
-    this->fct_ = new U(args...);
-    this->manifold_ = V::getManifold(this->fct_);
+    inline void operator() (const U*) const {}
+  };
+
+  template <typename T>
+  std::shared_ptr<T> make_shared_ptr(boost::shared_ptr<T>& ptr)
+  {
+    return std::shared_ptr<T>(ptr.get(), [ptr](T*) mutable
+                              {
+                                ptr.reset();
+                              });
+  }
+
+  template <typename U, typename V>
+  template <class... Types>
+  DescriptiveWrapper<U, V>::DescriptiveWrapper(Types... args)
+      : fct_(new U(args...)),
+        manifold_(V::getManifold(this->fct_.get()),
+                  NoopDeleter<mnf::Manifold>())
+  {
     checkDimension();
   }
 
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (U* fct, const mnf::Manifold& manifold)
-    : fct_ (fct),
-      manifold_ (&manifold)
+    : fct_(fct, NoopDeleter<U>()),
+      manifold_(&manifold, NoopDeleter<mnf::Manifold>())
   {
     checkDimension();
   }
@@ -51,8 +66,26 @@ namespace roboptim
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (const U* fct, const mnf::Manifold& manifold)
-    : fct_ (fct),
-      manifold_ (&manifold)
+    : fct_(fct, NoopDeleter<U>()),
+      manifold_(&manifold, NoopDeleter<mnf::Manifold>())
+  {
+    checkDimension();
+  }
+
+  template <typename U, typename V>
+  DescriptiveWrapper<U, V>::DescriptiveWrapper
+  (std::shared_ptr<const U> fct, std::shared_ptr<const mnf::Manifold> manifold)
+    : fct_(fct),
+      manifold_(manifold)
+  {
+    checkDimension();
+  }
+
+  template <typename U, typename V>
+  DescriptiveWrapper<U, V>::DescriptiveWrapper
+  (boost::shared_ptr<const U> fct, boost::shared_ptr<const mnf::Manifold> manifold)
+    : fct_(make_shared_ptr<const U>(fct)),
+      manifold_(make_shared_ptr<const mnf::Manifold>(manifold))
   {
     checkDimension();
   }
@@ -85,7 +118,8 @@ namespace roboptim
     mnf::RealSpace realR(fct->inputSize());
     const mnf::Manifold* m = &realR;
     std::shared_ptr<DescriptiveWrapper<U, V>> descWrap = std::make_shared<DescriptiveWrapper<U, V>>(fct, *m);
-    descWrap->manifold_ = &manifold;
+
+    descWrap->manifold_.reset(&manifold, NoopDeleter<mnf::Manifold>());
 
     return descWrap;
   }
