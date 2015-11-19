@@ -84,7 +84,20 @@ namespace roboptim
       return *fct_;
     }
 
-    static std::shared_ptr<DescriptiveWrapper<U, V>> makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold) /*ROBOPTIM_CORE_MANIFOLD_DEPRECATED*/;
+    static std::shared_ptr<DescriptiveWrapper<U, V>>
+    makeUNCHECKEDDescriptiveWrapper(
+        const U* fct,
+        const mnf::Manifold& manifold) /*ROBOPTIM_CORE_MANIFOLD_DEPRECATED*/;
+
+    static std::shared_ptr<DescriptiveWrapper<U, V>>
+    makeUNCHECKEDDescriptiveWrapper(
+        std::shared_ptr<const U> fct,
+        std::shared_ptr<const mnf::Manifold> manifold);
+
+    static std::shared_ptr<DescriptiveWrapper<U, V>>
+    makeUNCHECKEDDescriptiveWrapper(
+        boost::shared_ptr<const U> fct,
+        boost::shared_ptr<const mnf::Manifold> manifold);
 
   private:
     /// \brief dimension check between the function and the descriptive manifold

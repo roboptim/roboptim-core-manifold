@@ -111,17 +111,36 @@ namespace roboptim
   }
 
   template <typename U, typename V>
-  std::shared_ptr<DescriptiveWrapper<U, V>> DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(U* fct, const mnf::Manifold& manifold)
+  std::shared_ptr<DescriptiveWrapper<U, V>>
+  DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(
+      const U* fct, const mnf::Manifold& manifold)
   {
     // FIXME: remove this garbage. Anyone currently relying on this method
     // should really, really, **REALLY** take a look at this...
     mnf::RealSpace realR(fct->inputSize());
     const mnf::Manifold* m = &realR;
-    std::shared_ptr<DescriptiveWrapper<U, V>> descWrap = std::make_shared<DescriptiveWrapper<U, V>>(fct, *m);
-
+    std::shared_ptr<DescriptiveWrapper<U, V>> descWrap =
+        std::make_shared<DescriptiveWrapper<U, V>>(fct, *m);
     descWrap->manifold_.reset(&manifold, NoopDeleter<mnf::Manifold>());
-
     return descWrap;
+  }
+
+  template <typename U, typename V>
+  std::shared_ptr<DescriptiveWrapper<U, V>>
+  DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(
+      std::shared_ptr<const U> fct,
+      std::shared_ptr<const mnf::Manifold> manifold)
+  {
+    return makeUNCHECKEDDescriptiveWrapper(fct.get(), *manifold);
+  }
+
+  template <typename U, typename V>
+  std::shared_ptr<DescriptiveWrapper<U, V>>
+  DescriptiveWrapper<U, V>::makeUNCHECKEDDescriptiveWrapper(
+      boost::shared_ptr<const U> fct,
+      boost::shared_ptr<const mnf::Manifold> manifold)
+  {
+    return makeUNCHECKEDDescriptiveWrapper(fct.get(), *manifold);
   }
 
 } // end of namespace roboptim.
