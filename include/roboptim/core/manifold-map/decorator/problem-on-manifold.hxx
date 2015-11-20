@@ -49,5 +49,12 @@ namespace roboptim
   {
     return *manifold_;
   }
+
+  template<typename T>
+  const std::shared_ptr<const mnf::Manifold>&
+  ProblemOnManifold<T>::manifold() const
+  {
+    return manifold_;
+  }
 }
 #endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX

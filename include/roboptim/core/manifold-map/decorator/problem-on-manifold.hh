@@ -52,7 +52,12 @@ namespace roboptim
 
     virtual ~ProblemOnManifold();
 
+    /// \brief Get a reference to the global manifold.
+    /// TODO: deprecate this method (to only keep one getter).
     const mnf::Manifold& getManifold() const;
+
+    /// \brief Get a shared pointer to the global manifold.
+    const std::shared_ptr<const mnf::Manifold>& manifold() const;
 
   protected:
     /// \brief Global manifold.

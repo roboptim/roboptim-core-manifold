@@ -19,6 +19,7 @@
 #include "shared-tests/fixture.hh"
 
 #include <iostream>
+#include <memory>
 
 #include <roboptim/core/differentiable-function.hh>
 
@@ -218,9 +219,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test_single_cstr, T, functionTyp
       factory.getProblem());
   std::cout << "Problem created!!!" << std::endl;
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 10);
-  std::cout << manifoldProblem->getManifold().name() << std::endl;
-  BOOST_CHECK(manifoldProblem->getManifold().name() == "R10");
+  BOOST_CHECK(manifoldProblem->manifold()->representationDim() == 10);
+  std::cout << manifoldProblem->manifold()->name() << std::endl;
+  BOOST_CHECK(manifoldProblem->manifold()->name() == "R10");
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
@@ -323,9 +324,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(factory.getProblem());
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 22 + 42 + 39);
-  std::cout << manifoldProblem->getManifold().name() << std::endl;
-  BOOST_CHECK(manifoldProblem->getManifold().name() == "SO3xR10xR3xR39xR42");
+  BOOST_CHECK(manifoldProblem->manifold()->representationDim() == 22 + 42 + 39);
+  std::cout << manifoldProblem->manifold()->name() << std::endl;
+  BOOST_CHECK(manifoldProblem->manifold()->name() == "SO3xR10xR3xR39xR42");
 
   size_t i = 0;
 
@@ -338,8 +339,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 		<< std::endl;
     }
 
-  const mnf::CartesianProduct* globalMnf
-    = dynamic_cast<const mnf::CartesianProduct*>(&manifoldProblem->getManifold());
+  std::shared_ptr<const mnf::CartesianProduct> globalMnf
+    = std::dynamic_pointer_cast<const mnf::CartesianProduct>
+      (manifoldProblem->manifold());
   BOOST_CHECK(!!globalMnf);
 
   size_t globalIdx = 0;
@@ -408,7 +410,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_no_objective_test, T, functionTy
 
   std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(factory.getProblem());
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 19);
+  BOOST_CHECK(manifoldProblem->manifold()->representationDim() == 19);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(manifold_problem_factory_no_constraints, T, functionTypes_t)
@@ -483,9 +485,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
 
   std::unique_ptr<roboptim::ProblemOnManifold<T>> manifoldProblem(factory.getProblem());
 
-  manifoldProblem->getManifold().display();
+  manifoldProblem->manifold()->display();
 
-  BOOST_CHECK(manifoldProblem->getManifold().representationDim() == 12 + 39);
+  BOOST_CHECK(manifoldProblem->manifold()->representationDim() == 12 + 39);
 
   Func fF;
   Gunc gF;
@@ -493,7 +495,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test, T, functionTypes_t)
 
   std::shared_ptr<roboptim::FunctionOnManifold<T>> sum = adder.getFunction(manifoldProblem->getManifold());
 
-  Eigen::VectorXd input(manifoldProblem->getManifold().representationDim());
+  Eigen::VectorXd input(manifoldProblem->manifold()->representationDim());
 
   input = 42 * Eigen::VectorXd::Ones(input.size());
 
