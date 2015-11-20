@@ -1,0 +1,194 @@
+DescriptiveWrapper (U* f, const mnf::Manifold& m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper (const U* f, const mnf::Manifold& m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper (std::shared_ptr<const U> f, std::shared_ptr<const mnf::Manifold> m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper (boost::shared_ptr<const U> f, boost::shared_ptr<const mnf::Manifold> m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+explicit DescriptiveWrapper (Types ... args)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+makeUNCHECKEDDescriptiveWrapper(const U* fct, const mnf::Manifold& manifold)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R8
+  Elementary: yes
+  Dimension: 8
+makeUNCHECKEDDescriptiveWrapper(std::shared_ptr<const U> fct, std::shared_ptr<const mnf::Manifold> manifold)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R8
+  Elementary: yes
+  Dimension: 8
+makeUNCHECKEDDescriptiveWrapper( boost::shared_ptr<const U> fct, boost::shared_ptr<const mnf::Manifold> manifold)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R8
+  Elementary: yes
+  Dimension: 8
+
+DescriptiveWrapper (U* f, const mnf::Manifold& m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper (const U* f, const mnf::Manifold& m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper (std::shared_ptr<const U> f, std::shared_ptr<const mnf::Manifold> m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper (boost::shared_ptr<const U> f, boost::shared_ptr<const mnf::Manifold> m)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+explicit DescriptiveWrapper (Types ... args)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+makeUNCHECKEDDescriptiveWrapper(const U* fct, const mnf::Manifold& manifold)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R8
+  Elementary: yes
+  Dimension: 8
+makeUNCHECKEDDescriptiveWrapper(std::shared_ptr<const U> fct, std::shared_ptr<const mnf::Manifold> manifold)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R8
+  Elementary: yes
+  Dimension: 8
+makeUNCHECKEDDescriptiveWrapper( boost::shared_ptr<const U> fct, boost::shared_ptr<const mnf::Manifold> manifold)
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R7
+  Elementary: yes
+  Dimension: 7
+DescriptiveWrapper's function:
+  Name: dummy function
+  Input size: 7
+  Output size: 4
+DescriptiveWrapper's manifold:
+  Name: R8
+  Elementary: yes
+  Dimension: 8
+
