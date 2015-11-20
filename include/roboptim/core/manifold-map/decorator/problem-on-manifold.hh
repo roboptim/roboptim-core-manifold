@@ -19,32 +19,45 @@
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HH
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HH
 
-# include <boost/shared_ptr.hpp>
+# include <memory>
 
 # include <roboptim/core/problem.hh>
 # include <roboptim/core/manifold-map/decorator/manifold-map.hh>
+# include <roboptim/core/manifold/deprecated.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
 
 namespace roboptim
 {
-
+  /// \brief RobOptim problem on a manifold.
+  ///
+  /// \tparam T matrix traits.
   template<typename T>
   class ProblemOnManifold : public Problem<T>
   {
-  protected:
-    const mnf::Manifold& manifold_;
-
   public:
+    /// \brief Constructor of a problem on manifold.
+    ///
+    /// \tparam Types variadic types for the problem constructor.
+    /// \param manifold global manifold.
+    /// \param args arguments for the constructor of Problem.
     template<typename ... Types>
-    ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args);
+    ProblemOnManifold(std::shared_ptr<const mnf::Manifold> manifold, Types&& ... args);
+
+    /// \brief Deprecated unsafe constructor of a problem on manifold.
+    template<typename ... Types>
+    ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args)
+    ROBOPTIM_CORE_MANIFOLD_DEPRECATED;
 
     virtual ~ProblemOnManifold();
 
     const mnf::Manifold& getManifold() const;
-  };
 
+  protected:
+    /// \brief Global manifold.
+    std::shared_ptr<const mnf::Manifold> manifold_;
+  };
 }
 
 # include <roboptim/core/manifold-map/decorator/problem-on-manifold.hxx>

@@ -86,4 +86,14 @@ namespace roboptim
     return mergedManifold_.get();
   }
 
+  std::shared_ptr<const mnf::CartesianProduct>
+  ManifoldMerger::mergedManifold() const
+  {
+    if (mergedManifold_->representationDim() <= 0)
+      {
+	throw std::runtime_error("The problem should not be empty.");
+      }
+
+    return mergedManifold_;
+  }
 }

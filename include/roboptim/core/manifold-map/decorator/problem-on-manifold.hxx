@@ -23,9 +23,19 @@ namespace roboptim
 {
   template<typename T>
   template<typename ... Types>
-  ProblemOnManifold<T>::ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args)
+  ProblemOnManifold<T>::ProblemOnManifold
+  (std::shared_ptr<const mnf::Manifold> manifold, Types&& ... args)
     : Problem<T>(args...),
       manifold_(manifold)
+  {
+  }
+
+  template<typename T>
+  template<typename ... Types>
+  ProblemOnManifold<T>::ProblemOnManifold
+  (const mnf::Manifold& manifold, Types&& ... args)
+    : Problem<T>(args...),
+      manifold_(&manifold, NoopDeleter<const mnf::Manifold>())
   {
   }
 
@@ -37,7 +47,7 @@ namespace roboptim
   template<typename T>
   const mnf::Manifold& ProblemOnManifold<T>::getManifold() const
   {
-    return this->manifold_;
+    return *manifold_;
   }
 }
 #endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX

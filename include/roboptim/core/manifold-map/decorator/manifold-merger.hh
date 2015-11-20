@@ -45,7 +45,11 @@ namespace roboptim
 
     ROBOPTIM_DLLAPI void clear();
 
+    // TODO: deprecate this getter
     ROBOPTIM_DLLAPI const mnf::CartesianProduct* getManifold() const;
+
+    ROBOPTIM_DLLAPI std::shared_ptr<const mnf::CartesianProduct>
+      mergedManifold() const;
 
   private:
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;

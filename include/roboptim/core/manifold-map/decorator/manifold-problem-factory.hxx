@@ -162,9 +162,10 @@ BoundsAndScalingSetter<T> ManifoldProblemFactory<T>::addSum(AdderOnManifold<T>& 
 // ---- //
 
 template<typename T>
-const mnf::CartesianProduct* ManifoldProblemFactory<T>::getGlobalManifold() const
+std::shared_ptr<const mnf::CartesianProduct>
+ManifoldProblemFactory<T>::getGlobalManifold() const
 {
-  return constraintsManifold_.getManifold();
+  return constraintsManifold_.mergedManifold();
 }
 
 template<typename T>
@@ -174,7 +175,8 @@ std::unique_ptr<ProblemOnManifold<T>> ManifoldProblemFactory<T>::getProblem()
   // elementary manifolds of the constraints here.
   // The elementary manifolds of the objective function will
   // be added by the objLambda_ function below.
-  const mnf::CartesianProduct* globalManifold = this->getGlobalManifold();
+  std::shared_ptr<const mnf::CartesianProduct>
+    globalManifold = getGlobalManifold();
 
   // If no objective function was added to the problem, we add a constant
   // function to serve as as dummy one.
@@ -204,7 +206,7 @@ std::unique_ptr<ProblemOnManifold<T>> ManifoldProblemFactory<T>::getProblem()
   lastObjFunc_ = objFunc_.getFunction(*globalManifold);
 
   std::unique_ptr<ProblemOnManifold<T>> problem
-    (new ProblemOnManifold<T> (*globalManifold, toBoost(lastObjFunc_)));
+    (new ProblemOnManifold<T> (globalManifold, toBoost(lastObjFunc_)));
 
   for (auto lambda : this->lambdas_)
     {
