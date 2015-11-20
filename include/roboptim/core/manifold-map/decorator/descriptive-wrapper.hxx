@@ -20,29 +20,17 @@
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_DESCRIPTIVE_WRAPPER_HXX
 
 # include <boost/format.hpp>
+
 # include <manifolds/Manifold.h>
 # include <manifolds/RealSpace.h>
+
+# include <roboptim/core/manifold-map/util.hh>
 # include <roboptim/core/manifold-map/decorator/manifold-desc.hh>
 
 namespace roboptim
 {
   /// \addtogroup roboptim_manifolds
   /// @{
-
-  template<typename U>
-  struct NoopDeleter
-  {
-    inline void operator() (const U*) const {}
-  };
-
-  template <typename T>
-  std::shared_ptr<T> make_shared_ptr(boost::shared_ptr<T>& ptr)
-  {
-    return std::shared_ptr<T>(ptr.get(), [ptr](T*) mutable
-                              {
-                                ptr.reset();
-                              });
-  }
 
   template <typename U, typename V>
   template <class... Types>
@@ -84,8 +72,8 @@ namespace roboptim
   template <typename U, typename V>
   DescriptiveWrapper<U, V>::DescriptiveWrapper
   (boost::shared_ptr<const U> fct, boost::shared_ptr<const mnf::Manifold> manifold)
-    : fct_(make_shared_ptr<const U>(fct)),
-      manifold_(make_shared_ptr<const mnf::Manifold>(manifold))
+    : fct_(toStd<const U>(fct)),
+      manifold_(toStd<const mnf::Manifold>(manifold))
   {
     checkDimension();
   }

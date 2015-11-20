@@ -23,14 +23,9 @@
 # include <boost/pointer_cast.hpp>
 
 # include <roboptim/core/debug.hh>
+# include <roboptim/core/manifold-map/util.hh>
 
 namespace roboptim {
-
-template<typename T>
-::boost::shared_ptr<T> make_shared_ptr(std::shared_ptr<T>& ptr)
-{
-  return ::boost::shared_ptr<T>(ptr.get(), [ptr](T*) mutable {ptr.reset();});
-}
 
 template<typename T>
 void ManifoldProblemFactory<T>::addElementaryManifolds(const mnf::Manifold& instanceManifold)
@@ -208,7 +203,8 @@ std::unique_ptr<ProblemOnManifold<T>> ManifoldProblemFactory<T>::getProblem()
 
   lastObjFunc_ = objFunc_.getFunction(*globalManifold);
 
-  std::unique_ptr<ProblemOnManifold<T>> problem(new ProblemOnManifold<T>(*globalManifold, make_shared_ptr(lastObjFunc_)));
+  std::unique_ptr<ProblemOnManifold<T>> problem
+    (new ProblemOnManifold<T> (*globalManifold, toBoost(lastObjFunc_)));
 
   for (auto lambda : this->lambdas_)
     {

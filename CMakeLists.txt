@@ -44,6 +44,7 @@ SET(HEADERS
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/wrapper-on-manifold.hxx
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/sum-on-manifold.hh
   ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/decorator/sum-on-manifold.hxx
+  ${CMAKE_SOURCE_DIR}/include/roboptim/core/manifold-map/util.hh
   )
 
 SETUP_PROJECT()
