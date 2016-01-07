@@ -15,7 +15,7 @@ env:
     - CLANG_NEEDED_VERSION="3.5"
     - CLANG_PPA="h-rayflood/llvm"
     - HOMEBREW_DEPENDENCIES="doxygen libtool boost log4cxx"
-    - GIT_DEPENDENCIES="roboptim/roboptim-core:dev stanislas-brossette/manifolds"
+    - GIT_DEPENDENCIES="roboptim/roboptim-core stanislas-brossette/manifolds"
     - MASTER_PPA="boost-latest/ppa"
     - GH_USERNAME=thomas-moulard
     - GH_REPO=roboptim/roboptim-core-manifold
