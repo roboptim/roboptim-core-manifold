@@ -239,10 +239,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_0, T, functionTypes_t)
   ROBOPTIM_NAMED_FUNCTION_BINDING(N_On_R3, N<T>, R3);
   N_On_R3 toto;
 
-  mnf::RealSpace pos(3);pos.name() = "position";
-  mnf::SO3<mnf::ExpMapMatrix> ori; ori.name() = "orientation";
+  mnf::RealSpace pos(3);
+  pos.setName(std::string("position"));
+  mnf::SO3<mnf::ExpMapMatrix> ori;
+  ori.setName(std::string("orientation"));
   const mnf::CartesianProduct freeFlyer(pos, ori);
-  mnf::RealSpace joints(10); joints.name() = "joints";
+  mnf::RealSpace joints(10);
+  joints.setName(std::string("joints"));
   const mnf::CartesianProduct robot(freeFlyer, joints);
 
   const mnf::CartesianProduct cartProd(joints, ori);
@@ -344,7 +347,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_1, T, functionTypes_t)
   for (size_t i = 0; i < posNumber; ++i)
     {
       mnf::RealSpace* newR = new mnf::RealSpace(3);
-      newR->name() = "position (" + std::to_string(i) + ")";
+      std::string name = "position (" + std::to_string(i) + ")";
+      newR->setName(name);
       reals.push_back(newR);
       problemManifold.multiply(*reals.back());
     }
@@ -476,7 +480,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_3, T, functionTypes_t)
   for (size_t i = 0; i < posNumber; ++i)
     {
       mnf::RealSpace* newR = new mnf::RealSpace(6);
-      newR->name() = "position (" + std::to_string(i) + ")";
+      std::string name = "position (" + std::to_string(i) + ")";
+      newR->setName(name);
       reals.push_back(newR);
       problemManifold.multiply(*reals.back());
       descriptiveManifold.multiply(*(new mnf::RealSpace(3)));
@@ -531,10 +536,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_map_test_4, T, functionTypes_t)
 {
   typedef F<T> Func;
 
-  mnf::RealSpace pos(3);pos.name() = "position";
-  mnf::SO3<mnf::ExpMapMatrix> ori; ori.name() = "orientation";
+  mnf::RealSpace pos(3);
+  pos.setName(std::string("position"));
+  mnf::SO3<mnf::ExpMapMatrix> ori;
+  ori.setName(std::string("orientation"));
   const mnf::CartesianProduct freeFlyer(pos, ori);
-  mnf::RealSpace joints(10); joints.name() = "joints";
+  mnf::RealSpace joints(10);
+  joints.setName(std::string("joints"));
   const mnf::CartesianProduct robot(freeFlyer, joints);
 
   const mnf::S2 s2;

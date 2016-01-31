@@ -106,10 +106,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (sum_on_manifold_test_0, T, functionTypes_t)
 
   std::stringstream ss;
   ss << "F0_R" << n;
-  f0Manif.name () = ss.str ();
+  f0Manif.setName(ss.str());
   ss.str ("");
   ss << "F1_R" << n;
-  f1Manif.name () = ss.str ();
+  f1Manif.setName(ss.str());
   ss.str ("");
 
   (*output) << "F0 manifold: " << f0Manif.name () << std::endl;
