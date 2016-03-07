@@ -18,11 +18,8 @@
 ADD_LIBRARY(roboptim-core-manifold SHARED
   ${HEADERS}
   manifold-merger.cc)
-
-IF(MSVC)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILDING_ROBOPTIM")
-  PKG_CONFIG_APPEND_CFLAGS (-DBUILDING_ROBOPTIM)
-ENDIF()
+SET_TARGET_PROPERTIES(roboptim-core-manifold PROPERTIES
+  COMPILE_FLAGS "-Droboptim_core_manifold_EXPORTS")
 
 PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
 
