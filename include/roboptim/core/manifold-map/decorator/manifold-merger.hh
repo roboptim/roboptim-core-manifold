@@ -22,7 +22,7 @@
 # include <vector>
 # include <iostream>
 
-# include <roboptim/core/portability.hh>
+# include <roboptim/core/manifold/config.hh>
 
 # include <manifolds/Manifold.h>
 # include <manifolds/CartesianProduct.h>
@@ -32,24 +32,23 @@ namespace roboptim
   /// \addtogroup roboptim_manifolds
   /// @{
 
-  class ManifoldMerger
+  class ROBOPTIM_CORE_MANIFOLD_DLLAPI ManifoldMerger
   {
   public:
-    ROBOPTIM_DLLAPI ManifoldMerger();
+    ManifoldMerger();
 
-    ROBOPTIM_DLLAPI void addManifold(const mnf::Manifold& instanceManifold);
+    void addManifold(const mnf::Manifold& instanceManifold);
 
-    ROBOPTIM_DLLAPI bool contains(const mnf::Manifold& instanceManifold) const;
+    bool contains(const mnf::Manifold& instanceManifold) const;
 
-    ROBOPTIM_DLLAPI void addManifolds(const ManifoldMerger& other);
+    void addManifolds(const ManifoldMerger& other);
 
-    ROBOPTIM_DLLAPI void clear();
+    void clear();
 
     // TODO: deprecate this getter
-    ROBOPTIM_DLLAPI const mnf::CartesianProduct* getManifold() const;
+    const mnf::CartesianProduct* getManifold() const;
 
-    ROBOPTIM_DLLAPI std::shared_ptr<const mnf::CartesianProduct>
-      mergedManifold() const;
+    std::shared_ptr<const mnf::CartesianProduct> mergedManifold() const;
 
   private:
     std::map<long, const mnf::Manifold*> elementaryInstanceManifolds_;
