@@ -6,6 +6,6 @@ DescriptiveWrapper's function:
   Input size: 22
   Output size: 10
 DescriptiveWrapper's manifold:
-  Name: R10xSO3xR3
+  Name: R10xSO3MatxR3
   Elementary: no
   Dimension: 22

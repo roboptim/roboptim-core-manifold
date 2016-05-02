@@ -1,3 +1,3 @@
 std::runtime_error: Representation dims mismatch on manifold R2 using function f_n (x) = sum(x). Expected dimension :2, actual one is 3
-std::runtime_error: Representation dims mismatch on manifold SO3 using function f_n (x) = n * x. Expected dimension :9, actual one is 22
-std::runtime_error: Representation dims mismatch on manifold R2xSO3 using function f_n (x) = sum(x). Expected dimension :11, actual one is 3
+std::runtime_error: Representation dims mismatch on manifold SO3Mat using function f_n (x) = n * x. Expected dimension :9, actual one is 22
+std::runtime_error: Representation dims mismatch on manifold R2xSO3Mat using function f_n (x) = sum(x). Expected dimension :11, actual one is 3

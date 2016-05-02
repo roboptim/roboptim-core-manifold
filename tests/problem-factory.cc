@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
   mnf::CartesianProduct prod;
   prod.multiply(pos).multiply(ori).multiply(joints);
   BOOST_CHECK(prod.representationDim() == 22);
-  BOOST_CHECK(prod.name() == "R3xSO3xR10");
+  BOOST_CHECK(prod.name() == "R3xSO3MatxR10");
 
   mnf::RealSpace r42(42);
   mnf::RealSpace r39(39);
@@ -326,7 +326,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (manifold_factory_test, T, functionTypes_t)
 
   BOOST_CHECK(manifoldProblem->manifold()->representationDim() == 22 + 42 + 39);
   std::cout << manifoldProblem->manifold()->name() << std::endl;
-  BOOST_CHECK(manifoldProblem->manifold()->name() == "SO3xR10xR3xR39xR42");
+  BOOST_CHECK(manifoldProblem->manifold()->name() == "SO3MatxR10xR3xR39xR42");
 
   size_t i = 0;
 
