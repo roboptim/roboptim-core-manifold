@@ -19,6 +19,7 @@
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX
 # define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX
 
+# include <roboptim/core/manifold/config.hh>
 # include <roboptim/core/manifold-map/decorator/wrapper-on-manifold.hh>
 
 namespace roboptim
@@ -231,6 +232,11 @@ namespace roboptim
   {
     return functionsToSum_.size();
   }
+
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI SumOnManifold<EigenMatrixDense>;
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI SumOnManifold<EigenMatrixSparse>;
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI AdderOnManifold<EigenMatrixDense>;
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI AdderOnManifold<EigenMatrixSparse>;
 
 }
 

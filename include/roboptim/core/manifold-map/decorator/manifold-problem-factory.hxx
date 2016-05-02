@@ -23,6 +23,7 @@
 # include <boost/pointer_cast.hpp>
 
 # include <roboptim/core/debug.hh>
+# include <roboptim/core/manifold/config.hh>
 # include <roboptim/core/manifold-map/util.hh>
 
 namespace roboptim {
@@ -374,6 +375,12 @@ template<typename T>
 BoundsAndScalingSetter<T>::BoundsAndScalingSetter(std::pair<typename GenericFunction<T>::intervals_t, typename Problem<T>::scaling_t>& bNSPair)
   : bNSPair_(bNSPair)
 {}
+
+extern template struct ROBOPTIM_CORE_MANIFOLD_DLLAPI BoundsAndScalingSetter<EigenMatrixDense>;
+extern template struct ROBOPTIM_CORE_MANIFOLD_DLLAPI BoundsAndScalingSetter<EigenMatrixSparse>;
+
+extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ManifoldProblemFactory<EigenMatrixDense>;
+extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ManifoldProblemFactory<EigenMatrixSparse>;
 
 }
 

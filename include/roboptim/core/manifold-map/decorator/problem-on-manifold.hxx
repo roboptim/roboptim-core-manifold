@@ -19,6 +19,8 @@
 #ifndef ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX
 #define ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX
 
+# include <roboptim/core/manifold/config.hh>
+
 namespace roboptim
 {
   template<typename T>
@@ -56,5 +58,8 @@ namespace roboptim
   {
     return manifold_;
   }
+
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ProblemOnManifold<EigenMatrixDense>;
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ProblemOnManifold<EigenMatrixSparse>;
 }
 #endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX

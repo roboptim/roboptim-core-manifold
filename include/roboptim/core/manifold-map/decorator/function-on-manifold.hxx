@@ -28,6 +28,7 @@
 # include <boost/format.hpp>
 # include <boost/mpl/assert.hpp>
 
+# include <roboptim/core/manifold/config.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 
 # include <manifolds/Manifold.h>
@@ -40,6 +41,8 @@ namespace roboptim
 
   {}
 
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI FunctionOnManifold<EigenMatrixDense>;
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI FunctionOnManifold<EigenMatrixSparse>;
 } // end of namespace roboptim.
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX

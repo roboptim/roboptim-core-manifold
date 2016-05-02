@@ -609,6 +609,11 @@ namespace roboptim
     return flags|fct_->getFlags();
   }
 
+  ROBOPTIM_ALLOW_ATTRIBUTES_ON
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI WrapperOnManifold<EigenMatrixDense>;
+  extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI WrapperOnManifold<EigenMatrixSparse>;
+  ROBOPTIM_ALLOW_ATTRIBUTES_OFF
+
 } // end of namespace roboptim.
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_WRAPPER_ON_MANIFOLD_HXX

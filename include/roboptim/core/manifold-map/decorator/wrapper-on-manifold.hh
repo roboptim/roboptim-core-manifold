@@ -25,6 +25,7 @@
 # include <type_traits>
 
 # include <roboptim/core/detail/autopromote.hh>
+# include <roboptim/core/manifold/config.hh>
 # include <roboptim/core/manifold-map/decorator/descriptive-wrapper.hh>
 # include <roboptim/core/manifold-map/decorator/function-on-manifold.hh>
 
@@ -41,7 +42,7 @@ namespace roboptim
   ///
   /// \tparam T Matrix type
   template <typename T>
-  class WrapperOnManifold :
+  class ROBOPTIM_GCC_ETI_WORKAROUND WrapperOnManifold :
     public FunctionOnManifold<T>
   {
     ROBOPTIM_DEFINE_FLAG_TYPE();

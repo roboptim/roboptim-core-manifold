@@ -17,6 +17,7 @@
 
 ADD_LIBRARY(roboptim-core-manifold SHARED
   ${HEADERS}
+  roboptim-core-manifold-precompile.cc
   manifold-merger.cc)
 SET_TARGET_PROPERTIES(roboptim-core-manifold PROPERTIES
   COMPILE_FLAGS "-Droboptim_core_manifold_EXPORTS")
