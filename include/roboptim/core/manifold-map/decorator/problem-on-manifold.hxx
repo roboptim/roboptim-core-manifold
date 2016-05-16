@@ -59,7 +59,9 @@ namespace roboptim
     return manifold_;
   }
 
+# ifdef ROBOPTIM_PRECOMPILED_DENSE_SPARSE
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ProblemOnManifold<EigenMatrixDense>;
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ProblemOnManifold<EigenMatrixSparse>;
+# endif
 }
 #endif //!ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_PROBLEM_ON_MANIFOLD_HXX

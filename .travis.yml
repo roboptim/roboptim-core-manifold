@@ -28,6 +28,7 @@ script:
 after_success: ./.travis/run after_success
 after_failure: ./.travis/run after_failure
 before_install:
+  - if [ "${ENABLE_CXX11}" == "1" ]; then export CMAKE_ADDITIONAL_OPTIONS="-DUSE_CXX11:BOOL=ON -DROBOPTIM_PRECOMPILE_DENSE_SPARSE:BOOL=ON ${CMAKE_ADDITIONAL_OPTIONS}"; fi
   - ./.travis/dependencies/eigen-3.2
   - ./.travis/run  before_install
 matrix:
@@ -39,12 +40,10 @@ matrix:
     - os: linux
       dist: trusty
       compiler: gcc
-      env: CMAKE_ADDITIONAL_OPTIONS="-DUSE_CXX11:BOOL=ON -DROBOPTIM_PRECOMPILE_DENSE_SPARSE:BOOL=ON"
       env: ENABLE_CXX11=1
     - os: linux
       dist: trusty
       compiler: clang
-      env: CMAKE_ADDITIONAL_OPTIONS="-DUSE_CXX11:BOOL=ON -DROBOPTIM_PRECOMPILE_DENSE_SPARSE:BOOL=ON"
       env: ENABLE_CXX11=1
 os:
   - linux

@@ -41,8 +41,10 @@ namespace roboptim
 
   {}
 
+# ifdef ROBOPTIM_PRECOMPILED_DENSE_SPARSE
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI FunctionOnManifold<EigenMatrixDense>;
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI FunctionOnManifold<EigenMatrixSparse>;
+# endif
 } // end of namespace roboptim.
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_FUNCTION_ON_MANIFOLD_HXX

@@ -233,11 +233,12 @@ namespace roboptim
     return functionsToSum_.size();
   }
 
+# ifdef ROBOPTIM_PRECOMPILED_DENSE_SPARSE
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI SumOnManifold<EigenMatrixDense>;
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI SumOnManifold<EigenMatrixSparse>;
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI AdderOnManifold<EigenMatrixDense>;
   extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI AdderOnManifold<EigenMatrixSparse>;
-
+# endif
 }
 
 #endif //! ROBOPTIM_CORE_MANIFOLD_MAP_DECORATOR_SUM_ON_MANIFOLD_HXX

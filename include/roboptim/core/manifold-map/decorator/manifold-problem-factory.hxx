@@ -376,11 +376,13 @@ BoundsAndScalingSetter<T>::BoundsAndScalingSetter(std::pair<typename GenericFunc
   : bNSPair_(bNSPair)
 {}
 
+# ifdef ROBOPTIM_PRECOMPILED_DENSE_SPARSE
 extern template struct ROBOPTIM_CORE_MANIFOLD_DLLAPI BoundsAndScalingSetter<EigenMatrixDense>;
 extern template struct ROBOPTIM_CORE_MANIFOLD_DLLAPI BoundsAndScalingSetter<EigenMatrixSparse>;
 
 extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ManifoldProblemFactory<EigenMatrixDense>;
 extern template class ROBOPTIM_CORE_MANIFOLD_DLLAPI ManifoldProblemFactory<EigenMatrixSparse>;
+# endif
 
 }
 

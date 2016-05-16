@@ -1,3 +1,4 @@
+# ifdef ROBOPTIM_PRECOMPILED_DENSE_SPARSE
 # include <roboptim/core/manifold-map/decorator/function-on-manifold.hh>
 # include <roboptim/core/manifold-map/decorator/manifold-problem-factory.hh>
 # include <roboptim/core/manifold-map/decorator/problem-on-manifold.hh>
@@ -28,3 +29,4 @@ namespace roboptim
   template class WrapperOnManifold<EigenMatrixDense>;
   template class WrapperOnManifold<EigenMatrixSparse>;
 }
+# endif // ROBOPTIM_PRECOMPILE_DENSE_SPARSE
