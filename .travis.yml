@@ -34,6 +34,18 @@ matrix:
   allow_failures:
     - compiler: clang
     - os: osx
+    - env: ENABLE_CXX11=1
+  include:
+    - os: linux
+      dist: trusty
+      compiler: gcc
+      env: CMAKE_ADDITIONAL_OPTIONS="-DUSE_CXX11:BOOL=ON -DROBOPTIM_PRECOMPILE_DENSE_SPARSE:BOOL=ON"
+      env: ENABLE_CXX11=1
+    - os: linux
+      dist: trusty
+      compiler: clang
+      env: CMAKE_ADDITIONAL_OPTIONS="-DUSE_CXX11:BOOL=ON -DROBOPTIM_PRECOMPILE_DENSE_SPARSE:BOOL=ON"
+      env: ENABLE_CXX11=1
 os:
   - linux
   - osx
