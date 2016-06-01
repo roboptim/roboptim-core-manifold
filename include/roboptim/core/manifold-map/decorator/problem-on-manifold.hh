@@ -47,8 +47,8 @@ namespace roboptim
 
     /// \brief Deprecated unsafe constructor of a problem on manifold.
     template<typename ... Types>
-    ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args)
-    ROBOPTIM_CORE_MANIFOLD_DEPRECATED;
+    ROBOPTIM_CORE_MANIFOLD_DEPRECATED
+    ProblemOnManifold(const mnf::Manifold& manifold, Types&& ... args);
 
     virtual ~ProblemOnManifold();
 

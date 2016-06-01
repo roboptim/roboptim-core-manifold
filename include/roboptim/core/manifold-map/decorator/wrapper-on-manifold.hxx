@@ -382,7 +382,7 @@ namespace roboptim
 	  {
 	    if (manifold.isElementary())
 	      {
-		return startIndex + (onTangentSpace?manifold.tangentDim():manifold.representationDim());
+		return startIndex + static_cast<long>(onTangentSpace?manifold.tangentDim():manifold.representationDim());
 	      }
 	    else
 	      {
