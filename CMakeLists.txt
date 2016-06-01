@@ -75,7 +75,7 @@ SET(BOOST_COMPONENTS
 SEARCH_FOR_BOOST()
 
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.2.0")
-ADD_REQUIRED_DEPENDENCY("roboptim-core >= 3.2")
+ADD_REQUIRED_DEPENDENCY("roboptim-core >= 3.2" "roboptim-core_d >= 3.2")
 ADD_REQUIRED_DEPENDENCY("manifolds" "manifolds_d")
 
 HEADER_INSTALL("${HEADERS}")
