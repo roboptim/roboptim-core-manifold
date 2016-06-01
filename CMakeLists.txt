@@ -21,6 +21,7 @@ INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/lapack.cmake)
 INCLUDE(cmake/cpack.cmake)
 INCLUDE(cmake/eigen.cmake)
+INCLUDE(cmake/msvc-specific.cmake)
 
 SET(PROJECT_NAME roboptim-core-manifold)
 SET(PROJECT_DESCRIPTION "RobOptim Core - manifold support")
@@ -65,7 +66,9 @@ ELSE()
   ENDIF()
 ENDIF()
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+IF(NOT WIN32)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+ENDIF(NOT WIN32)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O1 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 
 
@@ -74,13 +77,19 @@ SET(BOOST_COMPONENTS
   date_time filesystem system thread program_options unit_test_framework)
 SEARCH_FOR_BOOST()
 
-ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.2.0")
+SEARCH_FOR_EIGEN("eigen3 >= 3.2.0")
 ADD_REQUIRED_DEPENDENCY("roboptim-core >= 3.2" "roboptim-core_d >= 3.2")
 ADD_REQUIRED_DEPENDENCY("manifolds" "manifolds_d")
 
 HEADER_INSTALL("${HEADERS}")
 
 OPTION(DISABLE_TESTS "Disable test programs" OFF)
+
+# For MSVC, set local environment variable to enable finding the built dlls
+# of roboptim-core and the plugins when launching ctest with RUN_TESTS
+IF(MSVC)
+  SET(CMAKE_MSVCIDE_RUN_PATH "\$(SolutionDir)/src/\$(Configuration)")
+ENDIF(MSVC)
 
 ADD_SUBDIRECTORY(src)
 
