@@ -21,6 +21,8 @@ build_script:
 - ps: >-
     Set-PSDebug -Trace 2
 
+    git submodule update --init
+    
     . ./.travis/functions.ps1
 
     setup_build
@@ -34,4 +36,4 @@ test_script:
 - cmd: >-
     cd %PROJECT_SOURCE_DIR%/build
 
-    #ctest
+    ctest
