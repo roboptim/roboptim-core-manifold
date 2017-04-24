@@ -203,7 +203,7 @@ namespace roboptim
 	ans.first = std::max(0l, ans.first);
 	if (ans.second < 0)
 	  {
-	    ans.second = (onTangentSpace?manifold.tangentDim():manifold.representationDim());
+	    ans.second = static_cast<long>((onTangentSpace?manifold.tangentDim():manifold.representationDim()));
 	  }
 
 	return ans;
@@ -268,7 +268,7 @@ namespace roboptim
 	    bool sameType = myManifold->getTypeId() == manifold.getTypeId();
 	    bool isNotRealSpace = myManifold->getTypeId() != mnf::RealSpace(1).getTypeId();
 	    long size1 = getRestriction(*myManifold, getCurrentOccurenceCount(*myManifold), 0).second;
-	    long size2 = manifold.representationDim();
+	    long size2 = static_cast<long>(manifold.representationDim());
 	    bool sameSize = size1 == size2;
 	    incrementOccurenceCount(*myManifold);
 
