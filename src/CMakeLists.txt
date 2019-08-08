@@ -27,4 +27,8 @@ PKG_CONFIG_APPEND_LIBS(roboptim-core-manifold)
 PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold roboptim-core)
 PKG_CONFIG_USE_DEPENDENCY(roboptim-core-manifold manifolds)
 
-INSTALL(TARGETS roboptim-core-manifold DESTINATION ${CMAKE_INSTALL_LIBDIR})
+INSTALL(TARGETS roboptim-core-manifold
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        )

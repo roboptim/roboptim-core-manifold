@@ -24,9 +24,16 @@ INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/tests)
 
 # Add Boost path to include directories.
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 # Make Boost.Test generates the main function in test cases.
+IF(WIN32)
+  ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
+ENDIF(WIN32)
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
+
+# Allow big obj file in MSVC (needed for problem factory)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 
 # To locate built plug-in.
 ADD_DEFINITIONS(-DPLUGIN_PATH="${CMAKE_BINARY_DIR}/src")
@@ -49,16 +56,21 @@ MACRO(ROBOPTIM_CORE_MANIFOLD_TEST NAME)
   PKG_CONFIG_USE_DEPENDENCY(${NAME} manifolds)
   TARGET_LINK_LIBRARIES(${NAME} roboptim-core-manifold)
 
-  # Link against Boost.
+  # Link against Boost if auto-link not available
   TARGET_LINK_LIBRARIES(${NAME} ${Boost_LIBRARIES})
-
+  
+  # Adding a project configuration file (for MSVC only)
+  GENERATE_MSVC_DOT_USER_FILE(${NAME})
+    
   # Make sure the plugins will be found.
-  SET_PROPERTY(
-    TEST ${NAME} PROPERTY ENVIRONMENT
-    "LTDL_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src:$ENV{LTDL_LIBRARY_PATH}")
-  SET_PROPERTY(
-    TEST ${NAME} PROPERTY ENVIRONMENT
-    "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src:$ENV{LD_LIBRARY_PATH}")
+  IF(NOT WIN32)
+    SET_PROPERTY(
+      TEST ${NAME} PROPERTY ENVIRONMENT
+      "LTDL_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src:$ENV{LTDL_LIBRARY_PATH}")
+    SET_PROPERTY(
+      TEST ${NAME} PROPERTY ENVIRONMENT
+      "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src:$ENV{LD_LIBRARY_PATH}")
+  ENDIF(NOT WIN32)
 ENDMACRO(ROBOPTIM_CORE_MANIFOLD_TEST)
 
 # TODO: add tests.

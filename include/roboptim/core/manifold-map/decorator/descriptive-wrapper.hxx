@@ -86,7 +86,7 @@ namespace roboptim
   template <typename U, typename V>
   void DescriptiveWrapper<U, V>::checkDimension()
   {
-    long size = manifold_->representationDim();
+    long size = static_cast<long>(manifold_->representationDim());
     if (fct_->inputSize() != size)
       {
 	std::stringstream error;
